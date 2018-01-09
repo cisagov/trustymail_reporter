@@ -48,7 +48,8 @@ RUN apt-get update -qq \
     fonts-lmodern \
     lmodern \
     texlive-math-extra \
-    fontconfig
+    fontconfig \
+    redis-tools
 
 # Setup texlive latex stuff.
 # This command returns a bogus non-zero return value:
