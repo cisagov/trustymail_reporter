@@ -44,5 +44,7 @@ tar -czf $SHARED_DIR/archive/artifacts_$TODAY.tar.gz artifacts_$TODAY/
 echo 'Cleaning up'
 rm -rf artifacts_$TODAY
 
+# Let redis know we're done
+# redis-cli -h orchestrator_redis_1 set trustymail_reporting_complete true
 # This is the end of the line, so tell redis to shutdown
 redis-cli -h orchestrator_redis_1 shutdown
