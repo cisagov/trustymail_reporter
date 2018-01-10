@@ -115,7 +115,7 @@ class ReportGenerator(object):
             self.__base_domain_count += 1
 
     def __score_domain(self, domain):
-        score = {'subdomain_scores':list(), 'live':domain['live']}
+        score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}
         if domain['live']:
             # Check if the current domain is the base domian.
             if domain['domain'] == domain['base_domain']:
