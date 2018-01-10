@@ -30,7 +30,7 @@ mkdir -p $SHARED_DIR/artifacts/reporting/trustymail_reports
 # Generate agency reports
 # TODO? Separate cyhy reports from non-cyhy reports
 cd $SHARED_DIR/artifacts/reporting/trustymail_reports
-$HOME/report/create_all_reports.py
+$HOME_DIR/report/create_all_reports.py
 
 # Archive artifacts folder
 echo 'Archiving Results...'
