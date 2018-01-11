@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOME_DIR='/home/reporter'
-SHARED_DIR=$HOME'/shared'
+SHARED_DIR=$HOME_DIR'/shared'
 
 # Prepare fonts
 echo "Preparing fonts..."
