@@ -23,7 +23,7 @@ mkdir -p $SHARED_DIR/artifacts/reporting
 
 # Create the Scorecard
 cd $SHARED_DIR/artifacts/reporting/
-$HOME_DIR/scorecard/generate_trustymail_scorecard.py $SHARED_DIR/include/agencies.csv -f
+$HOME_DIR/scorecard/generate_trustymail_scorecard.py $HOME_DIR/include/agencies.csv -f
 
 mkdir -p $SHARED_DIR/artifacts/reporting/trustymail_reports
 
