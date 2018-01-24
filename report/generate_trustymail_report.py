@@ -34,7 +34,7 @@ import yaml
 import graphs
 
 # constants
-DB_CONFIG_FILE = '/run/secrets/trustymail_read_creds.yml'
+DB_CONFIG_FILE = '/run/secrets/scan_read_creds.yml'
 TRUSTYMAIL_RESULTS_CSV_FILE = 'trustymail_results.csv'
 MUSTACHE_FILE = 'trustymail_report.mustache'
 REPORT_JSON = 'trustymail_report.json'
