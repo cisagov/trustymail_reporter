@@ -356,7 +356,46 @@ class ReportGenerator(object):
             header_writer = csv.DictWriter(out_file, header_fields, extrasaction='ignore')
             header_writer.writeheader()
             data_writer = csv.DictWriter(out_file, data_fields, extrasaction='ignore')
+
+            def rehydrate_rua_or_ruf(d):
+                """Reconstitute the rua or ruf string from the
+                dictionary that was retrieved from the database
+
+                Parameters
+                ----------
+                d : dict
+                    The rua or ruf dictionary to be reconstituted.
+
+                Returns
+                -------
+                str: The reconstituted rua or ruf string.
+                """
+                uri = d['uri']
+                modifier = d['modifier']
+                if not modifier:
+                    result = uri
+                else:
+                    result = '{0}!{1}'.format(uri, modifier)
+
+                return result
+
+            def format_list(record_list):
+                """Format a list into a string to increase readability
+                in CSV"""
+                # record_list should only be a list, not an integer, None, or
+                # anything else.  Thus this if clause handles only empty lists.
+                # This makes a "null" appear in the JSON output for empty
+                # lists, as expected.
+                if not record_list:
+                    return None
+
+                return ', '.join(record_list)
+
             for domain in self.__all_domains:
+                ruas = [rehydrate_rua_or_ruf(d) for d in domain['aggregate_report_uris']]
+                rufs = [rehydrate_rua_or_ruf(d) for d in domain['forensic_report_uris']]
+                domain['aggregate_report_uris'] = format_list(ruas)
+                domain['forensic_report_uris'] = format_list(rufs)
                 data_writer.writerow(domain)
 
     ###############################################################################
