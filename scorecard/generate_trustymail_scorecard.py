@@ -45,7 +45,7 @@ from pymongo import MongoClient
 import graphs
 
 # constants
-DB_CONFIG_FILE = '/run/secrets/trustymail_read_creds.yml'
+DB_CONFIG_FILE = '/run/secrets/scan_read_creds.yml'
 # SCORING_ENGINE_VERSION = '1.0'    # Not implemented
 # TODO Pull CFO_ACT_ORGS from CyHy (db.RequestDoc.find_one({'_id':'FED_CFO_ACT'})['children'])
 CFO_ACT_ORGS = ['DHS','DOC','DOD','DOE','DOI','DOJ','DOL','DOS','DOT','ED','EPA','GSA','HHS','HUD','NASA','NRC','NSF','OPM','SBA','SSA','Treasury','USAID','USDA','VA']
