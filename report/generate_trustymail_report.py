@@ -103,22 +103,20 @@ class ReportGenerator(object):
 
         for domain_doc in all_domains_cursor:
             self.__all_domains.append(domain_doc)
-            if domain_doc['base_domain'] == domain_doc['domain']:
-                domain_doc['subdomains'] = list(self.__db.trustymail.find({'latest':True, 'base_domain': domain_doc['base_domain'], 'domain': {'$ne': domain_doc['domain']}}).sort([('domain', 1)]))
+            if domain_doc['is_base_domain']:
+                domain_doc['subdomains'] = list(self.__db.trustymail.find({'latest':True, 'base_domain':domain_doc['base_domain'], 'is_base_domain':False}).sort([('domain', 1)]))
                 self.__subdomain_count += len(domain_doc['subdomains'])
                 self.__base_domains.append(domain_doc)
             self.__agency_id = domain_doc['agency']['id']
 
-        # Get list of all second-level domains an agency owns
-        second_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency}).distinct('base_domain')
-        for document in second_cursor:
-            self.__base_domain_count += 1
+        # Get count of second-level domains an agency owns
+        self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
 
     def __score_domain(self, domain):
         score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}
         if domain['live']:
             # Check if the current domain is the base domian.
-            if domain['domain'] == domain['base_domain']:
+            if domain['is_base_domain']:
                 self.__eligible_domains_count += 1
                 self.__all_eligible_domains_count += 1
 
@@ -197,7 +195,7 @@ class ReportGenerator(object):
 
             score['bod_1801_compliant'] = False
             # For SPF, STARTTLS and BOD 18-01 Compliance, we only count base domains and subdomains that support SMTP
-            if domain['domain'] == domain['base_domain'] or (domain['domain'] != domain['base_domain'] and domain['domain_supports_smtp']):
+            if domain['is_base_domain'] or (not domain['is_base_domain'] and domain['domain_supports_smtp']):
                 self.__base_domain_plus_smtp_subdomain_count += 1
                 if domain['valid_spf']:
                     self.__valid_spf_count += 1
@@ -235,7 +233,7 @@ class ReportGenerator(object):
                 return score
             else:
                 # only include base domains in the ineligible count; otherwise lots of non-existent subs will show in the report
-                if domain['domain'] == domain['base_domain']:
+                if domain['is_base_domain']:
                     self.__ineligible_domains.append({'domain' : domain['domain']})     # NOT CURRENTLY USED?
                 return None
 
