@@ -413,6 +413,7 @@ We measure the presence of SPF and DMARC records in the DNS for your agency's pu
 \end{itemize}
 <<&agency_id>> has \textbf{\numprint{<<base_domain_plus_smtp_subdomain_count>>}} hostnames that are either second-level .gov domains, or are subdomains that respond to SMTP requests.  This set of hostnames is used below to report on STARTTLS, SPF and BOD 18-01 metrics.
 
+\vspace*{-8mm}
 \begin{minipage}{\linewidth}
   \begin{minipage}{0.50\linewidth}
     Of \textit{\numprint{<<all_eligible_domains_count>>} hostnames that we know of and that respond to our scans}:
@@ -433,24 +434,22 @@ We measure the presence of SPF and DMARC records in the DNS for your agency's pu
 Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (second-level domains, plus subdomains that respond to SMTP)}:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
   % Note that these counts can be higher than what is displayed in the Results table because that table excludes subdomains that are covered by a parent domain's DMARC record
-  \item \textbf{\numprint{<<supports_starttls_count>>}} hostnames (<<supports_starttls_percentage>>\%) support STARTTLS
+  \item \textbf{\numprint{<<supports_starttls_count>>}} hostnames (<<supports_starttls_percentage>>\%) support STARTTLS (or have no mail-sending hosts)
   \item \textbf{\numprint{<<valid_spf_count>>}} hostnames (<<valid_spf_percentage>>\%) have a valid SPF record
+  \item \textbf{\numprint{<<has_no_weak_crypto_count>>}} hostnames (<<has_no_weak_crypto_percentage>>\%) do not support SSLv2, SSLv3, 3DES, or RC4
   \item \textbf{\numprint{<<bod_1801_compliant_count>>}} hostnames (<<bod_1801_compliant_percentage>>\%) are compliant with \href{https://cyber.dhs.gov}{BOD 18-01}
 \end{itemize}
 
+\vspace*{-5mm}
 \begin{minipage}{\linewidth}
   \centering
-  \begin{minipage}{0.30\linewidth}
+  \begin{minipage}{0.60\linewidth}
     \begin{figure}[H]
-    \centering \includegraphics[scale=0.35]{supports-starttls.pdf} % donut chart created in python
-    \end{figure}
-  \end{minipage}
-  \begin{minipage}{0.30\linewidth}
-    \begin{figure}[H]
-    \centering \includegraphics[scale=0.35]{valid-spf.pdf} % donut chart created in python
+    \centering \includegraphics[scale=0.45]{bod-1801-email-components.pdf} % bar chart created in python
     \end{figure}
   \end{minipage}
 	\begin{minipage}{0.35\linewidth}
+    \vspace*{2mm}
     \begin{figure}[H]
     \centering \includegraphics[scale=0.45]{bod-18-01-compliance.pdf} % donut chart created in python
     \end{figure}
@@ -472,22 +471,22 @@ Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{b
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setlength{\tabcolsep}{1.2pt}
 \rowcolors{4}{white}{row-gray}
-\begin{longtable}{>{\raggedright}p{2.6in}p{2.2in}p{0.7in}p{1.2in}p{0.7in}}
+\begin{longtable}{>{\raggedright}p{2.6in}p{2.2in}p{0.7in}p{1.2in}p{2.2in}p{0.7in}}
 	\toprule
-			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{blue}{\textbf{Has SPF\newline Record}}} & \hyperlink{Has DMARC p=reject}{\color{blue}{\textbf{Has DMARC\newline p=reject}}} & \hyperlink{BOD 18-01 Compliant}{\color{blue}{\textbf{BOD 18-01\newline Compliant}}}\\
-	\hhline{=====}
+			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{blue}{\textbf{Has SPF\newline Record}}} & \hyperlink{Has DMARC p=reject}{\color{blue}{\textbf{Has DMARC\newline p=reject}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{blue}{\textbf{Free of SSLv2,\newline SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Compliant}{\color{blue}{\textbf{BOD 18-01\newline Compliant}}}\\
+	\hhline{======}
 	\endhead
 	<<#report_doc.scores>>
-<<#live>>\color{blue}\textbf{{<<&domain>>}} & <<#domain_supports_smtp>><<#domain_supports_starttls>> \checkmark <</domain_supports_starttls>><<^domain_supports_starttls>> \xmark \textit{\ \ SMTP servers without STARTTLS: <<#smtp_servers_without_starttls>>\newline <<.>><</smtp_servers_without_starttls>>} <</domain_supports_starttls>><</domain_supports_smtp>><<^domain_supports_smtp>> \textit{No SMTP servers} <</domain_supports_smtp>> & <<#spf_record>><<#valid_spf>> \checkmark <</valid_spf>><<^valid_spf>> \textit{Syntax Error} <</valid_spf>><</spf_record>><<^spf_record>> \xmark <</spf_record>> & <<#dmarc_policy_reject>> \checkmark <</dmarc_policy_reject>><<^dmarc_policy_reject>> \xmark <<#dmarc_record>><<#valid_dmarc>>\textit{\ \ p=<<&dmarc_policy>>}<</valid_dmarc>><<^valid_dmarc>>\textit{\ \ Syntax Error}<</valid_dmarc>><</dmarc_record>><<^dmarc_record>>\textit{\ \ No DMARC record}<</dmarc_record>><</dmarc_policy_reject>> & <<#bod_1801_compliant>> \checkmark <</bod_1801_compliant>><<^bod_1801_compliant>> \xmark <</bod_1801_compliant>>\\
+<<#live>>\color{blue}\textbf{{<<&domain>>}} & <<#domain_supports_smtp>><<#domain_supports_starttls>> \checkmark <</domain_supports_starttls>><<^domain_supports_starttls>> \xmark \textit{\ \ SMTP servers without STARTTLS: <<#smtp_servers_without_starttls>>\newline <<.>><</smtp_servers_without_starttls>>} <</domain_supports_starttls>><</domain_supports_smtp>><<^domain_supports_smtp>> \textit{No SMTP servers} <</domain_supports_smtp>> & <<#spf_record>><<#valid_spf>> \checkmark <</valid_spf>><<^valid_spf>> \textit{Syntax Error} <</valid_spf>><</spf_record>><<^spf_record>> \xmark <</spf_record>> & <<#dmarc_policy_reject>> \checkmark <</dmarc_policy_reject>><<^dmarc_policy_reject>> \xmark <<#dmarc_record>><<#valid_dmarc>>\textit{\ \ p=<<&dmarc_policy>>}<</valid_dmarc>><<^valid_dmarc>>\textit{\ \ Syntax Error}<</valid_dmarc>><</dmarc_record>><<^dmarc_record>>\textit{\ \ No DMARC record}<</dmarc_record>><</dmarc_policy_reject>> & <<^domain_has_weak_crypto>> \checkmark <</domain_has_weak_crypto>><<#domain_has_weak_crypto>> \xmark \textit{\ \ SMTP servers with weak crypto: <<#hosts_with_weak_crypto>>\newline <<&hostname>>:<<&port>> [<<&weak_crypto_list_str>>]<</hosts_with_weak_crypto>>} <</domain_has_weak_crypto>> & <<#bod_1801_compliant>> \checkmark <</bod_1801_compliant>><<^bod_1801_compliant>> \xmark <</bod_1801_compliant>>\\
 % Show subdomains if any subdomain_scores exist AND they support SMTP
-<<#subdomain_scores>><<#domain_supports_smtp>>\color{blue}{\ \ \ <<&domain>>} & <<#domain_supports_starttls>> \checkmark <</domain_supports_starttls>><<^domain_supports_starttls>> \xmark \textit{\ \ SMTP servers without STARTTLS: <<#smtp_servers_without_starttls>>\newline <<.>><</smtp_servers_without_starttls>>} <</domain_supports_starttls>> & <<#spf_record>><<#valid_spf>> \checkmark <</valid_spf>><<^valid_spf>> \textit{Syntax Error} <</valid_spf>><</spf_record>><<^spf_record>> \xmark <</spf_record>> & <<#dmarc_policy_reject>> \checkmark <</dmarc_policy_reject>><<^dmarc_policy_reject>> \xmark <<#dmarc_record>><<#valid_dmarc>>\textit{\ \ p=<<&dmarc_policy>>}<</valid_dmarc>><<^valid_dmarc>>\textit{\ \ Syntax Error}<</valid_dmarc>><</dmarc_record>><<^dmarc_record>>\textit{\ \ No DMARC record}<</dmarc_record>><</dmarc_policy_reject>> & <<#bod_1801_compliant>> \checkmark <</bod_1801_compliant>><<^bod_1801_compliant>> \xmark <</bod_1801_compliant>>\\
+<<#subdomain_scores>><<#domain_supports_smtp>>\color{blue}{\ \ \ <<&domain>>} & <<#domain_supports_starttls>> \checkmark <</domain_supports_starttls>><<^domain_supports_starttls>> \xmark \textit{\ \ SMTP servers without STARTTLS: <<#smtp_servers_without_starttls>>\newline <<.>><</smtp_servers_without_starttls>>} <</domain_supports_starttls>> & <<#spf_record>><<#valid_spf>> \checkmark <</valid_spf>><<^valid_spf>> \textit{Syntax Error} <</valid_spf>><</spf_record>><<^spf_record>> \xmark <</spf_record>> & <<#dmarc_policy_reject>> \checkmark <</dmarc_policy_reject>><<^dmarc_policy_reject>> \xmark <<#dmarc_record>><<#valid_dmarc>>\textit{\ \ p=<<&dmarc_policy>>}<</valid_dmarc>><<^valid_dmarc>>\textit{\ \ Syntax Error}<</valid_dmarc>><</dmarc_record>><<^dmarc_record>>\textit{\ \ No DMARC record}<</dmarc_record>><</dmarc_policy_reject>> & <<^domain_has_weak_crypto>> \checkmark <</domain_has_weak_crypto>><<#domain_has_weak_crypto>> \xmark \textit{\ \ SMTP servers with weak crypto: <<#hosts_with_weak_crypto>>\newline <<&hostname>>:<<&port>> [<<&weak_crypto_list_str>>]<</hosts_with_weak_crypto>>} <</domain_has_weak_crypto>> & <<#bod_1801_compliant>> \checkmark <</bod_1801_compliant>><<^bod_1801_compliant>> \xmark <</bod_1801_compliant>>\\
 <</domain_supports_smtp>>
 <</subdomain_scores>>
 <</live>>
 % Rare case: show live subdomains of non-live domains if the subdomains support SMTP (score base domain with 'N/A') - see CYHY-554
-<<^live>><<#has_live_smtp_subdomains>>\color{blue}\textbf{{<<&domain>>}} & \textit{N/A} & \textit{N/A} & \textit{N/A} & \textit{N/A}\\
+<<^live>><<#has_live_smtp_subdomains>>\color{blue}\textbf{{<<&domain>>}} & \textit{N/A} & \textit{N/A} & \textit{N/A} & \textit{N/A} & \textit{N/A}\\
 % Show subdomains if any subdomain_scores exist AND they support SMTP
-<<#subdomain_scores>><<#domain_supports_smtp>>\color{blue}{\ \ \ <<&domain>>} & <<#domain_supports_starttls>> \checkmark <</domain_supports_starttls>><<^domain_supports_starttls>> \xmark \textit{\ \ SMTP servers without STARTTLS: <<#smtp_servers_without_starttls>>\newline <<.>><</smtp_servers_without_starttls>>} <</domain_supports_starttls>> & <<#spf_record>><<#valid_spf>> \checkmark <</valid_spf>><<^valid_spf>> \textit{Syntax Error} <</valid_spf>><</spf_record>><<^spf_record>> \xmark <</spf_record>> & <<#dmarc_policy_reject>> \checkmark <</dmarc_policy_reject>><<^dmarc_policy_reject>> \xmark <<#dmarc_record>><<#valid_dmarc>>\textit{\ \ p=<<&dmarc_policy>>}<</valid_dmarc>><<^valid_dmarc>>\textit{\ \ Syntax Error}<</valid_dmarc>><</dmarc_record>><<^dmarc_record>>\textit{\ \ No DMARC record}<</dmarc_record>><</dmarc_policy_reject>> & <<#bod_1801_compliant>> \checkmark <</bod_1801_compliant>><<^bod_1801_compliant>> \xmark <</bod_1801_compliant>>\\<</domain_supports_smtp>><</subdomain_scores>>
+<<#subdomain_scores>><<#domain_supports_smtp>>\color{blue}{\ \ \ <<&domain>>} & <<#domain_supports_starttls>> \checkmark <</domain_supports_starttls>><<^domain_supports_starttls>> \xmark \textit{\ \ SMTP servers without STARTTLS: <<#smtp_servers_without_starttls>>\newline <<.>><</smtp_servers_without_starttls>>} <</domain_supports_starttls>> & <<#spf_record>><<#valid_spf>> \checkmark <</valid_spf>><<^valid_spf>> \textit{Syntax Error} <</valid_spf>><</spf_record>><<^spf_record>> \xmark <</spf_record>> & <<#dmarc_policy_reject>> \checkmark <</dmarc_policy_reject>><<^dmarc_policy_reject>> \xmark <<#dmarc_record>><<#valid_dmarc>>\textit{\ \ p=<<&dmarc_policy>>}<</valid_dmarc>><<^valid_dmarc>>\textit{\ \ Syntax Error}<</valid_dmarc>><</dmarc_record>><<^dmarc_record>>\textit{\ \ No DMARC record}<</dmarc_record>><</dmarc_policy_reject>> & <<^domain_has_weak_crypto>> \checkmark <</domain_has_weak_crypto>><<#domain_has_weak_crypto>> \xmark \textit{\ \ SMTP servers with weak crypto: <<#hosts_with_weak_crypto>>\newline <<&hostname>>:<<&port>> [<<&weak_crypto_list_str>>]<</hosts_with_weak_crypto>>} <</domain_has_weak_crypto>> & <<#bod_1801_compliant>> \checkmark <</bod_1801_compliant>><<^bod_1801_compliant>> \xmark <</bod_1801_compliant>>\\<</domain_supports_smtp>><</subdomain_scores>>
 <</has_live_smtp_subdomains>><</live>>
 	<</report_doc.scores>>
 	%\bottomrule
@@ -537,6 +536,14 @@ Whether a DMARC (TXT) record with ``p=reject" is present at \_dmarc.<hostname>. 
 In \texttt{trustymail}, ``Has DMARC p=reject" is based on the value of ``DMARC Policy".\\~\\~\\
 
 \phantomsection % links this section from toc
+\addcontentsline{toc}{subsubsection}{Free of SSLv2, SSLv3, 3DES, RC4}% Adds subsection to toc
+\hypertarget{Free of SSLv2, SSLv3, 3DES, RC4}{\textbf{\color{dhs-dark-gray}{\large{Free of SSLv2, SSLv3, 3DES, RC4}}}}\\
+\textit{Values: \checkmark (no weak protocols/ciphers detected), \xmark \ (weak protocols/ciphers detected), N/A (hostname does not resolve in DNS)}\\~\\
+%\large
+
+Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) or ciphers (3DES, RC4) are supported by any SMTP servers at the hostname. See trustymail-results.csv in the Attachments section for details.\\~\\~\\
+
+\phantomsection % links this section from toc
 \addcontentsline{toc}{subsubsection}{BOD 18-01 Compliant}% Adds subsection to toc
 \hypertarget{BOD 18-01 Compliant}{\textbf{\color{dhs-dark-gray}{\large{BOD 18-01 Compliant}}}}\\
 \textit{Values: \checkmark (compliant), \xmark \ (not compliant), N/A (hostname does not resolve in DNS)}\\~\\
@@ -547,11 +554,11 @@ Whether a hostname meets the following criteria for being compliant with \href{h
     \item Uses STARTTLS on all SMTP servers (or has no SMTP servers)
     \item Has a valid SPF record
     \item Has a valid DMARC record with ``p=reject"
+    \item SSLv2, SSLv3 and 3DES, RC4 ciphers are not supported on all SMTP servers (or has no SMTP servers)
   \end{itemize}
 
-In the near future, the following additional criteria will also be factored in to BOD 18-01 compliance in this report:
+In the near future, the following additional criterion will also be factored in to BOD 18-01 compliance in this report:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
-  \item Secure Sockets Layer (SSL)v2, SSLv3 and 3DES, RC4 ciphers are disabled on all SMTP servers
   \item DMARC record includes ``rua=mailto:reports@dmarc.cyber.dhs.gov"
 \end{itemize}
 
