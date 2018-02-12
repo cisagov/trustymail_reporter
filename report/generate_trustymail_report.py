@@ -526,7 +526,7 @@ class ReportGenerator(object):
         spf_donut.plot(filename='valid-spf')
 
         bod_1801_compliance_donut = graphs.MyDonutPie(percentage_full=self.__bod_1801_compliant_percentage,
-                                                      label='BOD 18-01\nCompliant', fill_color=graphs.DARK_BLUE)
+                                                      label='BOD 18-01\nCompliant\n(Email)', fill_color=graphs.DARK_BLUE)
         bod_1801_compliance_donut.plot(filename='bod-18-01-compliance')
 
     ###############################################################################

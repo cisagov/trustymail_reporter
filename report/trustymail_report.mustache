@@ -438,7 +438,7 @@ Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (secon
   \item \textbf{\numprint{<<supports_starttls_count>>}} hostnames (<<supports_starttls_percentage>>\%) support STARTTLS (or have no mail-sending hosts)
   \item \textbf{\numprint{<<valid_spf_count>>}} hostnames (<<valid_spf_percentage>>\%) have a valid SPF record
   \item \textbf{\numprint{<<has_no_weak_crypto_count>>}} hostnames (<<has_no_weak_crypto_percentage>>\%) do not support SSLv2, SSLv3, 3DES, or RC4
-  \item \textbf{\numprint{<<bod_1801_compliant_count>>}} hostnames (<<bod_1801_compliant_percentage>>\%) are compliant with \href{https://cyber.dhs.gov}{BOD 18-01}
+  \item \textbf{\numprint{<<bod_1801_compliant_count>>}} hostnames (<<bod_1801_compliant_percentage>>\%) are \href{https://cyber.dhs.gov}{BOD 18-01} Compliant for email security
 \end{itemize}
 
 \vspace*{-5mm}
@@ -474,7 +474,7 @@ Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{b
 \rowcolors{4}{white}{row-gray}
 \begin{longtable}{>{\raggedright}p{2.4in}p{2.0in}p{0.7in}p{1.2in}p{0.6in}p{2.3in}p{0.7in}}
 	\toprule
-			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{blue}{\textbf{Has\newline  SPF\newline Record}}} & \hyperlink{Has DMARC p=reject}{\color{blue}{\textbf{Has\newline  DMARC\newline p=reject}}} & \hyperlink{Reports DMARC To DHS}{\color{blue}{\textbf{Reports\newline DMARC\newline To DHS}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Compliant}{\color{blue}{\textbf{BOD \newline 18-01\newline Compliant}}}\\
+			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{blue}{\textbf{Has\newline  SPF\newline Record}}} & \hyperlink{Has DMARC p=reject}{\color{blue}{\textbf{Has\newline  DMARC\newline p=reject}}} & \hyperlink{Reports DMARC To DHS}{\color{blue}{\textbf{Reports\newline DMARC\newline To DHS}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Email Compliant}{\color{blue}{\textbf{BOD 18-01\newline Email\newline Compliant}}}\\
 	\hhline{=======}
 	\endhead
 	<<#report_doc.scores>>
@@ -561,12 +561,12 @@ Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) o
 \vspace*{2mm}
 
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{BOD 18-01 Compliant}% Adds subsection to toc
-\hypertarget{BOD 18-01 Compliant}{\textbf{\color{dhs-dark-gray}{\large{BOD 18-01 Compliant}}}}\\
+\addcontentsline{toc}{subsubsection}{BOD 18-01 Email Compliant}% Adds subsection to toc
+\hypertarget{BOD 18-01 Email Compliant}{\textbf{\color{dhs-dark-gray}{\large{BOD 18-01 Email Compliant}}}}\\
 \textit{Values: \checkmark (compliant), \xmark \ (not compliant), N/A (hostname does not resolve in DNS)}\\~\\
 %\large
 
-Whether a hostname meets all of the following criteria for being compliant with \href{https://cyber.dhs.gov}{BOD 18-01}:
+Whether a hostname meets all of the following criteria for being compliant with \href{https://cyber.dhs.gov}{BOD 18-01} for email security:
   \begin{itemize}[topsep=-6pt, itemsep=0pt]
     \item Uses STARTTLS on all SMTP servers (or has no SMTP servers)
     \item Has a valid SPF record
