@@ -877,15 +877,12 @@ class MyDonutPie(object):
 
         plt.text(0, 0.15, str(self.percentage_full) + '%', horizontalalignment='center', verticalalignment='center', fontsize=50)
         plt.text(0, -0.3, self.label, horizontalalignment='center', verticalalignment='center', fontsize=19.5, fontweight='bold')
-        # plt.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
-        # plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
         # Set aspect ratio to be equal so that pie is drawn as a circle.
         plt.axis('equal')
         # plt.show()
         plt.tight_layout()  # trims margins down nicely
         plt.savefig(filename + '.pdf', bbox_inches=extent, pad_inches=0)
-        # plt.savefig('overall-compliance')
         plt.close()
 
 

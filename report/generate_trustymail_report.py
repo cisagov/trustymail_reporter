@@ -84,14 +84,10 @@ class ReportGenerator(object):
         self.__base_domain_count = 0
         self.__subdomain_count = 0
         self.__mx_record_count = 0
-        # self.__domain_spf_record_count = 0
         self.__valid_spf_count = 0
-        # self.__dmarc_not_covered_count = 0
-        # self.__domain_dmarc_record_count = 0
         self.__valid_dmarc_count = 0
         self.__valid_dmarc_reject_count = 0
         self.__valid_dmarc_bod1801_rua_uri_count = 0
-        # self.__base_domain_dmarc_reject_count = 0
         self.__base_domain_supports_smtp_count = 0
         self.__domain_supports_smtp_count = 0
         self.__base_domain_plus_smtp_subdomain_count = 0
@@ -154,10 +150,6 @@ class ReportGenerator(object):
                 self.__eligible_domains_count += 1
                 self.__all_eligible_domains_count += 1
 
-                # Count the base domains that are p=reject
-                # if domain['dmarc_policy'] == "reject":
-                #     self.__base_domain_dmarc_reject_count += 1
-
                 # Count the base domains that support SMTP
                 if domain['domain_supports_smtp']:
                     self.__base_domain_supports_smtp_count += 1
@@ -169,8 +161,6 @@ class ReportGenerator(object):
 
             # Does the given domain have a DMARC record
             score['dmarc_record'] = domain['dmarc_record']
-            # if domain['dmarc_record']:
-            #     self.__domain_dmarc_record_count += 1
 
             # Is the DMARC record syntactically and logically correct,
             # either at the domain or its base domain
@@ -201,9 +191,6 @@ class ReportGenerator(object):
                         self.__valid_dmarc_bod1801_rua_uri_count += 1
                         score['valid_dmarc_bod1801_rua_uri'] = True
                         break
-
-            # if domain['dmarc_policy'] == "":
-            #     self.__dmarc_not_covered_count += 1
 
             # If the server has any valid MX record it is considered as sending mail
             score['mx_record'] = domain['mx_record']
@@ -316,15 +303,11 @@ class ReportGenerator(object):
             sys.exit(-1)
 
         self.__supports_starttls_percentage = round((((self.__supports_starttls_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
-        # self.__has_spf_percentage = round((((self.__domain_spf_record_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__valid_spf_percentage = round((((self.__valid_spf_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
-        # self.__has_dmarc_percentage = round((((self.__domain_dmarc_record_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__has_no_weak_crypto_percentage = round((((self.__has_no_weak_crypto_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
         self.__valid_dmarc_percentage = round((((self.__valid_dmarc_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__valid_dmarc_reject_percentage = round((((self.__valid_dmarc_reject_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__valid_dmarc_bod1801_rua_uri_percentage = round((((self.__valid_dmarc_bod1801_rua_uri_count)/float(self.__all_eligible_domains_count)) * 100), 1)
-        # self.__base_domain_dmarc_reject_percentage = round((((self.__base_domain_dmarc_reject_count)/float(self.__eligible_domains_count)) * 100), 1)
-        # self.__dmarc_coverage_percentage = round((((self.__all_eligible_domains_count - self.__dmarc_not_covered_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__bod_1801_compliant_percentage = round((((self.__bod_1801_compliant_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
 
         # print('Agency,Base Domains,Found Subdomains,Live,Valid SPF Record,Valid DMARC Record,Base Domain DMARC Reject,All Domains DMARC Reject Count,All Domains DMARC Reject Percentage)
@@ -517,14 +500,6 @@ class ReportGenerator(object):
         bod_1801_email_bar.plot(filename='bod-1801-email-components')
 
     def __generate_donut_charts(self):
-        # starttls_donut = graphs.MyDonutPie(percentage_full=self.__supports_starttls_percentage,
-        #                                    label='Support\nSTARTTLS', fill_color=graphs.DARK_BLUE)
-        # starttls_donut.plot(filename='supports-starttls')
-        #
-        # spf_donut = graphs.MyDonutPie(percentage_full=self.__valid_spf_percentage,
-        #                               label='Valid\nSPF', fill_color=graphs.DARK_BLUE)
-        # spf_donut.plot(filename='valid-spf')
-
         bod_1801_compliance_donut = graphs.MyDonutPie(percentage_full=round(self.__bod_1801_compliant_percentage),
                                                       label='BOD 18-01\nCompliant\n(Email)', fill_color=graphs.DARK_BLUE)
         bod_1801_compliance_donut.plot(filename='bod-18-01-compliance')
@@ -544,11 +519,7 @@ class ReportGenerator(object):
         result['title_date_tex'] = self.__generated_time.strftime('{%d}{%m}{%Y}')
         result['agency'] = self.__agency
         result['agency_id'] = self.__agency_id
-        # result['domain_spf_record_count'] = self.__domain_spf_record_count
         result['valid_spf_count'] = self.__valid_spf_count
-        # result['domain_dmarc_record_count'] = self.__domain_dmarc_record_count
-        # result['has_spf_percentage'] = self.__has_spf_percentage
-        # result['has_dmarc_percentage'] = self.__has_dmarc_percentage
         result['valid_spf_percentage'] = self.__valid_spf_percentage
         result['has_no_weak_crypto_count'] = self.__has_no_weak_crypto_count
         result['has_no_weak_crypto_percentage'] = self.__has_no_weak_crypto_percentage
@@ -558,10 +529,6 @@ class ReportGenerator(object):
         result['valid_dmarc_reject_percentage'] = self.__valid_dmarc_reject_percentage
         result['valid_dmarc_bod1801_rua_uri_count'] = self.__valid_dmarc_bod1801_rua_uri_count
         result['valid_dmarc_bod1801_rua_uri_percentage'] = self.__valid_dmarc_bod1801_rua_uri_percentage
-        # result['base_domain_dmarc_reject_percentage'] = self.__base_domain_dmarc_reject_percentage
-        # result['base_domain_dmarc_reject_count'] = self.__base_domain_dmarc_reject_count
-        # result['dmarc_coverage_count'] = self.__all_eligible_domains_count - self.__dmarc_not_covered_count
-        # result['dmarc_coverage_percentage'] = self.__dmarc_coverage_percentage
         result['domain_supports_smtp_count'] = self.__domain_supports_smtp_count
         result['base_domain_supports_smtp_count'] = self.__base_domain_supports_smtp_count
         result['subdomain_supports_smtp_count'] = self.__domain_supports_smtp_count - self.__base_domain_supports_smtp_count
