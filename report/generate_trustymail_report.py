@@ -517,15 +517,15 @@ class ReportGenerator(object):
         bod_1801_email_bar.plot(filename='bod-1801-email-components')
 
     def __generate_donut_charts(self):
-        starttls_donut = graphs.MyDonutPie(percentage_full=self.__supports_starttls_percentage,
-                                           label='Support\nSTARTTLS', fill_color=graphs.DARK_BLUE)
-        starttls_donut.plot(filename='supports-starttls')
+        # starttls_donut = graphs.MyDonutPie(percentage_full=self.__supports_starttls_percentage,
+        #                                    label='Support\nSTARTTLS', fill_color=graphs.DARK_BLUE)
+        # starttls_donut.plot(filename='supports-starttls')
+        #
+        # spf_donut = graphs.MyDonutPie(percentage_full=self.__valid_spf_percentage,
+        #                               label='Valid\nSPF', fill_color=graphs.DARK_BLUE)
+        # spf_donut.plot(filename='valid-spf')
 
-        spf_donut = graphs.MyDonutPie(percentage_full=self.__valid_spf_percentage,
-                                      label='Valid\nSPF', fill_color=graphs.DARK_BLUE)
-        spf_donut.plot(filename='valid-spf')
-
-        bod_1801_compliance_donut = graphs.MyDonutPie(percentage_full=self.__bod_1801_compliant_percentage,
+        bod_1801_compliance_donut = graphs.MyDonutPie(percentage_full=round(self.__bod_1801_compliant_percentage),
                                                       label='BOD 18-01\nCompliant\n(Email)', fill_color=graphs.DARK_BLUE)
         bod_1801_compliance_donut.plot(filename='bod-18-01-compliance')
 
