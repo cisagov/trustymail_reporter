@@ -457,8 +457,10 @@ Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (secon
 \label{app:results}
 \phantomsection% links this section from toc
 \addcontentsline{toc}{subsection}{Results}% Adds subsection to toc
-The following table shows STARTTLS, SPF, and DMARC data for <<&agency>> hostnames. Hostnames which are not ``live" (i.e., requests to the DNS return an NXDOMAIN answer) are disregarded and not within scope, except in rare cases where a non-live domain has one or more live subdomains.  This table shows all second-level domains and those subdomains with a DMARC record set directly. (DMARC records set at the base domain impact subdomains in a ``wildcard-like" fashion, unless there is a DMARC record set at the subdomain directly.) Subdomains that do not support SMTP are excluded from the table below.\\~\\
-% Domains which are currently being used for email are in italics.
+The following table shows STARTTLS, SPF, DMARC, and weak cryptography data for <<&agency>> hostnames. Hostnames which are not ``live" (i.e., requests to the DNS return an NXDOMAIN answer) are disregarded and not within scope, except in rare cases where a non-live domain has one or more live subdomains.  \textbf{This table shows all second-level domains and those subdomains with a DMARC record set directly.} (DMARC records set at the base domain impact subdomains in a ``wildcard-like" fashion, unless there is a DMARC record set at the subdomain directly.) \textbf{Subdomains that do not support SMTP are excluded from the table below.}\\~\\
+
+\textbf{Note:} The results in this report differ from the results on Pulse (\href{https://pulse.cio.gov}{https://pulse.cio.gov}). This difference is due to the scope that each service covers. Pulse data focuses solely on web security, where this report focuses on email security.\\~\\
+
 Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{blue}{Field Descriptions}}", after the table below.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -495,7 +495,7 @@ class ReportGenerator(object):
                                                                  self.__has_no_weak_crypto_percentage],
                                                 label_list=['Supports\nSTARTTLS',
                                                             'Valid\nSPF',
-                                                            'No SSLv2/v3\n3DES,RC4'],
+                                                            'No SSLv2/v3,\n3DES,RC4'],
                                                 fill_color=graphs.DARK_BLUE)
         bod_1801_email_bar.plot(filename='bod-1801-email-components')
 
