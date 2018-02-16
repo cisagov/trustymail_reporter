@@ -61,6 +61,7 @@ LATEX_ESCAPE_MAP = {
     '`':'{}`',
     '\n': '\\newline{}',
 }
+BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
 
 class ReportGenerator(object):
     #initiate variables
@@ -83,17 +84,15 @@ class ReportGenerator(object):
         self.__base_domain_count = 0
         self.__subdomain_count = 0
         self.__mx_record_count = 0
-        # self.__domain_spf_record_count = 0
         self.__valid_spf_count = 0
-        self.__dmarc_not_covered_count = 0
-        # self.__domain_dmarc_record_count = 0
-        self.__domain_valid_dmarc_count = 0
-        self.__dmarc_reject_count = 0
-        # self.__base_domain_dmarc_reject_count = 0
+        self.__valid_dmarc_count = 0
+        self.__valid_dmarc_reject_count = 0
+        self.__valid_dmarc_bod1801_rua_uri_count = 0
         self.__base_domain_supports_smtp_count = 0
         self.__domain_supports_smtp_count = 0
         self.__base_domain_plus_smtp_subdomain_count = 0
         self.__supports_starttls_count = 0
+        self.__has_no_weak_crypto_count = 0
         self.__bod_1801_compliant_count = 0
         #self.__report_oid = ObjectId()     # For future use
 
@@ -101,30 +100,55 @@ class ReportGenerator(object):
         all_domains_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency})
         self.__domain_count = all_domains_cursor.count()
 
+        # Get weak crypto data for this agency's domains from the sslyze-scan collection
+        # TODO: Consider using aggregation $lookup with uncorrelated subquery to fetch
+        #       trustymail and sslyze_scan data in one query (MongoDB server 3.6 and later)
+
+        sslyze_data_all_domains = dict()
+        for host in self.__db.sslyze_scan.find({'latest':True, 'agency.name':agency, 'scanned_port': {'$in':[25, 587, 465]}}, {'_id':0, 'domain':1, 'scanned_port':1, 'scanned_hostname':1, 'sslv2':1, 'sslv3':1, 'any_3des':1, 'any_rc4':1}):
+            current_host_dict = {'scanned_hostname':host['scanned_hostname'], 'scanned_port':host['scanned_port'],
+                                 'sslv2':host['sslv2'], 'sslv3':host['sslv3'],
+                                 'any_3des':host['any_3des'], 'any_rc4':host['any_rc4']}
+
+            if not sslyze_data_all_domains.get(host['domain']):
+                sslyze_data_all_domains[host['domain']] = [current_host_dict]
+            else:
+                sslyze_data_all_domains[host['domain']].append(current_host_dict)
+
+        def add_weak_crypto_data_to_domain(domain_doc, sslyze_data_all_domains):
+            # Look for weak crypto data in sslyze_data_all_domains and add
+            # hosts with weak crypto to domain_doc['hosts_with_weak_crypto']
+            domain_doc['domain_has_weak_crypto'] = False
+            domain_doc['hosts_with_weak_crypto'] = []
+
+            if sslyze_data_all_domains.get(domain_doc['domain']):
+                for host in sslyze_data_all_domains[domain_doc['domain']]:
+                    if host['sslv2'] or host['sslv3'] or host['any_3des'] or host['any_rc4']:
+                        domain_doc['domain_has_weak_crypto'] = True
+                        domain_doc['hosts_with_weak_crypto'].append(host)
+            return domain_doc
+
         for domain_doc in all_domains_cursor:
+            domain_doc = add_weak_crypto_data_to_domain(domain_doc, sslyze_data_all_domains)
             self.__all_domains.append(domain_doc)
-            if domain_doc['base_domain'] == domain_doc['domain']:
-                domain_doc['subdomains'] = list(self.__db.trustymail.find({'latest':True, 'base_domain': domain_doc['base_domain'], 'domain': {'$ne': domain_doc['domain']}}).sort([('domain', 1)]))
+            if domain_doc['is_base_domain']:
+                domain_doc['subdomains'] = list(self.__db.trustymail.find({'latest':True, 'base_domain':domain_doc['base_domain'], 'is_base_domain':False}).sort([('domain', 1)]))
                 self.__subdomain_count += len(domain_doc['subdomains'])
+                for subdomain_doc in domain_doc['subdomains']:
+                    subdomain_doc = add_weak_crypto_data_to_domain(subdomain_doc, sslyze_data_all_domains)
                 self.__base_domains.append(domain_doc)
             self.__agency_id = domain_doc['agency']['id']
 
-        # Get list of all second-level domains an agency owns
-        second_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency}).distinct('base_domain')
-        for document in second_cursor:
-            self.__base_domain_count += 1
+        # Get count of second-level domains an agency owns
+        self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
 
     def __score_domain(self, domain):
         score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}
         if domain['live']:
             # Check if the current domain is the base domian.
-            if domain['domain'] == domain['base_domain']:
+            if domain['is_base_domain']:
                 self.__eligible_domains_count += 1
                 self.__all_eligible_domains_count += 1
-
-                # Count the base domains that are p=reject
-                # if domain['dmarc_policy'] == "reject":
-                #     self.__base_domain_dmarc_reject_count += 1
 
                 # Count the base domains that support SMTP
                 if domain['domain_supports_smtp']:
@@ -134,14 +158,39 @@ class ReportGenerator(object):
                 self.__all_eligible_domains_count += 1
 
             score['domain'] = domain['domain']
-            score['dmarc_policy'] = domain['dmarc_policy']
-            score['dmarc_policy_reject'] = False
-            if domain['dmarc_policy'] == "reject":
-                self.__dmarc_reject_count += 1
-                score['dmarc_policy_reject'] = True
 
-            if domain['dmarc_policy'] == "":
-                self.__dmarc_not_covered_count += 1
+            # Does the given domain have a DMARC record
+            score['dmarc_record'] = domain['dmarc_record']
+
+            # Is the DMARC record syntactically and logically correct,
+            # either at the domain or its base domain
+            score['valid_dmarc'] = domain['valid_dmarc'] or domain['valid_dmarc_base_domain']
+            if score['valid_dmarc']:
+                self.__valid_dmarc_count += 1
+
+            # Placeholder for future use in reports.
+            if domain['dmarc_results'] is None or len(domain['dmarc_results']) == 0:
+                score['dmarc_results'] = "None"
+            else:
+                score['dmarc_results'] = domain['dmarc_results']
+
+            # dmarc_policy is adjudicated by trustymail, but it doesn't factor
+            # in whether or not the DMARC record is valid, so we check here
+            score['dmarc_policy'] = domain['dmarc_policy']
+            score['valid_dmarc_policy_reject'] = False
+            if score['valid_dmarc'] and domain['dmarc_policy'] == "reject":
+                self.__valid_dmarc_reject_count += 1
+                score['valid_dmarc_policy_reject'] = True
+
+            # Does the domain have a valid DMARC record that includes
+            # the correct BOD 18-01 rua URI
+            score['valid_dmarc_bod1801_rua_uri'] = False
+            if score['valid_dmarc']:
+                for uri_dict in domain['aggregate_report_uris']:
+                    if uri_dict['uri'] == BOD1801_DMARC_RUA_URI:
+                        self.__valid_dmarc_bod1801_rua_uri_count += 1
+                        score['valid_dmarc_bod1801_rua_uri'] = True
+                        break
 
             # If the server has any valid MX record it is considered as sending mail
             score['mx_record'] = domain['mx_record']
@@ -166,22 +215,6 @@ class ReportGenerator(object):
             else:
                 score['spf_results'] = domain['spf_results']
 
-            # Does the given domain have a DMARC record
-            score['dmarc_record'] = domain['dmarc_record']
-            # if domain['dmarc_record']:
-            #     self.__domain_dmarc_record_count += 1
-
-            # Is the DMARC record syntactically and logically correct
-            score['valid_dmarc'] = domain['valid_dmarc']
-            if domain['valid_dmarc']:
-                self.__domain_valid_dmarc_count += 1
-
-            # Placeholder for future use in reports.
-            if domain['dmarc_results'] is None or len(domain['dmarc_results']) == 0:
-                score['dmarc_results'] = "None"
-            else:
-                score['dmarc_results'] = domain['dmarc_results']
-
             # Does the domain support SMTP?
             score['domain_supports_smtp'] = domain['domain_supports_smtp']
             score['smtp_servers'] = list()
@@ -195,28 +228,43 @@ class ReportGenerator(object):
                 starttls_servers = [s.strip() for s in domain['domain_supports_starttls_results'].split(',')]
                 score['smtp_servers_without_starttls'] = list(set(score['smtp_servers']) - set(starttls_servers))
 
+            # Does the domain have weak crypto?
+            score['domain_has_weak_crypto'] = domain['domain_has_weak_crypto']
+            score['hosts_with_weak_crypto'] = list()
+            for host in domain['hosts_with_weak_crypto']:
+                weak_crypto_list = list()
+                for (wc_key, wc_text) in [('sslv2','SSLv2'), ('sslv3','SSLv3'), ('any_3des','3DES'), ('any_rc4','RC4')]:
+                    if host[wc_key]:
+                        weak_crypto_list.append(wc_text)
+                score['hosts_with_weak_crypto'].append({'hostname':host['scanned_hostname'], 'port':host['scanned_port'],
+                                                        'weak_crypto_list_str':','.join(weak_crypto_list)})
+
             score['bod_1801_compliant'] = False
-            # For SPF, STARTTLS and BOD 18-01 Compliance, we only count base domains and subdomains that support SMTP
-            if domain['domain'] == domain['base_domain'] or (domain['domain'] != domain['base_domain'] and domain['domain_supports_smtp']):
+            # For SPF, STARTTLS, Weak Crypto and BOD 18-01 Compliance, we only count base domains and subdomains that support SMTP
+            if domain['is_base_domain'] or (not domain['is_base_domain'] and domain['domain_supports_smtp']):
                 self.__base_domain_plus_smtp_subdomain_count += 1
                 if domain['valid_spf']:
                     self.__valid_spf_count += 1
+                if not domain['domain_has_weak_crypto']:
+                    self.__has_no_weak_crypto_count += 1
                 if ((domain['domain_supports_smtp'] and domain['domain_supports_starttls']) or not domain['domain_supports_smtp']):
                     self.__supports_starttls_count += 1   # If you don't support SMTP, you still get credit here for supporting STARTTLS
                     # Is the domain compliant with BOD 18-01?
                     #  * Uses STARTTLS on all SMTP servers OR does not support SMTP
                     #  * Has valid SPF Record
-                    #  * Has valid DMARC record with p=reject (and rua=mailto:reports@dmarc.cyber.dhs.gov if available in data)
-                    #TODO add check for rua=mailto:reports@dmarc.cyber.dhs.gov when available in trustymail data
-                    if domain['valid_spf'] and domain['dmarc_policy'] == "reject":
+                    #  * Has no weak crypto (SSLv2, SSLv3, 3DES, RC4)
+                    #  * Has valid DMARC record with p=reject and rua=mailto:reports@dmarc.cyber.dhs.gov
+                    if domain['valid_spf'] and not domain['domain_has_weak_crypto'] and score['valid_dmarc_policy_reject'] and score['valid_dmarc_bod1801_rua_uri']:
                         score['bod_1801_compliant'] = True
                         self.__bod_1801_compliant_count += 1
 
             if domain.get('subdomains'):    # if this domain has any subdomains
                 for subdomain in domain['subdomains']:
                     subdomain_score = self.__score_domain(subdomain)
-                    # if the subdomain has a dmarc record or the base domain doesn't have a dmarc record, add subdomain to the subdomain_scores list
-                    if subdomain_score and (subdomain_score['dmarc_record'] or not domain['dmarc_record']):
+                    # if the subdomain has its own dmarc record or if the
+                    # base domain doesn't have a valid dmarc record,
+                    # add subdomain to the subdomain_scores list
+                    if subdomain_score and (subdomain['dmarc_record'] or not domain['valid_dmarc']):
                         score['subdomain_scores'].append(subdomain_score)   # add subdomain score to domain's list of subdomain_scores
             return score
 
@@ -227,15 +275,15 @@ class ReportGenerator(object):
                     if subdomain['domain_supports_smtp']:
                         score['has_live_smtp_subdomains'] = True
                         subdomain_score = self.__score_domain(subdomain)
-                        # if the subdomain has a dmarc record, add subdomain to the subdomain_scores list
-                        # no need to check if base domain doesn't have a dmarc_record because base domain is not live
-                        if subdomain_score and subdomain_score['dmarc_record']:
+                        # if the subdomain has it's own dmarc record, add subdomain to the subdomain_scores list
+                        # no need to check if base domain doesn't have a valid DMARC record because base domain is not live
+                        if subdomain_score and subdomain['dmarc_record']:
                             score['subdomain_scores'].append(subdomain_score)   # add subdomain score to domain's list of subdomain_scores
             if score['has_live_smtp_subdomains']:
                 return score
             else:
                 # only include base domains in the ineligible count; otherwise lots of non-existent subs will show in the report
-                if domain['domain'] == domain['base_domain']:
+                if domain['is_base_domain']:
                     self.__ineligible_domains.append({'domain' : domain['domain']})     # NOT CURRENTLY USED?
                 return None
 
@@ -255,17 +303,15 @@ class ReportGenerator(object):
             sys.exit(-1)
 
         self.__supports_starttls_percentage = round((((self.__supports_starttls_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
-        # self.__has_spf_percentage = round((((self.__domain_spf_record_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__valid_spf_percentage = round((((self.__valid_spf_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
-        # self.__has_dmarc_percentage = round((((self.__domain_dmarc_record_count)/float(self.__all_eligible_domains_count)) * 100), 1)
-        self.__valid_dmarc_percentage = round((((self.__domain_valid_dmarc_count)/float(self.__all_eligible_domains_count)) * 100), 1)
-        self.__dmarc_reject_percentage = round((((self.__dmarc_reject_count)/float(self.__all_eligible_domains_count)) * 100), 1)
-        # self.__base_domain_dmarc_reject_percentage = round((((self.__base_domain_dmarc_reject_count)/float(self.__eligible_domains_count)) * 100), 1)
-        self.__dmarc_coverage_percentage = round((((self.__all_eligible_domains_count - self.__dmarc_not_covered_count)/float(self.__all_eligible_domains_count)) * 100), 1)
+        self.__has_no_weak_crypto_percentage = round((((self.__has_no_weak_crypto_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
+        self.__valid_dmarc_percentage = round((((self.__valid_dmarc_count)/float(self.__all_eligible_domains_count)) * 100), 1)
+        self.__valid_dmarc_reject_percentage = round((((self.__valid_dmarc_reject_count)/float(self.__all_eligible_domains_count)) * 100), 1)
+        self.__valid_dmarc_bod1801_rua_uri_percentage = round((((self.__valid_dmarc_bod1801_rua_uri_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__bod_1801_compliant_percentage = round((((self.__bod_1801_compliant_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
 
         # print('Agency,Base Domains,Found Subdomains,Live,Valid SPF Record,Valid DMARC Record,Base Domain DMARC Reject,All Domains DMARC Reject Count,All Domains DMARC Reject Percentage)
-        print(self.__agency_id, self.__agency, self.__base_domain_count, self.__subdomain_count, self.__all_eligible_domains_count, self.__valid_spf_count, self.__domain_valid_dmarc_count, self.__dmarc_reject_count, self.__dmarc_reject_percentage)
+        print(self.__agency_id, self.__agency, self.__base_domain_count, self.__subdomain_count, self.__all_eligible_domains_count, self.__valid_spf_count, self.__valid_dmarc_count, self.__valid_dmarc_reject_count, self.__valid_dmarc_reject_percentage)
 
     def __latex_escape(self, to_escape):
         return ''.join([LATEX_ESCAPE_MAP.get(i,i) for i in to_escape])
@@ -350,8 +396,8 @@ class ReportGenerator(object):
         self.__generate_trustymail_attachment()
 
     def __generate_trustymail_attachment(self):
-        header_fields = ('Domain', 'Base Domain', 'Live', 'MX Record', 'Mail Servers', 'Mail Server Ports Tested', 'Domain Supports SMTP', 'Domain Supports SMTP Results', 'Domain Supports STARTTLS', 'Domain Supports STARTTLS Results', 'SPF Record', 'Valid SPF', 'SPF Results', 'DMARC Record', 'Valid DMARC', 'DMARC Results', 'DMARC Record on Base Domain', 'Valid DMARC Record on Base Domain', 'DMARC Results on Base Domain', 'DMARC Policy', 'DMARC Policy Percentage', 'DMARC Aggregate Report URIs', 'DMARC Forensic Report URIs', 'DMARC Has Aggregate Report URI', 'DMARC Has Forensic Report URI', 'Syntax Errors', 'Debug Info')
-        data_fields = ('domain', 'base_domain', 'live', 'mx_record', 'mail_servers', 'mail_server_ports_tested', 'domain_supports_smtp', 'domain_supports_smtp_results', 'domain_supports_starttls', 'domain_supports_starttls_results', 'spf_record', 'valid_spf', 'spf_results', 'dmarc_record', 'valid_dmarc', 'dmarc_results', 'dmarc_record_base_domain', 'valid_dmarc_base_domain', 'dmarc_results_base_domain', 'dmarc_policy', 'dmarc_policy_percentage', 'aggregate_report_uris', 'forensic_report_uris', 'has_aggregate_report_uri', 'has_forensic_report_uri', 'syntax_errors', 'debug_info')
+        header_fields = ('Domain', 'Base Domain', 'Domain Is Base Domain', 'Live', 'MX Record', 'Mail Servers', 'Mail Server Ports Tested', 'Domain Supports SMTP', 'Domain Supports SMTP Results', 'Domain Supports STARTTLS', 'Domain Supports STARTTLS Results', 'SPF Record', 'Valid SPF', 'SPF Results', 'DMARC Record', 'Valid DMARC', 'DMARC Results', 'DMARC Record on Base Domain', 'Valid DMARC Record on Base Domain', 'DMARC Results on Base Domain', 'DMARC Policy', 'DMARC Policy Percentage', 'DMARC Aggregate Report URIs', 'DMARC Forensic Report URIs', 'DMARC Has Aggregate Report URI', 'DMARC Has Forensic Report URI', 'Syntax Errors', 'Debug Info', 'Domain Supports Weak Crypto', 'Mail-Sending Hosts with Weak Crypto')
+        data_fields = ('domain', 'base_domain', 'is_base_domain', 'live', 'mx_record', 'mail_servers', 'mail_server_ports_tested', 'domain_supports_smtp', 'domain_supports_smtp_results', 'domain_supports_starttls', 'domain_supports_starttls_results', 'spf_record', 'valid_spf', 'spf_results', 'dmarc_record', 'valid_dmarc', 'dmarc_results', 'dmarc_record_base_domain', 'valid_dmarc_base_domain', 'dmarc_results_base_domain', 'dmarc_policy', 'dmarc_policy_percentage', 'aggregate_report_uris', 'forensic_report_uris', 'has_aggregate_report_uri', 'has_forensic_report_uri', 'syntax_errors', 'debug_info', 'domain_has_weak_crypto', 'hosts_with_weak_crypto_str')
         with open(TRUSTYMAIL_RESULTS_CSV_FILE, 'w') as out_file:
             header_writer = csv.DictWriter(out_file, header_fields, extrasaction='ignore')
             header_writer.writeheader()
@@ -379,6 +425,30 @@ class ReportGenerator(object):
 
                 return result
 
+            def rehydrate_hosts_with_weak_crypto(d):
+                """Build a string suitable for output from the
+                dictionary that was retrieved from the database
+
+                Parameters
+                ----------
+                d : dict
+                    The hosts_with_weak_crypto dictionary
+
+                Returns
+                -------
+                str: The string with weak crypto host details.
+                """
+                hostname = d['scanned_hostname']
+                port = d['scanned_port']
+
+                weak_crypto_list = list()
+                for (wc_key, wc_text) in [('sslv2','SSLv2'), ('sslv3','SSLv3'), ('any_3des','3DES'), ('any_rc4','RC4')]:
+                    if d[wc_key]:
+                        weak_crypto_list.append(wc_text)
+                result = '{0}:{1} [supports: {2}]'.format(hostname, port, ','.join(weak_crypto_list))
+
+                return result
+
             def format_list(record_list):
                 """Format a list into a string to increase readability
                 in CSV"""
@@ -396,6 +466,8 @@ class ReportGenerator(object):
                 rufs = [rehydrate_rua_or_ruf(d) for d in domain['forensic_report_uris']]
                 domain['aggregate_report_uris'] = format_list(ruas)
                 domain['forensic_report_uris'] = format_list(rufs)
+                hosts_with_weak_crypto = [rehydrate_hosts_with_weak_crypto(d) for d in domain['hosts_with_weak_crypto']]
+                domain['hosts_with_weak_crypto_str'] = format_list(hosts_with_weak_crypto)
                 data_writer.writerow(domain)
 
     ###############################################################################
@@ -404,24 +476,32 @@ class ReportGenerator(object):
     def __generate_charts(self):
         graphs.setup()
         self.__generate_dmarc_bar_chart()
+        self.__generate_bod_1801_email_components_bar_chart()
         self.__generate_donut_charts()
 
     def __generate_dmarc_bar_chart(self):
-        dmarc_bar = graphs.MyTrustyBar(percentage_list=[self.__dmarc_coverage_percentage, self.__dmarc_reject_percentage],
-                                          label_list=['Subject to DMARC', 'DMARC p=reject'], fill_color=graphs.DARK_BLUE)
+        dmarc_bar = graphs.MyTrustyBar(percentage_list=[self.__valid_dmarc_percentage,
+                                                        self.__valid_dmarc_reject_percentage,
+                                                        self.__valid_dmarc_bod1801_rua_uri_percentage],
+                                       label_list=['Valid\nDMARC',
+                                                   'DMARC\np=reject',
+                                                   'Reports DMARC\nto DHS'],
+                                       fill_color=graphs.DARK_BLUE)
         dmarc_bar.plot(filename='dmarc-compliance')
 
+    def __generate_bod_1801_email_components_bar_chart(self):
+        bod_1801_email_bar = graphs.MyTrustyBar(percentage_list=[self.__supports_starttls_percentage,
+                                                                 self.__valid_spf_percentage,
+                                                                 self.__has_no_weak_crypto_percentage],
+                                                label_list=['Supports\nSTARTTLS',
+                                                            'Valid\nSPF',
+                                                            'No SSLv2/v3,\n3DES,RC4'],
+                                                fill_color=graphs.DARK_BLUE)
+        bod_1801_email_bar.plot(filename='bod-1801-email-components')
+
     def __generate_donut_charts(self):
-        starttls_donut = graphs.MyDonutPie(percentage_full=self.__supports_starttls_percentage,
-                                           label='Support\nSTARTTLS', fill_color=graphs.DARK_BLUE)
-        starttls_donut.plot(filename='supports-starttls')
-
-        spf_donut = graphs.MyDonutPie(percentage_full=self.__valid_spf_percentage,
-                                      label='Valid\nSPF', fill_color=graphs.DARK_BLUE)
-        spf_donut.plot(filename='valid-spf')
-
-        bod_1801_compliance_donut = graphs.MyDonutPie(percentage_full=self.__bod_1801_compliant_percentage,
-                                                      label='BOD 18-01\nCompliant', fill_color=graphs.DARK_BLUE)
+        bod_1801_compliance_donut = graphs.MyDonutPie(percentage_full=round(self.__bod_1801_compliant_percentage),
+                                                      label='BOD 18-01\nCompliant\n(Email)', fill_color=graphs.DARK_BLUE)
         bod_1801_compliance_donut.plot(filename='bod-18-01-compliance')
 
     ###############################################################################
@@ -439,20 +519,16 @@ class ReportGenerator(object):
         result['title_date_tex'] = self.__generated_time.strftime('{%d}{%m}{%Y}')
         result['agency'] = self.__agency
         result['agency_id'] = self.__agency_id
-        # result['domain_spf_record_count'] = self.__domain_spf_record_count
         result['valid_spf_count'] = self.__valid_spf_count
-        # result['domain_dmarc_record_count'] = self.__domain_dmarc_record_count
-        result['domain_valid_dmarc_count'] = self.__domain_valid_dmarc_count
-        # result['has_spf_percentage'] = self.__has_spf_percentage
-        # result['has_dmarc_percentage'] = self.__has_dmarc_percentage
         result['valid_spf_percentage'] = self.__valid_spf_percentage
+        result['has_no_weak_crypto_count'] = self.__has_no_weak_crypto_count
+        result['has_no_weak_crypto_percentage'] = self.__has_no_weak_crypto_percentage
+        result['valid_dmarc_count'] = self.__valid_dmarc_count
         result['valid_dmarc_percentage'] = self.__valid_dmarc_percentage
-        result['dmarc_reject_percentage'] = self.__dmarc_reject_percentage
-        result['dmarc_reject_count'] = self.__dmarc_reject_count
-        # result['base_domain_dmarc_reject_percentage'] = self.__base_domain_dmarc_reject_percentage
-        # result['base_domain_dmarc_reject_count'] = self.__base_domain_dmarc_reject_count
-        result['dmarc_coverage_count'] = self.__all_eligible_domains_count - self.__dmarc_not_covered_count
-        result['dmarc_coverage_percentage'] = self.__dmarc_coverage_percentage
+        result['valid_dmarc_reject_count'] = self.__valid_dmarc_reject_count
+        result['valid_dmarc_reject_percentage'] = self.__valid_dmarc_reject_percentage
+        result['valid_dmarc_bod1801_rua_uri_count'] = self.__valid_dmarc_bod1801_rua_uri_count
+        result['valid_dmarc_bod1801_rua_uri_percentage'] = self.__valid_dmarc_bod1801_rua_uri_percentage
         result['domain_supports_smtp_count'] = self.__domain_supports_smtp_count
         result['base_domain_supports_smtp_count'] = self.__base_domain_supports_smtp_count
         result['subdomain_supports_smtp_count'] = self.__domain_supports_smtp_count - self.__base_domain_supports_smtp_count
