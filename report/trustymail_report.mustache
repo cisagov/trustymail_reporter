@@ -147,12 +147,13 @@ opacity=0.04
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Primary Palette
 \definecolor{dhs-blue}{cmyk}{1.0,0.45,0.0,0.37}
+\definecolor{dhs-light-blue}{cmyk}{1.0,0.16,0.0,0.27}
 \definecolor{dhs-gray}{cmyk}{0.0,0.0,0.0,0.28}
 \definecolor{dhs-dark-gray}{cmyk}{0.0,0.0,0.0,0.79}
+\definecolor{dhs-blue-gray}{cmyk}{0.77,0.51,0.34,0.25}
 \definecolor{dhs-white}{cmyk}{0.0,0.0,0.0,0.0}
 %%% Support Palette
 \definecolor{dhs-red}{cmyk}{0.0,1.0,0.79,0.20}
-\definecolor{dhs-light-blue}{cmyk}{1.0,0.16,0.0,0.27}
 \definecolor{dhs-green}{cmyk}{0.56,0.0,1.0,0.27}
 %%% Table Colors
 \definecolor{row-gray}{cmyk}{0.0,0.0,0.0,0.15}
@@ -224,38 +225,31 @@ opacity=0.04
 %%% Font Setup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defaultfontfeatures{Scale=MatchLowercase}
-\setmainfont[Mapping=tex-text]{Joanna MT}
+\setmainfont[Mapping=tex-text]{Arial}
 %\setsansfont[Mapping=tex-text]{Franklin Gothic Book}
 \setmonofont{Source Code Pro}
 
-% Report Card Fonts and Hashes
-\newfontfamily{\RCHeadFont}{Avenir Next Condensed Demi Bold}
-\newfontfamily{\RCSubFont}{Baskerville SemiBold}
-\newfontfamily{\RCBigNumFont}{Avenir Next Demi Bold}
-\newfontfamily{\RCSmallNumFont}{Avenir Next Regular}
-\newfontfamily{\RCArrowFont}{Apple SD Gothic Neo}
-\newfontfamily{\RCFlatArrowFont}{Cambria Math}
-
-\newcommand\RCHeadA{\RCHeadFont\fontsize{28pt}{28pt}\selectfont}
-\newcommand\RCHeadB{\RCHeadFont\fontsize{14pt}{16.8pt}\selectfont}
-\newcommand\RCSub{\RCSubFont\fontsize{9pt}{10.8pt}\selectfont}
-\newcommand\RCBigNum{\RCBigNumFont\fontsize{18pt}{21.6pt}\selectfont}
-\newcommand\RCSmallNum{\RCSmallNumFont\fontsize{9pt}{10.8pt}\selectfont}
-\newcommand\RCHashDot{\hdashrule[6pt]{\linewidth}{1pt}{1pt}}
-\newcommand\RCHashThick{\hdashrule{\linewidth}{3pt}{}}
-\newcommand\RCUpArrow{\RCArrowFont\fontsize{18pt}{18pt}\selectfont⬆}
-\newcommand\RCDownArrow{\RCArrowFont\fontsize{18pt}{18pt}\selectfont⬇}
-\newcommand\RCFlatArrow{\RCFlatArrowFont\fontsize{18pt}{18pt}\selectfont⬌}
-\newcommand\RCBullet{\RCFlatArrowFont\fontsize{22pt}{22pt}\selectfont•}
-% Report Fonts
-\newcommand\SCHeadA{\RCHeadFont\fontsize{22pt}{22pt}\selectfont}
-\newcommand\SCMed{\RCSmallNumFont\fontsize{12pt}{12pt}\selectfont}
-\newcommand\SCSmall{\RCSmallNumFont\fontsize{10.4pt}{10.4pt}\selectfont}
+% DHS NCCIC Standard Fonts
+\newfontfamily{\FranklinGothicMediumFont}{Franklin Gothic Medium}
+\newcommand\NCCICCoverTitle{\FranklinGothicMediumFont\fontsize{24pt}{24pt}\selectfont}
+\newcommand\NCCICTitle{\FranklinGothicMediumFont\fontsize{16pt}{16pt}\selectfont}
+\newcommand\NCCICHeadingOne{\FranklinGothicMediumFont\fontsize{16pt}{16pt}\selectfont}
+\newcommand\NCCICHeadingTwo{\FranklinGothicMediumFont\fontsize{14pt}{14pt}\selectfont}
+\newcommand\NCCICHeadingThree{\FranklinGothicMediumFont\fontsize{13pt}{13pt}\slshape\selectfont}	% \slshape gives italics (slanted type)
+\newcommand\NCCICHeadingFour{\FranklinGothicMediumFont\fontsize{11pt}{11pt}\slshape\selectfont}
+\newcommand\NCCICCaption{\FranklinGothicMediumFont\fontsize{11pt}{11pt}\slshape\selectfont}
 
 % Set formats for each heading level
-\titleformat*{\section}{\LARGE\bfseries\normalfont\color{dhs-dark-gray}}
-\titleformat*{\subsection}{\Large\bfseries\normalfont\color{dhs-dark-gray}}
-\titleformat*{\subsubsection}{\large\itshape\normalfont\color{dhs-dark-gray}}
+% Credit: https://tex.stackexchange.com/questions/136527/section-numbering-without-numbers
+\titleformat{\section}
+  {\NCCICHeadingOne\color{dhs-blue}}   % The style of the section title
+  {}                                   % a prefix
+  {0pt}                                % How much space exists between the prefix and the title
+  {}                                   % How the section is represented
+% Use \subsection* for unnumbered subsections
+\titleformat{name=\subsection,numberless} {\NCCICHeadingTwo\color{dhs-dark-gray}} {} {0pt} {}
+% Use \subsubsection* for unnumbered subsubsections
+\titleformat{name=\subsubsection,numberless} {\NCCICHeadingThree\color{dhs-blue}} {} {0pt} {}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Graphics Setup
@@ -389,14 +383,15 @@ opacity=0.04
 \newpage
 \renewcommand{\footrulewidth}{0.4pt}
 \section{Executive Summary}
-\label{app:executive summary}
+\label{sec:executive summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
 This weekly report, created by the National Cybersecurity Assessments and Technical Services (NCATS) team inside the Department of Homeland Security's National Cybersecurity and Communications Integration Center (NCCIC), is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/guide}{https://cyber.dhs.gov/guide}.
 
-\vspace*{1mm}
+\vspace*{-3mm}
 \addcontentsline{toc}{subsection}{Overview} % Adds a subsection to toc
-\textbf{\color{dhs-dark-gray}{\Large{Overview}}}\\~\\
+\subsection*{Overview}
+\vspace*{-3mm}
 \raggedright
 We measure the presence of SPF and DMARC records in the DNS for your agency's publicly accessible .gov hostnames, as well as support for STARTTLS by your agency's SMTP servers.  This report includes all agency-registered \href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{second-level .gov domains} and known subdomains, collectively referred to as "hostnames" in this document. Any hostnames that respond with NXDOMAIN (``nonexistent") in the public DNS are removed from the compliance figures below.\\~\\
 
@@ -454,9 +449,7 @@ Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (secon
 \newpage
 \begin{landscape}
 \section{Results}
-\label{app:results}
-\phantomsection% links this section from toc
-\addcontentsline{toc}{subsection}{Results}% Adds subsection to toc
+\label{sec:results}
 The following table shows STARTTLS, SPF, DMARC, and weak cryptography data for <<&agency>> hostnames. Hostnames which are not ``live" (i.e., requests to the DNS return an NXDOMAIN answer) are disregarded and not within scope, except in rare cases where a non-live domain has one or more live subdomains.  \textbf{This table shows all second-level domains and those subdomains with a DMARC record set directly.} (DMARC records set at the base domain impact subdomains in a ``wildcard-like" fashion, unless there is a DMARC record set at the subdomain directly.) \textbf{Subdomains that do not support SMTP are excluded from the table below.}\\~\\
 
 \textbf{Note:} The results in this report differ from the results on Pulse (\href{https://pulse.cio.gov}{https://pulse.cio.gov}). This difference is due to the scope that each service covers. Pulse data focuses solely on web security, where this report focuses on email security.\\~\\
@@ -495,65 +488,72 @@ Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{b
 
 
 \newpage
-%\label{app:field-descriptions}
+\vspace*{-3mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsection}{Field Descriptions}% Adds subsection to toc
-\hypertarget{Field Descriptions}{\textbf{\color{dhs-dark-gray}{\Large{Field Descriptions}}}}\\~\\
+\addcontentsline{toc}{subsection}{Field Descriptions} % Adds a subsection to toc
+\hypertarget{Field Descriptions}{\subsection*{Field Descriptions}}
+\vspace*{-3mm}
 These measurements are performed using \texttt{trustymail}, our \href{https://github.com/dhs-ncats/trustymail}{open source STARTTLS/SPF/DMARC scanner}. Each hostname's score is based on results from a recent \texttt{trustymail} scan; see the \href{https://github.com/dhs-ncats/trustymail/blob/master/README.md#whats-checked}{README} for a description of the tool's output.
-\vspace*{2mm}
 
+\vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Uses STARTTLS}% Adds subsection to toc
-\hypertarget{Uses STARTTLS}{\textbf{\color{dhs-dark-gray}{\large{Uses STARTTLS}}}}\\
+\addcontentsline{toc}{subsubsection}{Uses STARTTLS} % Adds a subsection to toc
+\hypertarget{Uses STARTTLS}{\subsubsection*{Uses STARTTLS}}
+\vspace*{-6mm}
 \textit{Values: \checkmark (supported), \xmark \ (not supported), No SMTP servers (no action required), N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether \textbf{all} SMTP servers at the hostname support STARTTLS (per \href{https://tools.ietf.org/html/rfc3207#section-2}{RFC 3207}). Any SMTP servers/ports that do not support STARTTLS are listed. \texttt{trustymail} checks for the presence of SMTP on TCP ports 25, 465, and 587.
 
 
 In \texttt{trustymail}, ``Uses STARTTLS" is mapped to the value for ``Domain Supports STARTTLS".
-\vspace*{2mm}
 
+\vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Has SPF Record}% Adds subsection to toc
-\hypertarget{Has SPF Record}{\textbf{\color{dhs-dark-gray}{\large{Has SPF Record}}}}\\
+\addcontentsline{toc}{subsubsection}{Has SPF Record} % Adds a subsection to toc
+\hypertarget{Has SPF Record}{\subsubsection*{Has SPF Record}}
+\vspace*{-6mm}
 \textit{Values: \checkmark (present), \xmark \ (not present), Syntax Error, N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether a valid SPF (TXT) record (per \href{https://tools.ietf.org/html/rfc7208#section-3}{RFC 7208}) is present at the hostname. See trustymail-results.csv in the Attachments section for syntax errors.
 
 In \texttt{trustymail}, ``Has SPF Record" is mapped to the value for ``Valid SPF".
-\vspace*{2mm}
 
+\vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Has DMARC p=reject}% Adds subsection to toc
-\hypertarget{Has DMARC p=reject}{\textbf{\color{dhs-dark-gray}{\large{Has DMARC p=reject}}}}\\
+\addcontentsline{toc}{subsubsection}{Has DMARC p=reject} % Adds a subsection to toc
+\hypertarget{Has DMARC p=reject}{\subsubsection*{Has DMARC p=reject}}
+\vspace*{-6mm}
 \textit{Values: \checkmark (valid DMARC record with p=reject), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without p=reject), N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether a valid DMARC (TXT) record with ``p=reject" is present at \_dmarc.<hostname>. See trustymail-results.csv in the Attachments section for details.
 
 In \texttt{trustymail}, ``Has DMARC p=reject" is based on the value of ``DMARC Policy".
-\vspace*{2mm}
 
+\vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Reports DMARC To DHS}% Adds subsection to toc
-\hypertarget{Reports DMARC To DHS}{\textbf{\color{dhs-dark-gray}{\large{Reports DMARC To DHS}}}}\\
+\addcontentsline{toc}{subsubsection}{Reports DMARC To DHS} % Adds a subsection to toc
+\hypertarget{Reports DMARC To DHS}{\subsubsection*{Reports DMARC To DHS}}
+\vspace*{-6mm}
 \textit{Values: \checkmark (valid DMARC record with rua=mailto:reports@dmarc.cyber.dhs.gov), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without mailto:reports@dmarc.cyber.dhs.gov), N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether a valid DMARC (TXT) record with ``rua=mailto:reports@dmarc.cyber.dhs.gov" is present at \_dmarc.<hostname>. See trustymail-results.csv in the Attachments section for details.
 
 In \texttt{trustymail}, ``Reports DMARC To DHS" is based on the value of ``DMARC Aggregate Report URIs".
-\vspace*{2mm}
 
+\vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Free of SSLv2, SSLv3, 3DES, RC4}% Adds subsection to toc
-\hypertarget{Free of SSLv2, SSLv3, 3DES, RC4}{\textbf{\color{dhs-dark-gray}{\large{Free of SSLv2, SSLv3, 3DES, RC4}}}}\\
+\addcontentsline{toc}{subsubsection}{Free of SSLv2, SSLv3, 3DES, RC4} % Adds a subsection to toc
+\hypertarget{Free of SSLv2, SSLv3, 3DES, RC4}{\subsubsection*{Free of SSLv2, SSLv3, 3DES, RC4}}
+\vspace*{-6mm}
 \textit{Values: \checkmark (no weak protocols/ciphers detected), \xmark \ (weak protocols/ciphers detected), N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) or ciphers (3DES, RC4) are supported by any SMTP servers at the hostname. See trustymail-results.csv in the Attachments section for details.
-\vspace*{2mm}
 
+\vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{BOD 18-01 Email Compliant}% Adds subsection to toc
-\hypertarget{BOD 18-01 Email Compliant}{\textbf{\color{dhs-dark-gray}{\large{BOD 18-01 Email Compliant}}}}\\
+\addcontentsline{toc}{subsubsection}{BOD 18-01 Email Compliant} % Adds a subsection to toc
+\hypertarget{BOD 18-01 Email Compliant}{\subsubsection*{BOD 18-01 Email Compliant}}
+\vspace*{-6mm}
 \textit{Values: \checkmark (compliant), \xmark \ (not compliant), N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether a hostname meets all of the following criteria for being compliant with \href{https://cyber.dhs.gov}{BOD 18-01} for email security:
@@ -570,9 +570,8 @@ Whether a hostname meets all of the following criteria for being compliant with 
 %%% Background Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\phantomsection % links this section from toc
 \section{Background}
-\label{app:background}
+\label{sec:background}
 DHS seeks to incentivize the thoughtful deployment of email authentication technologies and generally increase the security of messages to and from government agencies.
 
 This section is a recital and elaboration of key points in two recent Federal documents:
@@ -582,8 +581,11 @@ This section is a recital and elaboration of key points in two recent Federal do
 	\item \href{https://www.ftc.gov/system/files/documents/reports/businesses-can-help-stop-phishing-protect-their-brands-using-email-authentication-ftc-staff/email_authentication_staff_perspective.pdf}{Businesses Can Help Stop Phishing and Protect their Brands Using Email Authentication}, issued in March 2017 by the Federal Trade Commission's Bureau of Consumer Protection based on a study performed by the Office of Technology Research and Investigation. The report's recommendations apply equally well to government agencies.\\~\\
 \end{enumerate}
 
+\vspace*{-3mm}
+\phantomsection % links this section from toc
 \addcontentsline{toc}{subsection}{What is email authentication?}% Adds subsection to toc
-\textbf{\color{dhs-dark-gray}{\Large{What is email authentication?}}}\\~\\
+\subsection*{What is email authentication?}
+\vspace*{-3mm}
 
 ``Email authentication" refers to a set of technologies that enable:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
@@ -606,9 +608,11 @@ There are three predominant forms of email authentication technology: \href{http
 
 See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.pdf#page=37}{SP 800-177, section 4} for a detailed technical description. For additional information, please see \href{https://cyber.dhs.gov/intro}{https://cyber.dhs.gov/intro}.\\~\\~\\
 
+\vspace*{-3mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsection}{What should my organization do?} % Adds subsection to toc
-\textbf{\color{dhs-dark-gray}{\Large{What should my organization do?}}}\\~\\
+\addcontentsline{toc}{subsection}{What should my organization do?}% Adds subsection to toc
+\subsection*{What should my organization do?}
+\vspace*{-3mm}
 
 For implementation guidance, please see \href{https://cyber.dhs.gov/guide}{https://cyber.dhs.gov/guide}.\\~\\~\\
 
@@ -617,15 +621,19 @@ For implementation guidance, please see \href{https://cyber.dhs.gov/guide}{https
 %%% Resources Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\newpage
+\vspace*{-3mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsection}{Resources} % Adds subsection to toc
-\textbf{\color{dhs-dark-gray}{\Large{Resources}}}\\~\\
+\addcontentsline{toc}{subsection}{Resources}% Adds subsection to toc
+\subsection*{Resources}
+\vspace*{-3mm}
 
 Please see \href{https://cyber.dhs.gov/resources}{https://cyber.dhs.gov/resources} for helpful information.\\~\\~\\
 
+\vspace*{-3mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Get Help} % Adds subsection to toc
-\textbf{\color{dhs-dark-gray}{\large{Get Help}}}\\~\\
+\addcontentsline{toc}{subsubsection}{Get Help}% Adds subsection to toc
+\subsubsection*{Get Help}
+\vspace*{-3mm}
 
 You can reach out to the NCATS team at \href{mailto:ncats@hq.dhs.gov}{ncats@hq.dhs.gov}.
 
@@ -634,9 +642,8 @@ You can reach out to the NCATS team at \href{mailto:ncats@hq.dhs.gov}{ncats@hq.d
 %%% Methodology Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\phantomsection % links this section from toc
 \section{Methodology}
-\label{app:Methodology}
+\label{sec:Methodology}
 
 The measurements in this report are derived from \texttt{trustymail}, our \href{https://github.com/dhs-ncats/trustymail}{open source STARTTLS/SPF/DMARC scanner}. All owned .gov domains {\small\lbrack\href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}]} and known subdomains are included. Subdomains are gathered from the following sources:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
@@ -652,9 +659,8 @@ Your agency is also welcome to request additional domains/subdomains be scanned 
 %%% Attachments Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\newpage
-\phantomsection % links this section from toc
 \section{Attachments}
-\label{app:Attachments}
+\label{sec:Attachments}
 If your PDF viewer supports embedded attachments, you will see a paperclip icon below for the attached file.\\
 \attachfile[appearance=false,mimetype=text/csv,icon=Paperclip,ucfilespec=trustymail_results.csv]{trustymail_results.csv} trustymail\_results.csv : Detailed results from \texttt{trustymail} scan {\small\lbrack\href{https://github.com/dhs-ncats/trustymail}{https://github.com/dhs-ncats/trustymail}]}\\~\\
 
