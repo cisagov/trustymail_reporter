@@ -80,9 +80,15 @@
 \fancyhead{}
 \fancyfoot{}
 %\fancyhead[CO,CE]{For Official Use Only (FOUO)}
+\newfontfamily{\FranklinGothicDemiFont}{Franklin Gothic Demi}
+\newcommand\TLPFont{\FranklinGothicDemiFont\fontsize{11pt}{11pt}\selectfont}
+\definecolor{tlp-green}{cmyk}{0.79,0.0,1.0,0.0}
+\fancyhead[RO,RE]{\colorbox{black}{\textcolor{tlp-green}{\TLPFont{TLP:GREEN}}}}
 \fancyfoot[CO,CE]{\usvardate\formatdate<<&title_date_tex>>}
-\fancyfoot[LE, RO] {\thepage}
-\fancyfoot[LO, RE] {}
+\fancyfoot[LE]{\thepage}
+\fancyfoot[RO]{\colorbox{black}{\textcolor{tlp-green}{\TLPFont{TLP:GREEN}}} \thepage}
+\fancyfoot[RE]{\colorbox{black}{\textcolor{tlp-green}{\TLPFont{TLP:GREEN}}}}
+\fancyfoot[LO]{}
 \renewcommand{\headrulewidth}{0.0pt}
 \renewcommand{\footrulewidth}{0.0pt}
 
@@ -461,7 +467,7 @@ Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{b
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setlength{\tabcolsep}{1.2pt}
 \rowcolors{4}{white}{row-gray}
-\begin{longtable}{>{\raggedright}p{2.4in}p{2.0in}p{0.7in}p{1.2in}p{0.6in}p{2.3in}p{0.7in}}
+\begin{longtable}{>{\raggedright}p{2.2in}p{2.0in}p{0.7in}p{1.2in}p{0.6in}p{2.3in}p{0.7in}}
 	\toprule
 			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{blue}{\textbf{Has\newline  SPF\newline Record}}} & \hyperlink{Has DMARC p=reject}{\color{blue}{\textbf{Has\newline  DMARC\newline p=reject}}} & \hyperlink{Reports DMARC To DHS}{\color{blue}{\textbf{Reports\newline DMARC\newline To DHS}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Email Compliant}{\color{blue}{\textbf{BOD 18-01\newline Email\newline Compliant}}}\\
 	\hhline{=======}
