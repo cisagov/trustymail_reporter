@@ -24,10 +24,6 @@ echo "Saver finished"
 echo "Creating reporting folder..."
 mkdir -p $SHARED_DIR/artifacts/reporting/trustymail_reports
 
-# Create the Scorecard
-cd $SHARED_DIR/artifacts/reporting/
-$HOME_DIR/scorecard/generate_trustymail_scorecard.py $HOME_DIR/include/agencies.csv -f
-
 # Generate agency reports
 # TODO? Separate cyhy reports from non-cyhy reports
 cd $SHARED_DIR/artifacts/reporting/trustymail_reports
