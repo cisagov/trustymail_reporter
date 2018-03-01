@@ -390,7 +390,7 @@ This weekly report, created by the National Cybersecurity Assessments and Techni
 \subsection*{Overview}
 \vspace*{-3mm}
 \raggedright
-We measure the presence of SPF and DMARC records in the DNS for your agency's publicly accessible .gov hostnames, as well as support for STARTTLS by your agency's SMTP servers.  This report includes all agency-registered \href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{second-level .gov domains} and known subdomains, collectively referred to as "hostnames" in this document. Any hostnames that respond with NXDOMAIN (``nonexistent") in the public DNS are removed from the compliance figures below.\\~\\
+We measure the presence of SPF and DMARC records in the DNS for your agency's publicly accessible .gov hostnames, as well as support for STARTTLS by your agency's SMTP servers.  This report includes all agency-registered \href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{second-level .gov domains} and known subdomains, collectively referred to as ``hostnames" in this document. Any hostnames that respond with NXDOMAIN (``nonexistent") in the public DNS are removed from the compliance figures below.\\~\\
 
 <<&agency>> has \textbf{\numprint{<<all_eligible_domains_count>>}} hostnames that responded to DNS requests over the public Internet:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
@@ -645,7 +645,7 @@ You can reach out to the NCATS team at \href{mailto:ncats@hq.dhs.gov}{ncats@hq.d
 The measurements in this report are derived from \texttt{trustymail}, our \href{https://github.com/dhs-ncats/trustymail}{open source STARTTLS/SPF/DMARC scanner}. All owned .gov domains {\small\lbrack\href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}]} and known subdomains are included. Subdomains are gathered from the following sources:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
   \item General Services Administration's Digital Analytics Program (DAP), which nightly publishes a dataset of federal hostnames {\small\lbrack\href{https://analytics.usa.gov/data/live/sites-extended.csv}{https://analytics.usa.gov/data/live/sites-extended.csv}]} for which the DAP observed at least one recorded visit in the previous 14 days.
-  \item Censys {\small\lbrack\href{https://censys.io}{https://censys.io}]} is used to query the 'Common Name' field and 'Subject Alternative Name' extension on X.509 certificates found on Federal .gov sites, derived from scans of the IPv4 space and from certificates submitted to public Certificate Transparency logs.
+  \item Censys {\small\lbrack\href{https://censys.io}{https://censys.io}]} is used to query the `Common Name' field and `Subject Alternative Name' extension on X.509 certificates found on Federal .gov sites, derived from scans of the IPv4 space and from certificates submitted to public Certificate Transparency logs.
   \item End of Term Web Archive Project {\small\lbrack\href{http://eotarchive.cdlib.org/}{http://eotarchive.cdlib.org/}]}, which captures and saves U.S. Government websites at the end of presidential administrations.
   \item Hostnames gathered from Cyber Hygiene scans.
 \end{itemize}
