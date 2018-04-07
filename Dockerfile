@@ -54,7 +54,7 @@ RUN apt-get update -qq \
 RUN tlmgr init-usertree || true
 RUN tlmgr option repository ftp://tug.org/historic/systems/texlive/2015/tlnet-final
 RUN tlmgr update --self
-RUN tlmgr install arydshln
+RUN tlmgr --no-persistent-downloads install arydshln
 
 # Install requirements for report generation
 RUN pip install --upgrade setuptools \
