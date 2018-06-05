@@ -186,8 +186,8 @@ class ReportGenerator(object):
                             'must': [
                                 {
                                     'terms': {
-                                        'policy_published.domain': self.__mail_domains
-                                        }
+                                        'policy_published.domain': list(self.__mail_domains)
+                                    }
                                 },
                                 {
                                     'range': {
@@ -203,7 +203,7 @@ class ReportGenerator(object):
             }
         }
         # Now perform the query
-        response = requests.get('{}/_search'.format(ES_URL)),
+        response = requests.get('{}/_search'.format(ES_URL),
                                 auth=awsauth,
                                 json=query,
                                 headers={'Content-Type': 'application/json'},
