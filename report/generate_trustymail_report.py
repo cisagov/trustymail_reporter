@@ -15,19 +15,22 @@ Options:
 # standard python libraries
 import codecs
 import csv
+from datetime import datetime, time, timezone, timedelta
 import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
-from datetime import datetime
 
 # third-party libraries (install with pip)
-import pystache
+import boto3
 from bson import ObjectId
 from docopt import docopt
 from pymongo import MongoClient
+import pystache
+import requests
+from requests_aws4auth import AWS4Auth
 import yaml
 
 # intra-project modules
@@ -36,6 +39,7 @@ import graphs
 # constants
 DB_CONFIG_FILE = '/run/secrets/scan_read_creds.yml'
 TRUSTYMAIL_RESULTS_CSV_FILE = 'trustymail_results.csv'
+DMARC_RESULTS_CSV_FILE = 'dmarc_aggregate_report.csv'
 MUSTACHE_FILE = 'trustymail_report.mustache'
 REPORT_JSON = 'trustymail_report.json'
 REPORT_PDF = 'trustymail_report.pdf'
@@ -62,6 +66,8 @@ LATEX_ESCAPE_MAP = {
     '\n': '\\newline{}',
 }
 BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
+ES_REGION = 'us-east-1'
+ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
 
 class ReportGenerator(object):
     #initiate variables
@@ -72,6 +78,8 @@ class ReportGenerator(object):
         self.__debug = debug
         self.__generated_time = datetime.utcnow()
         self.__results = dict() # reusable query results
+        self.__mail_domains = set()
+        self.__dmarc_results = []
         self.__requests = None
         self.__report_doc = {'scores':[]}
         self.__all_domains = []
@@ -141,6 +149,69 @@ class ReportGenerator(object):
 
         # Get count of second-level domains an agency owns
         self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
+
+        # Get a list of all domains associated with this agency's email servers
+        self.__mail_domains = {x['base_domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'base_domain': True})}
+
+        # Get all DMARC aggregate reports associated with these domains
+        try:
+            self.__query_elasticsearch()
+        except requests.exceptions.RequestException as e:
+            logging.exception('Unable to perform Elasticsearch query')
+
+    def __query_elasticsearch(self):
+        """Query Elasticsearch for all DMARC aggregate reports
+        received for this agency in the past seven days.
+
+        Throws
+        ------
+        requests.exceptions.RequestException: If there is an error is
+        returned by Elasticsearch.
+        """
+        # Start by grabbing the AWS credentials
+        credentials = boto3.Session().get_credentials()
+        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
+                           ES_REGION, 'es',
+                           session_token=credentials.token)
+        # Now construct the query.  We want all DMARC aggregrate reports since
+        # midnight UTC seven days ago.
+        seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+        last_date = datetime.combine(seven_days_ago.date(),
+                                     time(tzinfo=timezone.utc)).timestamp()
+        query = {
+            'query': {
+                'constant_score': {
+                    'filter': {
+                        'bool': {
+                            'must': [
+                                {
+                                    'terms': {
+                                        'policy_published.domain': self.__mail_domains
+                                        }
+                                },
+                                {
+                                    'range': {
+                                        'report_metadata.date_range.begin': {
+                                            'gte': last_date
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+        # Now perform the query
+        response = requests.get('{}/_search'.format(ES_URL)),
+                                auth=awsauth,
+                                json=query,
+                                headers={'Content-Type': 'application/json'},
+                                timeout=300)
+        # Raises an exception if we didn't get back a 200 code
+        response.raise_for_status()
+
+        self.__dmarc_results = response.json()['hits']['hits']
 
     def __score_domain(self, domain):
         score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}

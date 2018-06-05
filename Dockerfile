@@ -59,14 +59,17 @@ RUN tlmgr init-usertree \
 # Install requirements for report generation
 RUN pip install --upgrade setuptools \
     && pip install \
+    boto3 \
+    docopt \
+    geos \
+    matplotlib \
+    pandas \
     pymongo \
     pypdf2 \
-    matplotlib \
     pystache \
-    pandas \
-    geos \
     pyyaml \
-    docopt \
+    requests \
+    requests_aws4auth \
     https://github.com/matplotlib/basemap/archive/v1.1.0.tar.gz
 
 ###
