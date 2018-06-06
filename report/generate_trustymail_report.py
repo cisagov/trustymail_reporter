@@ -658,6 +658,11 @@ def db_from_config(config_filename):
 
 def main():
     args = docopt(__doc__, version='v0.0.1')
+
+    # Set up logging
+    logging.basicConfig(format='%(asctime)-15s %(levelname)s %(message)s',
+                        level=logging.DEBUG)
+
     db = db_from_config(DB_CONFIG_FILE)
 
     print('Generating Trustymail Report...')
