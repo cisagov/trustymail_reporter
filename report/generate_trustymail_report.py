@@ -17,6 +17,7 @@ import codecs
 import csv
 from datetime import datetime, time, timezone, timedelta
 import json
+import logging
 import os
 import shutil
 import subprocess
@@ -151,13 +152,16 @@ class ReportGenerator(object):
         self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
 
         # Get a list of all domains associated with this agency's email servers
-        self.__mail_domains = {x['base_domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'base_domain': True})}
+        self.__mail_domains = {x['domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'domain': True})}
+        logging.debug('Retrieved {} mail domains'.format(len(self.__mail_domains)))
 
         # Get all DMARC aggregate reports associated with these domains
         try:
             self.__query_elasticsearch()
         except requests.exceptions.RequestException as e:
             logging.exception('Unable to perform Elasticsearch query')
+
+        logging.debug('Retrieved {} DMARC reports'.format(len(self.__dmarc_results)))
 
     def __query_elasticsearch(self):
         """Query Elasticsearch for all DMARC aggregate reports
