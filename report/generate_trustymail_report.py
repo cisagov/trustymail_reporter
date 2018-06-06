@@ -183,6 +183,7 @@ class ReportGenerator(object):
         last_date = datetime.combine(seven_days_ago.date(),
                                      time(tzinfo=timezone.utc)).timestamp()
         query = {
+            'size': 10000,
             'query': {
                 'constant_score': {
                     'filter': {
