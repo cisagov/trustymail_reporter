@@ -40,6 +40,7 @@ import graphs
 # constants
 DB_CONFIG_FILE = '/run/secrets/scan_read_creds.yml'
 TRUSTYMAIL_RESULTS_CSV_FILE = 'trustymail_results.csv'
+TRUSTYMAIL_DMARC_FAILURES_CSV_FILE = 'dmarc_failures.csv'
 DMARC_RESULTS_CSV_FILE = 'dmarc_aggregate_report.csv'
 MUSTACHE_FILE = 'trustymail_report.mustache'
 REPORT_JSON = 'trustymail_report.json'
@@ -495,6 +496,7 @@ class ReportGenerator(object):
     ###############################################################################
     def __generate_attachments(self):
         self.__generate_trustymail_attachment()
+        self.__generate_dmarc_failures_attachment()
 
     def __generate_trustymail_attachment(self):
         header_fields = ('Domain', 'Base Domain', 'Domain Is Base Domain', 'Live', 'MX Record', 'Mail Servers', 'Mail Server Ports Tested', 'Domain Supports SMTP', 'Domain Supports SMTP Results', 'Domain Supports STARTTLS', 'Domain Supports STARTTLS Results', 'SPF Record', 'Valid SPF', 'SPF Results', 'DMARC Record', 'Valid DMARC', 'DMARC Results', 'DMARC Record on Base Domain', 'Valid DMARC Record on Base Domain', 'DMARC Results on Base Domain', 'DMARC Policy', 'DMARC Policy Percentage', 'DMARC Aggregate Report URIs', 'DMARC Forensic Report URIs', 'DMARC Has Aggregate Report URI', 'DMARC Has Forensic Report URI', 'Syntax Errors', 'Debug Info', 'Domain Supports Weak Crypto', 'Mail-Sending Hosts with Weak Crypto')
@@ -570,6 +572,55 @@ class ReportGenerator(object):
                 hosts_with_weak_crypto = [rehydrate_hosts_with_weak_crypto(d) for d in domain['hosts_with_weak_crypto']]
                 domain['hosts_with_weak_crypto_str'] = format_list(hosts_with_weak_crypto)
                 data_writer.writerow(domain)
+
+    def __generate_dmarc_failures_attachment(self):
+        """Generate the DMARC failures CSV attachment"""
+        def process_record(r):
+            """Process a DMARC aggregate report record, returning a
+            dictionary containing the data of interest.
+
+            Parameters
+            ----------
+            r : dict
+                The DMARC aggregate report record to be processed.
+
+            Returns
+            -------
+            dict: A dictionary containing the data of interest.
+            """
+            x = {}
+            x['Domain'] = domain
+            x['Source IP'] = record['row']['source_ip']
+            x['Count'] = record['row']['count']
+            x['IP Owner'] = None
+            x['IP ASN'] = None
+            policy_evaluated = record['row']['policy_evaluated']
+            spf_pass = policy_evaluated['spf'].lower() == 'pass'
+            dkim_pass = policy_evaluated['dkim'].lower() == 'pass'
+            reasons_for_failure = []
+            if not spf_pass:
+                reasons_for_failure.append('SPF')
+            if not dkim_pass:
+                reasons_for_failure.append('DKIM')
+            if spf_pass and dkim_pass:
+                reasons_for_failure.append('DMARC')
+            x['Reasons for Failure'] = ' '.join(reasons_for_failure)
+
+            return x
+        
+        fields = ('Domain', 'Source IP', 'Count', 'IP Owner', 'IP ASN', 'Reasons for Failure')
+        with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
+            writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
+            writer.writeheader()
+        
+            for domain in self.__mail_domains:
+                for report in self.__dmarc_results[domain]:
+                    records = report['_source']['record']
+                    if isinstance(records, list):
+                        for record in records:
+                            writer.writerow(process_record(record))
+                    elif isinstance(records, dict):
+                        writer.writerow(process_record(records))
 
     ###############################################################################
     #  Chart Generation
@@ -687,7 +738,7 @@ def main():
 
     # Set up logging
     logging.basicConfig(format='%(asctime)-15s %(levelname)s %(message)s',
-                        level=logging.DEBUG)
+                        level=logging.INFO)
 
     db = db_from_config(DB_CONFIG_FILE)
 

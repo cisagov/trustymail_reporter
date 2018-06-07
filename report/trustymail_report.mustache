@@ -554,7 +554,8 @@ The number of DMARC failures reported in the past seven days, as
 determined by the
 \href{https://tools.ietf.org/html/rfc7489#section-7.2}{DMARC aggregate
 reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.  This field
-is only applicable to base domains.
+is only applicable to base domains.  See dmarc\_failures.csv in the
+Attachments section for details.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -636,12 +637,22 @@ You can reach out to the NCATS team at \href{mailto:ncats@hq.dhs.gov}{ncats@hq.d
 \section{Methodology}
 \label{sec:Methodology}
 
-The measurements in this report are derived from \texttt{trustymail}, our \href{https://github.com/dhs-ncats/trustymail}{open source STARTTLS/SPF/DMARC scanner}. All owned .gov domains {\small\lbrack\href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}]} and known subdomains are included. Subdomains are gathered from the following sources:
+The measurements in this report are derived from \texttt{trustymail}, our \href{https://github.com/dhs-ncats/trustymail}{open source STARTTLS/SPF/DMARC scanner}, and \texttt{sslyze}, \href{https://github.com/nabla-c0d3/sslyze}{an SSL/TLS server scanning library}. All owned .gov domains {\small\lbrack\href{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}{https://github.com/GSA/data/blob/master/dotgov-domains/current-federal.csv}]} and known subdomains are included. Subdomains are gathered from the following sources:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
   \item General Services Administration's Digital Analytics Program (DAP), which nightly publishes a dataset of federal hostnames {\small\lbrack\href{https://analytics.usa.gov/data/live/sites-extended.csv}{https://analytics.usa.gov/data/live/sites-extended.csv}]} for which the DAP observed at least one recorded visit in the previous 14 days.
   \item Censys {\small\lbrack\href{https://censys.io}{https://censys.io}]} is used to query the `Common Name' field and `Subject Alternative Name' extension on X.509 certificates found on Federal .gov sites, derived from scans of the IPv4 space and from certificates submitted to public Certificate Transparency logs.
   \item End of Term Web Archive Project {\small\lbrack\href{http://eotarchive.cdlib.org/}{http://eotarchive.cdlib.org/}]}, which captures and saves U.S. Government websites at the end of presidential administrations.
   \item Hostnames gathered from Cyber Hygiene scans.
+\end{itemize}
+
+Data in this report related to DMARC failures is gathered from the
+\href{https://tools.ietf.org/html/rfc7489#section-7.2}{DMARC aggregate
+  reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.  Note
+that DMARC failures can occur for the following reasons:
+\begin{itemize}[topsep=-6pt, itemsep=0pt]
+\item \href{https://en.wikipedia.org/wiki/Sender_Policy_Framework}{SPF failure}
+\item \href{https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail}{DKIM failure}
+\item \href{https://tools.ietf.org/html/rfc7489#section-3.1}{DMARC failure} (\href{https://tools.ietf.org/html/rfc7489#appendix-B.1}{identifier alignment failure})
 \end{itemize}
 
 Your agency is also welcome to request additional domains/subdomains be scanned that you find missing from this report by emailing \href{mailto:ncats@hq.dhs.gov}{ncats@hq.dhs.gov}.\\~\\~\\
@@ -653,7 +664,12 @@ Your agency is also welcome to request additional domains/subdomains be scanned 
 \section{Attachments}
 \label{sec:Attachments}
 If your PDF viewer supports embedded attachments, you will see a paperclip icon below for the attached file.\\
-\attachfile[appearance=false,mimetype=text/csv,icon=Paperclip,ucfilespec=trustymail_results.csv]{trustymail_results.csv} trustymail\_results.csv : Detailed results from \texttt{trustymail} scan {\small\lbrack\href{https://github.com/dhs-ncats/trustymail}{https://github.com/dhs-ncats/trustymail}]}\\~\\
+\attachfile[appearance=false,mimetype=text/csv,icon=Paperclip,ucfilespec=trustymail\_results.csv]{trustymail_results.csv} trustymail\_results.csv : Detailed results from \texttt{trustymail} scan {\small\lbrack\href{https://github.com/dhs-ncats/trustymail}{https://github.com/dhs-ncats/trustymail}]}\\~\\
+\attachfile[appearance=false,mimetype=text/csv,icon=Paperclip,ucfilespec=dmarc\_failures.csv]{dmarc_failures.csv}
+dmarc\_failures.csv : Detailed results gathered from
+\href{https://tools.ietf.org/html/rfc7489#section-7.2}{DMARC aggregate
+reports} received at \texttt{reports@dmarc.cyber.dhs.gov} during the
+past week.\\~\\
 
 
 \end{document}
