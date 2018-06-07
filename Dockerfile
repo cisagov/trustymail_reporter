@@ -53,7 +53,7 @@ RUN tlmgr init-usertree
 
 # Install requirements for report generation
 #
-# numpy seems to be required tp build basemap's wheel, so we'll
+# numpy seems to be required to build basemap's wheel, so we'll
 # install it first.
 RUN pip install --upgrade setuptools pip \
     && pip install --upgrade numpy \
