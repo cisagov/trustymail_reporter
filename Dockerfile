@@ -63,6 +63,7 @@ RUN pip install --upgrade setuptools pip \
     geos \
     matplotlib \
     pandas \
+    pyasn \
     pymongo \
     pypdf2 \
     pystache \
