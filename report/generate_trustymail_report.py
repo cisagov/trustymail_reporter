@@ -28,6 +28,7 @@ import tempfile
 import boto3
 from bson import ObjectId
 from docopt import docopt
+import pyasn
 from pymongo import MongoClient
 import pystache
 import requests
@@ -70,6 +71,7 @@ LATEX_ESCAPE_MAP = {
 BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
 ES_REGION = 'us-east-1'
 ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
+PREPROCESSED_BGP_DATA_FILE = 'ipasn.dat'
 
 class ReportGenerator(object):
     #initiate variables
@@ -105,6 +107,8 @@ class ReportGenerator(object):
         self.__has_no_weak_crypto_count = 0
         self.__bod_1801_compliant_count = 0
         #self.__report_oid = ObjectId()     # For future use
+        # The pyasn database mapping IPs to ASNs and vice versa
+        self.__asndb = pyasn.pyasn(PREPROCESSED_BGP_DATA_FILE)
 
         # Get list of all domains from the database
         all_domains_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency})
@@ -594,10 +598,11 @@ class ReportGenerator(object):
             """
             x = {}
             x['Domain'] = domain
-            x['Source IP'] = r['row']['source_ip']
+            ip = r['row']['source_ip']
+            x['Source IP'] = ip
             x['Count'] = r['row']['count']
-            x['IP Owner'] = None
-            x['IP ASN'] = None
+            # x['IP Owner'] = None
+            x['IP ASN'] = self.__asndb.lookup(ip)[0]
             policy_evaluated = r['row']['policy_evaluated']
             spf_pass = policy_evaluated['spf'].lower() == 'pass'
             dkim_pass = policy_evaluated['dkim'].lower() == 'pass'
@@ -612,7 +617,7 @@ class ReportGenerator(object):
 
             return x
         
-        fields = ('Domain', 'Source IP', 'Count', 'IP Owner', 'IP ASN', 'Reasons for Failure')
+        fields = ('Domain', 'Source IP', 'Count', 'IP ASN', 'Reasons for Failure')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
             writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
             writer.writeheader()
