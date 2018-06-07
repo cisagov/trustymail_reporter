@@ -156,6 +156,10 @@ class ReportGenerator(object):
         self.__mail_domains = {x['base_domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'base_domain': True})}
         logging.info('Retrieved {} mail domains for agency {}: {}'.format(len(self.__mail_domains), agency, self.__mail_domains))
 
+        # Grab the AWS credentials, since we will need them to query
+        # elasticsearch
+        self.__aws_credentials = boto3.Session().get_credentials()
+
         # Get all DMARC aggregate reports associated with these domains
         for domain in self.__mail_domains:
             try:
@@ -180,11 +184,11 @@ class ReportGenerator(object):
         requests.exceptions.RequestException: If there is an error is
         returned by Elasticsearch.
         """
-        # Start by grabbing the AWS credentials
-        credentials = boto3.Session().get_credentials()
-        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
+        # Construct the auth from the AWS credentials
+        awsauth = AWS4Auth(self.__aws_credentials.access_key,
+                           self.__aws_credentials.secret_key,
                            ES_REGION, 'es',
-                           session_token=credentials.token)
+                           session_token=self.__aws_credentials.token)
         # Now construct the query.  We want all DMARC aggregrate reports since
         # midnight UTC seven days ago.
         seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
@@ -590,11 +594,11 @@ class ReportGenerator(object):
             """
             x = {}
             x['Domain'] = domain
-            x['Source IP'] = record['row']['source_ip']
-            x['Count'] = record['row']['count']
+            x['Source IP'] = r['row']['source_ip']
+            x['Count'] = r['row']['count']
             x['IP Owner'] = None
             x['IP ASN'] = None
-            policy_evaluated = record['row']['policy_evaluated']
+            policy_evaluated = r['row']['policy_evaluated']
             spf_pass = policy_evaluated['spf'].lower() == 'pass'
             dkim_pass = policy_evaluated['dkim'].lower() == 'pass'
             reasons_for_failure = []
