@@ -549,14 +549,15 @@ Whether a hostname meets all of the following criteria for being compliant with 
 \addcontentsline{toc}{subsubsection}{DMARC Failures (Past Week)} % Adds a subsection to toc
 \hypertarget{DMARC Failures (Past Week)}{\subsubsection*{DMARC Failures (Past Week)}}
 \vspace*{-6mm}
-\textit{Values: Number, N/A}\\~\\
+\textit{Values: Number of DMARC failures, N/A for subdomains}\\~\\
 
 The number of DMARC failures reported in the past seven days, as
 determined by the
 \href{https://tools.ietf.org/html/rfc7489#section-7.2}{DMARC aggregate
 reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.  This field
-is only applicable to base domains.  See dmarc\_failures.csv in the
-Attachments section for details.
+is only applicable to base domains, so its value is ``N/A'' for all
+subdomains.  See dmarc\_failures.csv in the Attachments section for
+details.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
