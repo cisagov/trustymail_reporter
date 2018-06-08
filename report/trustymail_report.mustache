@@ -492,7 +492,7 @@ In \texttt{trustymail}, ``Uses STARTTLS" is mapped to the value for ``Domain Sup
 \vspace*{-6mm}
 \textit{Values: \checkmark (present), \xmark \ (not present), Syntax Error, N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether a valid SPF (TXT) record (per \href{https://tools.ietf.org/html/rfc7208#section-3}{RFC 7208}) is present at the hostname. See trustymail-results.csv in the Attachments section for syntax errors.
+Whether a valid SPF (TXT) record (per \href{https://tools.ietf.org/html/rfc7208#section-3}{RFC 7208}) is present at the hostname. See trustymail\_results.csv in the Attachments section for syntax errors.
 
 In \texttt{trustymail}, ``Has SPF Record" is mapped to the value for ``Valid SPF".
 
@@ -503,7 +503,7 @@ In \texttt{trustymail}, ``Has SPF Record" is mapped to the value for ``Valid SPF
 \vspace*{-6mm}
 \textit{Values: \checkmark (valid DMARC record with p=reject), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without p=reject), N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether a valid DMARC (TXT) record with ``p=reject" is present at \_dmarc.<hostname>. See trustymail-results.csv in the Attachments section for details.
+Whether a valid DMARC (TXT) record with ``p=reject" is present at \_dmarc.<hostname>. See trustymail\_results.csv in the Attachments section for details.
 
 In \texttt{trustymail}, ``Has DMARC p=reject" is based on the value of ``DMARC Policy".
 
@@ -514,7 +514,7 @@ In \texttt{trustymail}, ``Has DMARC p=reject" is based on the value of ``DMARC P
 \vspace*{-6mm}
 \textit{Values: \checkmark (valid DMARC record with rua=mailto:reports@dmarc.cyber.dhs.gov), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without mailto:reports@dmarc.cyber.dhs.gov), N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether a valid DMARC (TXT) record with ``rua=mailto:reports@dmarc.cyber.dhs.gov" is present at \_dmarc.<hostname>. See trustymail-results.csv in the Attachments section for details.
+Whether a valid DMARC (TXT) record with ``rua=mailto:reports@dmarc.cyber.dhs.gov" is present at \_dmarc.<hostname>. See trustymail\_results.csv in the Attachments section for details.
 
 In \texttt{trustymail}, ``Reports DMARC To DHS" is based on the value of ``DMARC Aggregate Report URIs".
 
@@ -525,7 +525,7 @@ In \texttt{trustymail}, ``Reports DMARC To DHS" is based on the value of ``DMARC
 \vspace*{-6mm}
 \textit{Values: \checkmark (no weak protocols/ciphers detected), \xmark \ (weak protocols/ciphers detected), N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) or ciphers (3DES, RC4) are supported by any SMTP servers at the hostname. See trustymail-results.csv in the Attachments section for details.
+Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) or ciphers (3DES, RC4) are supported by any SMTP servers at the hostname. See trustymail\_results.csv in the Attachments section for details.
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
