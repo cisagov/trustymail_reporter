@@ -648,9 +648,15 @@ The measurements in this report are derived from \texttt{trustymail}, our \href{
 \end{itemize}
 
 Data in this report related to DMARC failures is gathered from the
-\href{https://cyber.dhs.gov/bod/18-01/#what-are-dmarc-reports}{DMARC aggregate
-  reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.  Note
-that DMARC failures can occur for the following reasons:
+\href{https://cyber.dhs.gov/bod/18-01/#what-are-dmarc-reports}{DMARC
+  aggregate reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.
+As they arrive, the DMARC aggregate reports are continually processed
+and saved to a database using \href{an open source tool created by the
+  NCATS team}{https://github.com/dhs-ncats/dmarc-import}.  This
+database is then queried at the time of report generation in order to
+populate the report with DMARC failure data.
+
+Note that DMARC failures can occur for the following reasons:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
 \item \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{SPF failure}
 \item \href{https://cyber.dhs.gov/bod/18-01/#dmarc}{DKIM failure}
