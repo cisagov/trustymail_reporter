@@ -157,7 +157,7 @@ class ReportGenerator(object):
         self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
 
         # Get a list of all domains associated with this agency's email servers
-        self.__mail_domains = {x['base_domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'base_domain': True})}
+        self.__mail_domains = {x['domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'domain': True})}
         logging.info('Retrieved {} mail domains for agency {}: {}'.format(len(self.__mail_domains), agency, self.__mail_domains))
 
         # Grab the AWS credentials, since we will need them to query
@@ -180,7 +180,7 @@ class ReportGenerator(object):
         Parameters
         ----------
         domain : str
-            The domain for which MDARC aggregate reports are to be
+            The domain for which DMARC aggregate reports are to be
             queried from the Elasticsearch database.
 
         Throws
@@ -238,21 +238,19 @@ class ReportGenerator(object):
         score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}
 
         # Take care of the DMARC agggregate report stuff
-        if domain['is_base_domain']:
-            # Count up the number of DMARC failures from the DMARC aggregate
-            # reports for this base domain
-            num_dmarc_failures = 0
-            for report in self.__dmarc_results[domain['domain']]:
-                records = report['_source']['record']
-                if isinstance(records, list):
-                    for record in records:
-                        num_dmarc_failures += record['row']['count']
-                elif isinstance(records, dict):
-                    num_dmarc_failures += records['row']['count']
+        #
+        # Count up the number of DMARC failures from the DMARC aggregate
+        # reports for this base domain
+        num_dmarc_failures = 0
+        for report in self.__dmarc_results[domain['domain']]:
+            records = report['_source']['record']
+            if isinstance(records, list):
+                for record in records:
+                    num_dmarc_failures += record['row']['count']
+            elif isinstance(records, dict):
+                num_dmarc_failures += records['row']['count']
 
-            score['num_dmarc_failures'] = num_dmarc_failures
-        else:
-            score['num_dmarc_failures'] = None
+        score['num_dmarc_failures'] = num_dmarc_failures
 
         if domain['live']:
             # Check if the current domain is the base domian.
