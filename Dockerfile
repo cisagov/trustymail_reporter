@@ -59,6 +59,7 @@ RUN pip install --upgrade setuptools pip \
     && pip install --upgrade numpy \
     && pip install --upgrade \
     boto3 \
+    dnspython \
     docopt \
     geos \
     matplotlib \

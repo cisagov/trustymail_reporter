@@ -19,6 +19,7 @@ from datetime import datetime, time, timezone, timedelta
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -27,6 +28,8 @@ import tempfile
 # third-party libraries (install with pip)
 import boto3
 from bson import ObjectId
+import dns.resolver
+import dns.reversename
 from docopt import docopt
 import pyasn
 from pymongo import MongoClient
@@ -71,6 +74,7 @@ LATEX_ESCAPE_MAP = {
 BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
 ES_REGION = 'us-east-1'
 ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
+ES_URL_NO_INDEX = re.sub('/[^/]*$', '', ES_URL)
 PREPROCESSED_BGP_DATA_FILE = 'ipasn.dat'
 
 class ReportGenerator(object):
@@ -109,6 +113,25 @@ class ReportGenerator(object):
         #self.__report_oid = ObjectId()     # For future use
         # The pyasn database mapping IPs to ASNs and vice versa
         self.__asndb = pyasn.pyasn(PREPROCESSED_BGP_DATA_FILE)
+
+        #
+        # Configure the dnspython library
+        #
+
+        # Our resolver
+        #
+        # Note that it uses the system configuration in /etc/resolv.conf if no
+        # DNS hostnames are specified.
+        self.__resolver = dns.resolver.Resolver(configure=False)
+        # Retry DNS servers if we receive a SERVFAIL response from them.  We
+        # set this to False because, unless the reason for the SERVFAIL is
+        # truly temporary and resolves before trustymail finishes scanning the
+        # domain, this obscures the potentially informative SERVFAIL error as a
+        # DNS timeout because of the way dns.resolver.query() is written.  See
+        # http://www.dnspython.org/docs/1.14.0/dns.resolver-pysrc.html#query.
+        self.__resolver.retry_servfail = False
+        # Use Google DNS
+        self.__resolver.nameservers = ['8.8.8.8']
 
         # Get list of all domains from the database
         all_domains_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency})
@@ -223,8 +246,13 @@ class ReportGenerator(object):
                 }
             }
         }
-        # Now perform the query
-        response = requests.get('{}/_search'.format(ES_URL),
+
+        # Now perform the query.  We have to do a little finagling with the
+        # scroll API in order to get past the 10000 document limit.  (I
+        # verified that we do run into that limit on occasion.)
+        scroll_again = True
+        scroll_id = None
+        response = requests.get('{}/_search?scroll=1m'.format(ES_URL),
                                 auth=awsauth,
                                 json=query,
                                 headers={'Content-Type': 'application/json'},
@@ -232,7 +260,36 @@ class ReportGenerator(object):
         # Raises an exception if we didn't get back a 200 code
         response.raise_for_status()
 
-        self.__dmarc_results[domain] = response.json()['hits']['hits']
+        hits = response.json()['hits']['hits']
+        scroll_id = response.json()['_scroll_id']
+        if domain in self.__dmarc_results:
+            self.__dmarc_results[domain].extend(hits)
+        else:
+            self.__dmarc_results[domain] = hits
+
+        # If there were no hits then there is no need to keep scrolling
+        if not hits:
+            scroll_again = False
+        
+        while scroll_again:
+            scroll_json = {
+                'scroll': '1m',
+                'scroll_id': scroll_id
+            }
+            response = requests.get('{}/_search/scroll'.format(ES_URL_NO_INDEX),
+                                    auth=awsauth,
+                                    json=scroll_json,
+                                    headers={'Content-Type': 'application/json'},
+                                    timeout=300)
+            # Raises an exception if we didn't get back a 200 code
+            response.raise_for_status()
+
+            hits = response.json()['hits']['hits']
+            self.__dmarc_results[domain].extend(hits)
+
+            # If there were no hits then there is no need to keep scrolling
+            if not hits:
+                scroll_again = False
 
     def __score_domain(self, domain):
         score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}
@@ -581,12 +638,15 @@ class ReportGenerator(object):
 
     def __generate_dmarc_failures_attachment(self):
         """Generate the DMARC failures CSV attachment"""
-        def process_record(r):
+        def process_record(domain, r):
             """Process a DMARC aggregate report record, returning a
             dictionary containing the data of interest.
 
             Parameters
             ----------
+            domain : str
+                The domain corresponding to this DMARC aggregate report.
+
             r : dict
                 The DMARC aggregate report record to be processed.
 
@@ -598,10 +658,95 @@ class ReportGenerator(object):
             x['Domain'] = domain
             ip = r['row']['source_ip']
             x['Source IP'] = ip
-            x['Count'] = r['row']['count']
             # x['IP Owner'] = None
+
+            # Try to find a PTR record
+            x['PTR'] = None
+            try:
+                ans = self.__resolver.query(dns.reversename.from_address(ip), 'PTR', tcp=True)
+                # There is a trailing period that we don't want
+                x['PTR'] = ans[0].to_text()[:-1]
+            except (dns.resolver.NoNameservers, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.exception.Timeout) as e:
+                # If we fail for any reason then there is no PTR record
+                pass
+            
             x['IP ASN'] = self.__asndb.lookup(ip)[0]
+            x['Count'] = r['row']['count']
             policy_evaluated = r['row']['policy_evaluated']
+            x['Policy Applied'] = policy_evaluated['disposition']
+
+            # Override reason
+            x['Override Reason'] = None
+            if 'reason' in policy_evaluated:
+                reason = policy_evaluated['reason']
+                if isinstance(reason, list):
+                    x['Override Reason'] = ' '.join([rsn['type'] for rsn in reason])
+                else:
+                    x['Override Reason'] = reason['type']
+
+            # This field is required in the XSD
+            header_from = r['identifiers']['header_from']
+
+            # DKIM
+            auth_results = r['auth_results']
+            x['DKIM DMARC'] = None
+            x['DKIM Raw'] = None
+            x['DKIM d='] = None
+            if 'dkim' in auth_results:
+                dkim = auth_results['dkim']
+                if isinstance(dkim, list):
+                    x['DKIM Raw'] = ' '.join([y['result'] for y in dkim])
+                    x['DKIM d='] = ' '.join([y['domain'] for y in dkim])
+                    results = []
+                    for y in dkim:
+                        if y['result'].lower() == 'pass':
+                            if y['domain'] == header_from:
+                                results.append('aligned')
+                            else:
+                                results.append('unaligned')
+                        else:
+                            results.append('fail')
+                    x['DKIM DMARC'] = ' '.join(results)
+                else:
+                    x['DKIM Raw'] = dkim['result']
+                    x['DKIM d='] = dkim['domain']
+                    if x['DKIM Raw'].lower() == 'pass':
+                        if x['DKIM d='] == header_from:
+                            x['DKIM DMARC'] = 'aligned'
+                        else:
+                            x['DKIM DMARC'] = 'unaligned'
+                    else:
+                        x['DKIM DMARC'] = 'fail'
+
+            # SPF
+            #
+            # This field is required in the XSD
+            spf = auth_results['spf']
+            if isinstance(spf, list):
+                x['SPF Raw'] = ' '.join([y['result'] for y in spf])
+                x['SPF Domain'] = ' '.join([y['domain'] for y in spf])
+                results = []
+                for y in spf:
+                    if y['result'].lower() == 'pass':
+                        if y['domain'] == header_from:
+                            results.append('aligned')
+                        else:
+                            results.append('unaligned')
+                    else:
+                        results.append('fail')
+                x['SPF DMARC'] = ' '.join(results)
+            else:
+                x['SPF Raw'] = spf['result']
+                x['SPF Domain'] = spf['domain']
+                if x['SPF Raw'].lower() == 'pass':
+                    if x['SPF Domain'] == header_from:
+                        x['SPF DMARC'] = 'aligned'
+                    else:
+                        x['SPF DMARC'] = 'unaligned'
+                else:
+                    x['SPF DMARC'] = 'fail'
+
+            # Reasons for failure
             spf_pass = policy_evaluated['spf'].lower() == 'pass'
             dkim_pass = policy_evaluated['dkim'].lower() == 'pass'
             reasons_for_failure = []
@@ -615,7 +760,7 @@ class ReportGenerator(object):
 
             return x
         
-        fields = ('Domain', 'Source IP', 'Count', 'IP ASN', 'Reasons for Failure')
+        fields = ('Domain', 'Source IP', 'PTR', 'IP ASN', 'Count', 'Policy Applied', 'Override Reason', 'DKIM DMARC', 'DKIM Raw', 'DKIM d=', 'SPF DMARC', 'SPF Raw', 'SPF Domain', 'Reasons for Failure')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
             writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
             writer.writeheader()
@@ -625,9 +770,9 @@ class ReportGenerator(object):
                     records = report['_source']['record']
                     if isinstance(records, list):
                         for record in records:
-                            writer.writerow(process_record(record))
+                            writer.writerow(process_record(domain, record))
                     elif isinstance(records, dict):
-                        writer.writerow(process_record(records))
+                        writer.writerow(process_record(domain, records))
 
     ###############################################################################
     #  Chart Generation
