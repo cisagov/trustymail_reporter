@@ -75,6 +75,7 @@ BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
 ES_REGION = 'us-east-1'
 ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
 ES_URL_NO_INDEX = re.sub('/[^/]*$', '', ES_URL)
+ES_RETRIEVE_SIZE = 10000
 PREPROCESSED_BGP_DATA_FILE = 'ipasn.dat'
 
 class ReportGenerator(object):
@@ -222,7 +223,7 @@ class ReportGenerator(object):
         last_date = datetime.combine(seven_days_ago.date(),
                                      time(tzinfo=timezone.utc)).timestamp()
         query = {
-            'size': 10000,
+            'size': ES_RETRIEVE_SIZE,
             'query': {
                 'constant_score': {
                     'filter': {
@@ -267,8 +268,9 @@ class ReportGenerator(object):
         else:
             self.__dmarc_results[domain] = hits
 
-        # If there were no hits then there is no need to keep scrolling
-        if not hits:
+        # If there were fewer hits than ES_RETRIEVE_SIZE then there is no need
+        # to keep scrolling
+        if len(hits) < ES_RETRIEVE_SIZE:
             scroll_again = False
         
         while scroll_again:
@@ -287,8 +289,9 @@ class ReportGenerator(object):
             hits = response.json()['hits']['hits']
             self.__dmarc_results[domain].extend(hits)
 
-            # If there were no hits then there is no need to keep scrolling
-            if not hits:
+            # If there were fewer hits than ES_RETRIEVE_SIZE then there is no
+            # need to keep scrolling
+            if len(hits) < ES_RETRIEVE_SIZE:
                 scroll_again = False
 
     def __score_domain(self, domain):
