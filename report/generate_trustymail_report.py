@@ -723,31 +723,36 @@ class ReportGenerator(object):
 
             # SPF
             #
-            # This field is required in the XSD
-            spf = auth_results['spf']
-            if isinstance(spf, list):
-                x['SPF Raw'] = ' '.join([y['result'] for y in spf])
-                x['SPF Domain'] = ' '.join([y['domain'] for y in spf])
-                results = []
-                for y in spf:
-                    if y['result'].lower() == 'pass':
-                        if y['domain'] == header_from:
-                            results.append('aligned')
+            # This field is required in the XSD, but occassionally it isn't
+            # actually present.
+            x['SPF DMARC'] = None
+            x['SPF Raw'] = None
+            x['SPF Domain'] = None
+            if 'spf' in auth_results:
+                spf = auth_results['spf']
+                if isinstance(spf, list):
+                    x['SPF Raw'] = ' '.join([y['result'] for y in spf])
+                    x['SPF Domain'] = ' '.join([y['domain'] for y in spf])
+                    results = []
+                    for y in spf:
+                        if y['result'].lower() == 'pass':
+                            if y['domain'] == header_from:
+                                results.append('aligned')
+                            else:
+                                results.append('unaligned')
                         else:
-                            results.append('unaligned')
+                            results.append('fail')
+                        x['SPF DMARC'] = ' '.join(results)
                     else:
-                        results.append('fail')
-                x['SPF DMARC'] = ' '.join(results)
-            else:
-                x['SPF Raw'] = spf['result']
-                x['SPF Domain'] = spf['domain']
-                if x['SPF Raw'].lower() == 'pass':
-                    if x['SPF Domain'] == header_from:
-                        x['SPF DMARC'] = 'aligned'
-                    else:
-                        x['SPF DMARC'] = 'unaligned'
-                else:
-                    x['SPF DMARC'] = 'fail'
+                        x['SPF Raw'] = spf['result']
+                        x['SPF Domain'] = spf['domain']
+                        if x['SPF Raw'].lower() == 'pass':
+                            if x['SPF Domain'] == header_from:
+                                x['SPF DMARC'] = 'aligned'
+                            else:
+                                x['SPF DMARC'] = 'unaligned'
+                        else:
+                            x['SPF DMARC'] = 'fail'
 
             # Reasons for failure
             spf_pass = policy_evaluated['spf'].lower() == 'pass'
