@@ -742,17 +742,17 @@ class ReportGenerator(object):
                                 results.append('unaligned')
                         else:
                             results.append('fail')
-                        x['SPF DMARC'] = ' '.join(results)
-                    else:
-                        x['SPF Raw'] = spf['result']
-                        x['SPF Domain'] = spf['domain']
-                        if x['SPF Raw'].lower() == 'pass':
-                            if x['SPF Domain'] == header_from:
-                                x['SPF DMARC'] = 'aligned'
-                            else:
-                                x['SPF DMARC'] = 'unaligned'
+                    x['SPF DMARC'] = ' '.join(results)
+                else:
+                    x['SPF Raw'] = spf['result']
+                    x['SPF Domain'] = spf['domain']
+                    if x['SPF Raw'].lower() == 'pass':
+                        if x['SPF Domain'] == header_from:
+                            x['SPF DMARC'] = 'aligned'
                         else:
-                            x['SPF DMARC'] = 'fail'
+                            x['SPF DMARC'] = 'unaligned'
+                    else:
+                        x['SPF DMARC'] = 'fail'
 
             # Reasons for failure
             spf_pass = policy_evaluated['spf'].lower() == 'pass'
