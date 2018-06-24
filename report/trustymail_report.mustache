@@ -678,5 +678,46 @@ dmarc\_failures.csv : Detailed results gathered from
 reports} received at \texttt{reports@dmarc.cyber.dhs.gov} during the
 past week.\\~\\
 
+The fields in the \texttt{dmarc\_failures.csv} CSV are as follows:
+\begin{description}
+\item[Domain] The domain from which the emails purported to be.
+\item[Source IP] The IP address from which the emails were sent.
+\item[PTR] The DNS PTR record (if any) associated with the source IP.
+\item[ASN] The autonomous system number (ASN) associated with the
+  source IP.
+\item[Count] The number of emails that failed DMARC processing and are
+  being reported.
+\item[Policy Applied] The DMARC policy that was applied by the
+  reporter.
+\item[Override Reason] The reason (if any) that the reporter chose to
+  override the DMARC policy published by the domain.
+\item[DKIM DMARC] Has a value of \texttt{aligned} if DKIM passed and
+  the DKIM domain aligned with that of the
+  \href{https://tools.ietf.org/html/rfc5322#section-3.6.2}{RFC5322.From
+    header}.  Has a value of \texttt{unaligned} if DKIM passed but the
+  DKIM domain did not align with that of the
+  \href{https://tools.ietf.org/html/rfc5322#section-3.6.2}{RFC5322.From
+    header}.  Has a value of \texttt{fail} if DKIM failed.  May
+  contain multiple values if there are multiple DKIM headers.
+\item[DKIM Raw] Has a value of \texttt{pass} if DKIM passed, and
+  otherwise has a value of \texttt{fail}.  May contain multiple values
+  if there are multiple DKIM headers.
+\item[DKIM d=] The DKIM domain.  This is the domain referenced in the
+  DKIM header.  May contain multiple values if there are multiple DKIM
+  headers.
+\item[SPF DMARC] Has a value of \texttt{aligned} if SPF passed and the
+  SPF domain aligned with that of the
+  \href{https://tools.ietf.org/html/rfc5322#section-3.6.2}{RFC5322.From
+    header}.  Has a value of \texttt{unaligned} if SPF passed but the
+  SPF domain did not align with that of the
+  \href{https://tools.ietf.org/html/rfc5322#section-3.6.2}{RFC5322.From
+    header}.  Has a value of \texttt{fail} if SPF failed.
+\item[SPF Raw] Has a value of \texttt{pass} if SPF passed, and
+  otherwise has a value of \texttt{fail}.
+\item[SPF Domain] The SPF domain.  This is the domain listed in the
+  \href{https://tools.ietf.org/html/rfc5321#section-3.3}{RFC5321.MailFrom}
+  portion of the SMTP envelope.
+\end{description}
+
 
 \end{document}
