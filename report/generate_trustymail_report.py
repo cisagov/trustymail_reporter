@@ -31,6 +31,7 @@ from bson import ObjectId
 import dns.resolver
 import dns.reversename
 from docopt import docopt
+import publicsuffix
 import pyasn
 from pymongo import MongoClient
 import pystache
@@ -77,6 +78,7 @@ ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.u
 ES_URL_NO_INDEX = re.sub('/[^/]*$', '', ES_URL)
 ES_RETRIEVE_SIZE = 10000
 PREPROCESSED_BGP_DATA_FILE = 'ipasn.dat'
+PUBLIC_SUFFIX_LIST_FILENAME = 'psl.txt'
 
 class ReportGenerator(object):
     #initiate variables
@@ -114,6 +116,8 @@ class ReportGenerator(object):
         #self.__report_oid = ObjectId()     # For future use
         # The pyasn database mapping IPs to ASNs and vice versa
         self.__asndb = pyasn.pyasn(PREPROCESSED_BGP_DATA_FILE)
+        # The public suffix list
+        self.__psl = publicsuffix.PublicSuffixList(PUBLIC_SUFFIX_LIST_FILENAME)
 
         #
         # Configure the dnspython library
@@ -641,7 +645,27 @@ class ReportGenerator(object):
 
     def __generate_dmarc_failures_attachment(self):
         """Generate the DMARC failures CSV attachment"""
-        def process_record(domain, r):
+
+        def is_failure(record):
+            """Perform a quick check to determine if this record
+            represents a failure at all
+
+            Parameters
+            ----------
+            record : dict
+                The DMARC aggregate report record to be checked.
+
+            Returns
+            -------
+            bool: True if the record represents a DMARC failure and
+            otherwise false.
+            """
+            policy_evaluated = record['row']['policy_evaluated']
+            dkim_and_alignment = policy_evaluated['dkim'].lower() == 'pass'
+            spf_and_alignment = policy_evaluated['spf'].lower() == 'pass'
+            return not dkim_and_alignment or not spf_and_alignment
+
+        def process_record(domain, record, policy_published):
             """Process a DMARC aggregate report record, returning a
             dictionary containing the data of interest.
 
@@ -650,8 +674,11 @@ class ReportGenerator(object):
             domain : str
                 The domain corresponding to this DMARC aggregate report.
 
-            r : dict
+            record : dict
                 The DMARC aggregate report record to be processed.
+
+            policy_published : dict
+                The published DMARC policy.
 
             Returns
             -------
@@ -659,7 +686,7 @@ class ReportGenerator(object):
             """
             x = {}
             x['Domain'] = domain
-            ip = r['row']['source_ip']
+            ip = record['row']['source_ip']
             x['Source IP'] = ip
             # x['IP Owner'] = None
 
@@ -672,11 +699,20 @@ class ReportGenerator(object):
             except (dns.resolver.NoNameservers, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.exception.Timeout) as e:
                 # If we fail for any reason then there is no PTR record
                 pass
-            
-            x['IP ASN'] = self.__asndb.lookup(ip)[0]
-            x['Count'] = r['row']['count']
-            policy_evaluated = r['row']['policy_evaluated']
+
+            # Grab some values
+            x['ASN'] = self.__asndb.lookup(ip)[0]
+            x['Count'] = record['row']['count']
+            policy_evaluated = record['row']['policy_evaluated']
             x['Policy Applied'] = policy_evaluated['disposition']
+
+            # SPF and DKIM alignment modes.  The default is 'r' for both.
+            spf_alignment_mode = 'r'
+            if 'aspf' in policy_published:
+                spf_alignment_mode = policy_published['aspf']
+            dkim_alignment_mode = 'r'
+            if 'adkim' in policy_published:
+                dkim_alignment_mode = policy_published['adkim']
 
             # Override reason
             x['Override Reason'] = None
@@ -688,25 +724,39 @@ class ReportGenerator(object):
                     x['Override Reason'] = reason['type']
 
             # This field is required in the XSD
-            header_from = r['identifiers']['header_from']
+            header_from = record['identifiers']['header_from']
 
             # DKIM
-            auth_results = r['auth_results']
+            auth_results = record['auth_results']
             x['DKIM DMARC'] = None
             x['DKIM Raw'] = None
             x['DKIM d='] = None
             if 'dkim' in auth_results:
                 dkim = auth_results['dkim']
+                dkim_and_alignment = policy_evaluated['dkim']
                 if isinstance(dkim, list):
                     x['DKIM Raw'] = ' '.join([y['result'] for y in dkim])
                     x['DKIM d='] = ' '.join([y['domain'] for y in dkim])
                     results = []
                     for y in dkim:
                         if y['result'].lower() == 'pass':
-                            if y['domain'] == header_from:
-                                results.append('aligned')
+                            if dkim_alignment_mode.lower() == 's':
+                                # DKIM alignment mode is strict, so the from
+                                # header has to match the domain exactly
+                                if y['domain'].lower() == header_from.lower():
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
                             else:
-                                results.append('unaligned')
+                                # DKIM alignment is relaxed, so the header and
+                                # the domain just need to come from the same
+                                # base domain
+                                base_domain = self.__psl.get_public_suffix(y['domain']).lower()
+                                header_base_domain = self.__psl.get_public_suffix(header_from).lower()
+                                if base_domain == header_base_domain:
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
                         else:
                             results.append('fail')
                     x['DKIM DMARC'] = ' '.join(results)
@@ -714,7 +764,7 @@ class ReportGenerator(object):
                     x['DKIM Raw'] = dkim['result']
                     x['DKIM d='] = dkim['domain']
                     if x['DKIM Raw'].lower() == 'pass':
-                        if x['DKIM d='] == header_from:
+                        if dkim_and_alignment.lower() == 'pass':
                             x['DKIM DMARC'] = 'aligned'
                         else:
                             x['DKIM DMARC'] = 'unaligned'
@@ -730,16 +780,30 @@ class ReportGenerator(object):
             x['SPF Domain'] = None
             if 'spf' in auth_results:
                 spf = auth_results['spf']
+                spf_and_alignment = policy_evaluated['spf']
                 if isinstance(spf, list):
                     x['SPF Raw'] = ' '.join([y['result'] for y in spf])
                     x['SPF Domain'] = ' '.join([y['domain'] for y in spf])
                     results = []
                     for y in spf:
                         if y['result'].lower() == 'pass':
-                            if y['domain'] == header_from:
-                                results.append('aligned')
+                            if spf_alignment_mode.lower() == 's':
+                                # SPF alignment mode is strict, so the from
+                                # header has to match the domain exactly
+                                if y['domain'].lower() == header_from.lower():
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
                             else:
-                                results.append('unaligned')
+                                # SPF alignment is relaxed, so the header and
+                                # the domain just need to come from the same
+                                # base domain
+                                base_domain = self.__psl.get_public_suffix(y['domain']).lower()
+                                header_base_domain = self.__psl.get_public_suffix(header_from).lower()
+                                if base_domain == header_base_domain:
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
                         else:
                             results.append('fail')
                     x['SPF DMARC'] = ' '.join(results)
@@ -747,28 +811,16 @@ class ReportGenerator(object):
                     x['SPF Raw'] = spf['result']
                     x['SPF Domain'] = spf['domain']
                     if x['SPF Raw'].lower() == 'pass':
-                        if x['SPF Domain'] == header_from:
+                        if spf_and_alignment.lower() == 'pass':
                             x['SPF DMARC'] = 'aligned'
                         else:
                             x['SPF DMARC'] = 'unaligned'
                     else:
                         x['SPF DMARC'] = 'fail'
 
-            # Reasons for failure
-            spf_pass = policy_evaluated['spf'].lower() == 'pass'
-            dkim_pass = policy_evaluated['dkim'].lower() == 'pass'
-            reasons_for_failure = []
-            if not spf_pass:
-                reasons_for_failure.append('SPF')
-            if not dkim_pass:
-                reasons_for_failure.append('DKIM')
-            if spf_pass and dkim_pass:
-                reasons_for_failure.append('DMARC')
-            x['Reasons for Failure'] = ' '.join(reasons_for_failure)
-
             return x
         
-        fields = ('Domain', 'Source IP', 'PTR', 'IP ASN', 'Count', 'Policy Applied', 'Override Reason', 'DKIM DMARC', 'DKIM Raw', 'DKIM d=', 'SPF DMARC', 'SPF Raw', 'SPF Domain', 'Reasons for Failure')
+        fields = ('Domain', 'Source IP', 'PTR', 'ASN', 'Count', 'Policy Applied', 'Override Reason', 'DKIM DMARC', 'DKIM Raw', 'DKIM d=', 'SPF DMARC', 'SPF Raw', 'SPF Domain')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
             writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
             writer.writeheader()
@@ -776,11 +828,14 @@ class ReportGenerator(object):
             for domain in self.__mail_domains:
                 for report in self.__dmarc_results[domain]:
                     records = report['_source']['record']
+                    policy_published = report['_source']['policy_published']
                     if isinstance(records, list):
                         for record in records:
-                            writer.writerow(process_record(domain, record))
+                            if is_failure(record):
+                                writer.writerow(process_record(domain, record, policy_published))
                     elif isinstance(records, dict):
-                        writer.writerow(process_record(domain, records))
+                        if is_failure(records):
+                            writer.writerow(process_record(domain, records, policy_published))
 
     ###############################################################################
     #  Chart Generation
