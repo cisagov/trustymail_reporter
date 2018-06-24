@@ -64,6 +64,7 @@ RUN pip install --upgrade setuptools pip \
     geos \
     matplotlib \
     pandas \
+    publicsuffix \
     pyasn \
     pymongo \
     pypdf2 \
