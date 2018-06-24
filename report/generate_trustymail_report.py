@@ -304,15 +304,17 @@ class ReportGenerator(object):
         # Take care of the DMARC agggregate report stuff
         #
         # Count up the number of DMARC failures from the DMARC aggregate
-        # reports for this base domain
+        # reports for this base domain.
         num_dmarc_failures = 0
         for report in self.__dmarc_results[domain['domain']]:
             records = report['_source']['record']
             if isinstance(records, list):
                 for record in records:
-                    num_dmarc_failures += record['row']['count']
+                    if ReportGenerator.is_failure(record):
+                        num_dmarc_failures += record['row']['count']
             elif isinstance(records, dict):
-                num_dmarc_failures += records['row']['count']
+                if ReportGenerator.is_failure(records):
+                    num_dmarc_failures += records['row']['count']
 
         score['num_dmarc_failures'] = num_dmarc_failures
 
@@ -643,27 +645,28 @@ class ReportGenerator(object):
                 domain['hosts_with_weak_crypto_str'] = format_list(hosts_with_weak_crypto)
                 data_writer.writerow(domain)
 
+    @staticmethod
+    def is_failure(record):
+        """Perform a quick check to determine if this record
+        represents a failure at all.
+
+        Parameters
+        ----------
+        record : dict
+            The DMARC aggregate report record to be checked.
+
+        Returns
+        -------
+        bool: True if the record represents a DMARC failure and
+        otherwise false.
+        """
+        policy_evaluated = record['row']['policy_evaluated']
+        dkim_and_alignment = policy_evaluated['dkim'].lower() == 'pass'
+        spf_and_alignment = policy_evaluated['spf'].lower() == 'pass'
+        return not dkim_and_alignment or not spf_and_alignment
+
     def __generate_dmarc_failures_attachment(self):
         """Generate the DMARC failures CSV attachment"""
-
-        def is_failure(record):
-            """Perform a quick check to determine if this record
-            represents a failure at all
-
-            Parameters
-            ----------
-            record : dict
-                The DMARC aggregate report record to be checked.
-
-            Returns
-            -------
-            bool: True if the record represents a DMARC failure and
-            otherwise false.
-            """
-            policy_evaluated = record['row']['policy_evaluated']
-            dkim_and_alignment = policy_evaluated['dkim'].lower() == 'pass'
-            spf_and_alignment = policy_evaluated['spf'].lower() == 'pass'
-            return not dkim_and_alignment or not spf_and_alignment
 
         def process_record(domain, record, policy_published):
             """Process a DMARC aggregate report record, returning a
@@ -831,10 +834,10 @@ class ReportGenerator(object):
                     policy_published = report['_source']['policy_published']
                     if isinstance(records, list):
                         for record in records:
-                            if is_failure(record):
+                            if ReportGenerator.is_failure(record):
                                 writer.writerow(process_record(domain, record, policy_published))
                     elif isinstance(records, dict):
-                        if is_failure(records):
+                        if ReportGenerator.is_failure(records):
                             writer.writerow(process_record(domain, records, policy_published))
 
     ###############################################################################
