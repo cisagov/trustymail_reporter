@@ -213,8 +213,8 @@ class ReportGenerator(object):
 
         Throws
         ------
-        requests.exceptions.RequestException: If there is an error is
-        returned by Elasticsearch.
+        requests.exceptions.RequestException: If an error is returned
+        by Elasticsearch.
         """
         # Construct the auth from the AWS credentials
         awsauth = AWS4Auth(self.__aws_credentials.access_key,
@@ -822,23 +822,26 @@ class ReportGenerator(object):
                         x['SPF DMARC'] = 'fail'
 
             return x
-        
+
+        records_to_save = []
+        for domain in self.__mail_domains:
+            for report in self.__dmarc_results[domain]:
+                records = report['_source']['record']
+                policy_published = report['_source']['policy_published']
+                if isinstance(records, list):
+                    failure_records = [process_record(domain, x, policy_published) for x in records if ReportGenerator.is_failure(x)]
+                    records_to_save.append(failure_records)
+                elif isinstance(records, dict):
+                    if ReportGenerator.is_failure(records):
+                        records_to_save.append(process_record(domain, records, policy_published))
+
+        records_to_save.sort(key=lambda x: s['Count'], reverse=True)
+
         fields = ('Domain', 'Source IP', 'PTR', 'ASN', 'Count', 'Policy Applied', 'Override Reason', 'DKIM DMARC', 'DKIM Raw', 'DKIM d=', 'SPF DMARC', 'SPF Raw', 'SPF Domain')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
             writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
             writer.writeheader()
-        
-            for domain in self.__mail_domains:
-                for report in self.__dmarc_results[domain]:
-                    records = report['_source']['record']
-                    policy_published = report['_source']['policy_published']
-                    if isinstance(records, list):
-                        for record in records:
-                            if ReportGenerator.is_failure(record):
-                                writer.writerow(process_record(domain, record, policy_published))
-                    elif isinstance(records, dict):
-                        if ReportGenerator.is_failure(records):
-                            writer.writerow(process_record(domain, records, policy_published))
+            writer.writerows(records_to_save)
 
     ###############################################################################
     #  Chart Generation
