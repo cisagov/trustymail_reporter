@@ -688,7 +688,7 @@ class ReportGenerator(object):
             dict: A dictionary containing the data of interest.
             """
             x = {}
-            x['Domain'] = domain
+            x['DMARC Domain'] = domain
             ip = record['row']['source_ip']
             x['Source IP'] = ip
             # x['IP Owner'] = None
@@ -731,14 +731,14 @@ class ReportGenerator(object):
 
             # DKIM
             auth_results = record['auth_results']
-            x['DKIM DMARC'] = None
-            x['DKIM Raw'] = None
+            x['DKIM Alignment Result'] = None
+            x['DKIM Result'] = None
             x['DKIM d='] = None
             if 'dkim' in auth_results:
                 dkim = auth_results['dkim']
                 dkim_and_alignment = policy_evaluated['dkim']
                 if isinstance(dkim, list):
-                    x['DKIM Raw'] = ' '.join([y['result'] for y in dkim])
+                    x['DKIM Result'] = ' '.join([y['result'] for y in dkim])
                     x['DKIM d='] = ' '.join([y['domain'] for y in dkim])
                     results = []
                     for y in dkim:
@@ -762,30 +762,30 @@ class ReportGenerator(object):
                                     results.append('unaligned')
                         else:
                             results.append('fail')
-                    x['DKIM DMARC'] = ' '.join(results)
+                    x['DKIM Alignment Result'] = ' '.join(results)
                 else:
-                    x['DKIM Raw'] = dkim['result']
+                    x['DKIM Result'] = dkim['result']
                     x['DKIM d='] = dkim['domain']
-                    if x['DKIM Raw'].lower() == 'pass':
+                    if x['DKIM Result'].lower() == 'pass':
                         if dkim_and_alignment.lower() == 'pass':
-                            x['DKIM DMARC'] = 'aligned'
+                            x['DKIM Alignment Result'] = 'aligned'
                         else:
-                            x['DKIM DMARC'] = 'unaligned'
+                            x['DKIM Alignment Result'] = 'unaligned'
                     else:
-                        x['DKIM DMARC'] = 'fail'
+                        x['DKIM Alignment Result'] = 'fail'
 
             # SPF
             #
             # This field is required in the XSD, but occassionally it isn't
             # actually present.
-            x['SPF DMARC'] = None
-            x['SPF Raw'] = None
+            x['SPF Alignment Result'] = None
+            x['SPF Result'] = None
             x['SPF Domain'] = None
             if 'spf' in auth_results:
                 spf = auth_results['spf']
                 spf_and_alignment = policy_evaluated['spf']
                 if isinstance(spf, list):
-                    x['SPF Raw'] = ' '.join([y['result'] for y in spf])
+                    x['SPF Result'] = ' '.join([y['result'] for y in spf])
                     x['SPF Domain'] = ' '.join([y['domain'] for y in spf])
                     results = []
                     for y in spf:
@@ -809,17 +809,17 @@ class ReportGenerator(object):
                                     results.append('unaligned')
                         else:
                             results.append('fail')
-                    x['SPF DMARC'] = ' '.join(results)
+                    x['SPF Alignment Result'] = ' '.join(results)
                 else:
-                    x['SPF Raw'] = spf['result']
+                    x['SPF Result'] = spf['result']
                     x['SPF Domain'] = spf['domain']
-                    if x['SPF Raw'].lower() == 'pass':
+                    if x['SPF Result'].lower() == 'pass':
                         if spf_and_alignment.lower() == 'pass':
-                            x['SPF DMARC'] = 'aligned'
+                            x['SPF Alignment Result'] = 'aligned'
                         else:
-                            x['SPF DMARC'] = 'unaligned'
+                            x['SPF Alignment Result'] = 'unaligned'
                     else:
-                        x['SPF DMARC'] = 'fail'
+                        x['SPF Alignment Result'] = 'fail'
 
             return x
 
@@ -837,7 +837,7 @@ class ReportGenerator(object):
 
         records_to_save.sort(key=lambda x: s['Count'], reverse=True)
 
-        fields = ('Domain', 'Source IP', 'PTR', 'ASN', 'Count', 'Policy Applied', 'Override Reason', 'DKIM DMARC', 'DKIM Raw', 'DKIM d=', 'SPF DMARC', 'SPF Raw', 'SPF Domain')
+        fields = ('DMARC Domain', 'Source IP', 'PTR', 'ASN', 'Count', 'Policy Applied', 'Override Reason', 'DKIM Alignment Result', 'DKIM Result', 'DKIM d=', 'SPF Alignment Result', 'SPF Result', 'SPF Domain')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
             writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
             writer.writeheader()
