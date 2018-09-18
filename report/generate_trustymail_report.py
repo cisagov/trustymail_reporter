@@ -830,7 +830,7 @@ class ReportGenerator(object):
                 policy_published = report['_source']['policy_published']
                 if isinstance(records, list):
                     failure_records = [process_record(domain, x, policy_published) for x in records if ReportGenerator.is_failure(x)]
-                    records_to_save.append(failure_records)
+                    records_to_save.extend(failure_records)
                 elif isinstance(records, dict):
                     if ReportGenerator.is_failure(records):
                         records_to_save.append(process_record(domain, records, policy_published))
