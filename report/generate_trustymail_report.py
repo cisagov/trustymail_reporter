@@ -184,8 +184,16 @@ class ReportGenerator(object):
         # Get count of second-level domains an agency owns
         self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
 
-        # Get a list of all domains associated with this agency's email servers
-        self.__mail_domains = {x['domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency}, {'_id': False, 'domain': True})}
+        # Get a list of all domains with DMARC records that are associated with
+        # this agency's email servers.  The domain associated with an aggregate
+        # report will the domain corresponding to the DMARC record that applies
+        # (whether this is the domain itself or the base domain), so clearly we
+        # only need to concern ourselves with domains for which there is a
+        # DMARC record.
+        #
+        # See here for details:
+        # https://tools.ietf.org/html/rfc7489#section-6.6.3
+        self.__mail_domains = {x['domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency, 'dmarc_record': True}, {'_id': False, 'domain': True})}
         logging.info('Retrieved {} mail domains for agency {}: {}'.format(len(self.__mail_domains), agency, self.__mail_domains))
 
         # Grab the AWS credentials, since we will need them to query
@@ -232,7 +240,7 @@ class ReportGenerator(object):
                 'constant_score': {
                     'filter': {
                         'bool': {
-                            'must': [
+                            'filter': [
                                 {
                                     'term': {
                                         'policy_published.domain': domain
@@ -306,15 +314,17 @@ class ReportGenerator(object):
         # Count up the number of DMARC failures from the DMARC aggregate
         # reports for this base domain.
         num_dmarc_failures = 0
-        for report in self.__dmarc_results[domain['domain']]:
-            records = report['_source']['record']
-            if isinstance(records, list):
-                for record in records:
-                    if ReportGenerator.is_failure(record):
-                        num_dmarc_failures += record['row']['count']
-            elif isinstance(records, dict):
-                if ReportGenerator.is_failure(records):
-                    num_dmarc_failures += records['row']['count']
+        dmarc_results = self.__dmarc_results.get(domain['domain'])
+        if dmarc_results is not None:
+            for report in self.__dmarc_results[domain['domain']]:
+                records = report['_source']['record']
+                if isinstance(records, list):
+                    for record in records:
+                        if ReportGenerator.is_failure(record):
+                            num_dmarc_failures += record['row']['count']
+                elif isinstance(records, dict):
+                    if ReportGenerator.is_failure(records):
+                        num_dmarc_failures += records['row']['count']
 
         score['num_dmarc_failures'] = num_dmarc_failures
 
