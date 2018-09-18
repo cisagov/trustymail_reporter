@@ -733,13 +733,13 @@ class ReportGenerator(object):
             auth_results = record['auth_results']
             x['DKIM Alignment Result'] = None
             x['DKIM Result'] = None
-            x['DKIM d='] = None
+            x['DKIM Domain'] = None
             if 'dkim' in auth_results:
                 dkim = auth_results['dkim']
                 dkim_and_alignment = policy_evaluated['dkim']
                 if isinstance(dkim, list):
                     x['DKIM Result'] = ' '.join([y['result'] for y in dkim])
-                    x['DKIM d='] = ' '.join([y['domain'] for y in dkim])
+                    x['DKIM Domain'] = ' '.join([y['domain'] for y in dkim])
                     results = []
                     for y in dkim:
                         if y['result'].lower() == 'pass':
@@ -765,7 +765,7 @@ class ReportGenerator(object):
                     x['DKIM Alignment Result'] = ' '.join(results)
                 else:
                     x['DKIM Result'] = dkim['result']
-                    x['DKIM d='] = dkim['domain']
+                    x['DKIM Domain'] = dkim['domain']
                     if x['DKIM Result'].lower() == 'pass':
                         if dkim_and_alignment.lower() == 'pass':
                             x['DKIM Alignment Result'] = 'aligned'
@@ -837,7 +837,7 @@ class ReportGenerator(object):
 
         records_to_save.sort(key=lambda x: s['Count'], reverse=True)
 
-        fields = ('DMARC Domain', 'Policy Applied', 'Override Reason', 'Count', 'DKIM Alignment Result', 'DKIM Result', 'DKIM d=', 'SPF Alignment Result', 'SPF Result', 'SPF Domain', 'Source IP', 'PTR', 'ASN')
+        fields = ('DMARC Domain', 'Policy Applied', 'Override Reason', 'Count', 'DKIM Alignment Result', 'DKIM Result', 'DKIM Domain', 'SPF Alignment Result', 'SPF Result', 'SPF Domain', 'Source IP', 'PTR', 'ASN')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
             writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
             writer.writeheader()
