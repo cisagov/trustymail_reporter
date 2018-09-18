@@ -699,8 +699,8 @@ e.g., SPF/DKIM, and
 with DMARC.
 
 Four fields provide key details as to why a message failed
-authentication or alignment. These are (1) DKIM Alignment Result, {2)
-DKIM Result, {3) SPF Alignment Result, and (4) SPF Result. For
+authentication or alignment. These are (1) DKIM Alignment Result, (2)
+DKIM Result, (3) SPF Alignment Result, and (4) SPF Result. For
 instance:
 \begin{itemize}
 \item If SPF Result and DKIM Result both pass but SPF Alignment Result
@@ -740,7 +740,7 @@ fields -- the elements and types -- in the raw XML of DMARC reports:
   reporter.
 \item[Override Reason] The reason (if any) that the reporter chose to
   override the DMARC policy published by the domain.
-\item[DKIM Alignment Result]
+\item[DKIM Alignment Result] \hfill
   \begin{itemize}
     \item \texttt{aligned} if DKIM passed and the DKIM domain aligned
       with that of the message-From header
@@ -748,14 +748,14 @@ fields -- the elements and types -- in the raw XML of DMARC reports:
       not align with that of the message-From header.
     \item \texttt{fail} if DKIM failed.
   \end{itemize}
-\item[DKIM Result]
+\item[DKIM Result] \hfill
   \begin{itemize}
     \item \texttt{pass} if DKIM passed
     \item \texttt{fail} otherwise.
   \end{itemize}
 \item[DKIM Domain] The DKIM domain. This is the domain referenced in
   the DKIM header.
-\item[SPF Alignment Result]
+\item[SPF Alignment Result] \hfill
   \begin{itemize}
     \item \texttt{aligned} if SPF passed and the SPF domain aligned
       with that of the message-From header.
@@ -763,7 +763,7 @@ fields -- the elements and types -- in the raw XML of DMARC reports:
       align with that of the message-From header.
     \item \texttt{fail} if SPF failed.
   \end{itemize}
-\item[SPF Result]
+\item[SPF Result] \hfill
   \begin{itemize}
     \item \texttt{pass} if SPF passed
     \item \texttt{fail} otherwise.
