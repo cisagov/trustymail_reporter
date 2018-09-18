@@ -835,7 +835,7 @@ class ReportGenerator(object):
                     if ReportGenerator.is_failure(records):
                         records_to_save.append(process_record(domain, records, policy_published))
 
-        records_to_save.sort(key=lambda x: s['Count'], reverse=True)
+        records_to_save.sort(key=lambda x: x['Count'], reverse=True)
 
         fields = ('DMARC Domain', 'Policy Applied', 'Override Reason', 'Count', 'DKIM Alignment Result', 'DKIM Result', 'DKIM Domain', 'SPF Alignment Result', 'SPF Result', 'SPF Domain', 'Source IP', 'PTR', 'ASN')
         with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
