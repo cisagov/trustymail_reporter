@@ -364,7 +364,7 @@ opacity=0.04
 \label{sec:executive summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
-This weekly report, created by the National Cybersecurity Assessments and Technical Services (NCATS) team inside the Department of Homeland Security's National Cybersecurity and Communications Integration Center (NCCIC), is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/#compliance-guide}.
+This weekly report, created by the National Cybersecurity Assessments and Technical Services (NCATS) team inside the Department of Homeland Security's National Cybersecurity and Communications Integration Center (NCCIC), is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
 
 \vspace*{-3mm}
 \addcontentsline{toc}{subsection}{Overview} % Adds a subsection to toc
@@ -598,7 +598,7 @@ There are three predominant forms of email authentication technology: \href{http
   \item If email authentication records are found, the server evaluates the email it received against the email authentication records and makes a determination: deliver it, deliver it but mark it as questionable, or discard it altogether.
 \end{enumerate}
 
-See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.pdf#page=37}{SP 800-177, section 4} for a detailed technical description. For additional information, please see \href{https://cyber.dhs.gov/bod/18-01/#introduction-to-email-authentication}{https://cyber.dhs.gov/bod/18-01/#introduction-to-email-authentication}.\\~\\~\\
+See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.pdf#page=37}{SP 800-177, section 4} for a detailed technical description. For additional information, please see \href{https://cyber.dhs.gov/bod/18-01/#introduction-to-email-authentication}{https://cyber.dhs.gov/bod/18-01/\#introduction-to-email-authentication}.\\~\\~\\
 
 \vspace*{-3mm}
 \phantomsection % links this section from toc
@@ -606,7 +606,7 @@ See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.p
 \subsection*{What should my organization do?}
 \vspace*{-3mm}
 
-For implementation guidance, please see \href{https://cyber.dhs.gov/bod/18-01/#compliance-guide}{https://cyber.dhs.gov/bod/18-01/#compliance-guide}.\\~\\~\\
+For implementation guidance, please see \href{https://cyber.dhs.gov/bod/18-01/#compliance-guide}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.\\~\\~\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -619,7 +619,7 @@ For implementation guidance, please see \href{https://cyber.dhs.gov/bod/18-01/#c
 \subsection*{Resources}
 \vspace*{-3mm}
 
-Please see \href{https://cyber.dhs.gov/bod/18-01/#resources}{https://cyber.dhs.gov/bod/18-01/#resources} for helpful information.\\~\\~\\
+Please see \href{https://cyber.dhs.gov/bod/18-01/#resources}{https://cyber.dhs.gov/bod/18-01/\#resources} for helpful information.\\~\\~\\
 
 \vspace*{-3mm}
 \phantomsection % links this section from toc
@@ -653,7 +653,7 @@ and saved to a database using
 \href{https://github.com/dhs-ncats/dmarc-import}{an open source tool
 created by the NCATS team}.  This database is then queried at the time
 of report generation in order to populate the report with DMARC
-failure data. See dmarc_failures.csv for more information.
+failure data. See \texttt{dmarc\_failures.csv} for more information.
 
 Note that DMARC failures can occur for the following reasons:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
