@@ -679,27 +679,50 @@ your \texttt{.gov} domains with an \texttt{rua=} of
 week. The results are sorted by the \texttt{Count} field, in
 descending order.
 
-\subsection{Understanding \texttt{dmarc\_failures.csv}}
+\phantomsection % links this section from toc
+\addcontentsline{toc}{subsection}{Understanding \texttt{dmarc\_failures.csv}}% Adds subsection to toc
+\subsection*{Understanding \texttt{dmarc\_failures.csv}}
 \label{sec:dmarcfailures}
-\emph{In order to understand what is going on in this data, we recommend reviewing the principles of email authentication on \href{https://cyber.dhs.gov/bod/18-01}{cyber.dhs.gov/bod/18-01}, especially the section titled \href{https://cyber.dhs.gov/bod/18-01/\#what-are-the-standards-that-enable-email-authentication}{``What are the standards that enable email authentication?''}}
+\emph{In order to understand what is going
+on in this data, we recommend reviewing the principles of email
+authentication on
+\href{https://cyber.dhs.gov/bod/18-01}{cyber.dhs.gov/bod/18-01},
+especially the section titled
+\href{https://cyber.dhs.gov/bod/18-01/\#what-are-the-standards-that-enable-email-authentication}{``What
+are the standards that enable email authentication?''}}
 
 \texttt{dmarc\_failures.csv} is summary analysis of DMARC aggregate
-reports for your \texttt{.gov} domains with an \texttt{rua=} of
+reports for your \texttt{.gov} domains that have an \texttt{rua=} of
 \texttt{reports@dmarc.cyber.dhs.gov} received during the past
 week. The results are sorted by the \texttt{Count} field, in
 descending order.
 
 In order to satisfy DMARC filtering, at least one email authentication mechanism (SPF, DKIM) must:
 \begin{enumerate}[topsep=-6pt, itemsep=0pt]
-  \item “pass” their \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{authentication checks}, and 
-  \item produce that result based on the SPF or DKIM domain being in “\href{https://cyber.dhs.gov/bod/18-01/#alignment-and-conformance{alignment}”. Alignment is when the authenticated domain matches the domain in the message-From address (\texttt{DMARC Domain}, below). 
+  \item ``pass'' their
+  \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{authentication
+  checks}, and
+  \item produce that result based on the SPF or DKIM domain being in
+  ``\href{https://cyber.dhs.gov/bod/18-01/#alignment-and-conformance{alignment}''. Alignment
+  is when the authenticated domain matches the domain in the
+  message-From address (\texttt{DMARC Domain}, below).
 \end{enumerate}
 
-The CSV provides you with a list of IP addresses that were reported as sending email as your domain(s) but that fail these conditions. 
+The CSV provides you with a list of IP addresses that were reported as
+sending email as your domain(s) but that fail these conditions.
 
-Your goal should be to review this list and determine \emph{which messages are legitimate} even though they fail authentication. We suggest you start with those domains that have the highest numbers in the \texttt{Count} field, since they are seeing the most errors, and investigate which have actually been authorized by your organization. Those are the domains you need to authenticate with SPF/DKIM and align with DMARC. 
+Your goal should be to review this list and determine \emph{which
+messages are legitimate} even though they fail authentication. We
+suggest you start with those domains that have the highest numbers in
+the \texttt{Count} field, since they are seeing the most errors, and
+investigate which have actually been authorized by your
+organization. Those are the domains you need to authenticate with
+SPF/DKIM and align with DMARC.
 
-Generally speaking, we encourage you to avoid deep analysis on those systems that are not authorized to send mail as your domain, but \emph{use them as motivation} to authenticate valid mail and set a policy of reject for your domains.
+Generally speaking, we encourage you to avoid deep analysis on those
+systems that are not authorized to send mail as your domain, but
+\emph{use them as motivation} to authenticate valid mail and set a
+policy of reject for your domains.
 
 Take note:
 \begin{itemize}
@@ -707,8 +730,7 @@ Take note:
   reports, but are pieces of information, based on your DMARC report
   data, that we have added to assist you in evaluating legitimacy.
 \item Because this summarized analysis covers the past week, real-time
-  data in the current week may differ. For example, the DMARC policy
-  at the domain could be different.
+  data in the current week could be different.
 \item The three DKIM fields may contain multiple values if there are
   multiple DKIM headers.  A message can have multiple DKIM headers for
   a variety of reasons, most typically when it is forwarded by a
