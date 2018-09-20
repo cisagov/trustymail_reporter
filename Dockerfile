@@ -48,25 +48,30 @@ RUN apt-get update -qq \
     fontconfig \
     redis-tools
 
-# Setup texlive latex stuff.
-#
-# The tlmgr init-usertree command returns a bogus non-zero return
-# value: https://www.tug.org/pipermail/tex-live/2016-March/037889.html
-RUN tlmgr init-usertree \
-    && tlmgr option repository ftp://tug.org/historic/systems/texlive/2015/tlnet-final \
-    && tlmgr update --self
+# Setup texlive latex stuff
+RUN tlmgr init-usertree
 
 # Install requirements for report generation
-RUN pip install --upgrade setuptools \
-    && pip install \
+#
+# numpy seems to be required to build basemap's wheel, so we'll
+# install it first.
+RUN pip install --upgrade setuptools pip \
+    && pip install --upgrade numpy \
+    && pip install --upgrade \
+    boto3 \
+    dnspython \
+    docopt \
+    geos \
+    matplotlib \
+    pandas \
+    publicsuffix \
+    pyasn \
     pymongo \
     pypdf2 \
-    matplotlib \
     pystache \
-    pandas \
-    geos \
     pyyaml \
-    docopt \
+    requests \
+    requests_aws4auth \
     https://github.com/matplotlib/basemap/archive/v1.1.0.tar.gz
 
 ###

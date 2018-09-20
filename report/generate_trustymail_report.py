@@ -15,19 +15,28 @@ Options:
 # standard python libraries
 import codecs
 import csv
+from datetime import datetime, time, timezone, timedelta
 import json
+import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
-from datetime import datetime
 
 # third-party libraries (install with pip)
-import pystache
+import boto3
 from bson import ObjectId
+import dns.resolver
+import dns.reversename
 from docopt import docopt
+import publicsuffix
+import pyasn
 from pymongo import MongoClient
+import pystache
+import requests
+from requests_aws4auth import AWS4Auth
 import yaml
 
 # intra-project modules
@@ -36,6 +45,8 @@ import graphs
 # constants
 DB_CONFIG_FILE = '/run/secrets/scan_read_creds.yml'
 TRUSTYMAIL_RESULTS_CSV_FILE = 'trustymail_results.csv'
+TRUSTYMAIL_DMARC_FAILURES_CSV_FILE = 'dmarc_failures.csv'
+DMARC_RESULTS_CSV_FILE = 'dmarc_aggregate_report.csv'
 MUSTACHE_FILE = 'trustymail_report.mustache'
 REPORT_JSON = 'trustymail_report.json'
 REPORT_PDF = 'trustymail_report.pdf'
@@ -62,6 +73,12 @@ LATEX_ESCAPE_MAP = {
     '\n': '\\newline{}',
 }
 BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
+ES_REGION = 'us-east-1'
+ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
+ES_URL_NO_INDEX = re.sub('/[^/]*$', '', ES_URL)
+ES_RETRIEVE_SIZE = 10000
+PREPROCESSED_BGP_DATA_FILE = 'ipasn.dat'
+PUBLIC_SUFFIX_LIST_FILENAME = 'psl.txt'
 
 class ReportGenerator(object):
     #initiate variables
@@ -72,6 +89,8 @@ class ReportGenerator(object):
         self.__debug = debug
         self.__generated_time = datetime.utcnow()
         self.__results = dict() # reusable query results
+        self.__mail_domains = set()
+        self.__dmarc_results = dict()
         self.__requests = None
         self.__report_doc = {'scores':[]}
         self.__all_domains = []
@@ -95,6 +114,29 @@ class ReportGenerator(object):
         self.__has_no_weak_crypto_count = 0
         self.__bod_1801_compliant_count = 0
         #self.__report_oid = ObjectId()     # For future use
+        # The pyasn database mapping IPs to ASNs and vice versa
+        self.__asndb = pyasn.pyasn(PREPROCESSED_BGP_DATA_FILE)
+        # The public suffix list
+        self.__psl = publicsuffix.PublicSuffixList(PUBLIC_SUFFIX_LIST_FILENAME)
+
+        #
+        # Configure the dnspython library
+        #
+
+        # Our resolver
+        #
+        # Note that it uses the system configuration in /etc/resolv.conf if no
+        # DNS hostnames are specified.
+        self.__resolver = dns.resolver.Resolver(configure=False)
+        # Retry DNS servers if we receive a SERVFAIL response from them.  We
+        # set this to False because, unless the reason for the SERVFAIL is
+        # truly temporary and resolves before trustymail finishes scanning the
+        # domain, this obscures the potentially informative SERVFAIL error as a
+        # DNS timeout because of the way dns.resolver.query() is written.  See
+        # http://www.dnspython.org/docs/1.14.0/dns.resolver-pysrc.html#query.
+        self.__resolver.retry_servfail = False
+        # Use Google DNS
+        self.__resolver.nameservers = ['8.8.8.8']
 
         # Get list of all domains from the database
         all_domains_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency})
@@ -142,8 +184,150 @@ class ReportGenerator(object):
         # Get count of second-level domains an agency owns
         self.__base_domain_count = self.__db.trustymail.find({'latest':True, 'agency.name': agency, 'is_base_domain':True}).count()
 
+        # Get a list of all domains with DMARC records that are associated with
+        # this agency's email servers.  The domain associated with an aggregate
+        # report will the domain corresponding to the DMARC record that applies
+        # (whether this is the domain itself or the base domain), so clearly we
+        # only need to concern ourselves with domains for which there is a
+        # DMARC record.
+        #
+        # See here for details:
+        # https://tools.ietf.org/html/rfc7489#section-6.6.3
+        self.__mail_domains = {x['domain'] for x in self.__db.trustymail.find({'latest': True, 'agency.name': agency, 'dmarc_record': True}, {'_id': False, 'domain': True})}
+        logging.info('Retrieved {} mail domains for agency {}: {}'.format(len(self.__mail_domains), agency, self.__mail_domains))
+
+        # Grab the AWS credentials, since we will need them to query
+        # elasticsearch
+        self.__aws_credentials = boto3.Session().get_credentials()
+
+        # Get all DMARC aggregate reports associated with these domains
+        for domain in self.__mail_domains:
+            try:
+                self.__query_elasticsearch(domain)
+            except requests.exceptions.RequestException as e:
+                logging.exception('Unable to perform Elasticsearch query')
+
+            logging.info('Retrieved {} DMARC reports for domain {}'.format(len(self.__dmarc_results[domain]), domain))
+
+    def __query_elasticsearch(self, domain):
+        """Query Elasticsearch for all DMARC aggregate reports
+        received for this agency in the past seven days.
+
+        Parameters
+        ----------
+        domain : str
+            The domain for which DMARC aggregate reports are to be
+            queried from the Elasticsearch database.
+
+        Throws
+        ------
+        requests.exceptions.RequestException: If an error is returned
+        by Elasticsearch.
+        """
+        # Construct the auth from the AWS credentials
+        awsauth = AWS4Auth(self.__aws_credentials.access_key,
+                           self.__aws_credentials.secret_key,
+                           ES_REGION, 'es',
+                           session_token=self.__aws_credentials.token)
+        # Now construct the query.  We want all DMARC aggregrate reports since
+        # midnight UTC seven days ago.
+        seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+        last_date = datetime.combine(seven_days_ago.date(),
+                                     time(tzinfo=timezone.utc)).timestamp()
+        query = {
+            'size': ES_RETRIEVE_SIZE,
+            'query': {
+                'constant_score': {
+                    'filter': {
+                        'bool': {
+                            'filter': [
+                                {
+                                    'term': {
+                                        'policy_published.domain': domain
+                                    }
+                                },
+                                {
+                                    'range': {
+                                        'report_metadata.date_range.begin': {
+                                            'gte': last_date
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+
+        # Now perform the query.  We have to do a little finagling with the
+        # scroll API in order to get past the 10000 document limit.  (I
+        # verified that we do run into that limit on occasion.)
+        scroll_again = True
+        scroll_id = None
+        response = requests.get('{}/_search?scroll=1m'.format(ES_URL),
+                                auth=awsauth,
+                                json=query,
+                                headers={'Content-Type': 'application/json'},
+                                timeout=300)
+        # Raises an exception if we didn't get back a 200 code
+        response.raise_for_status()
+
+        hits = response.json()['hits']['hits']
+        scroll_id = response.json()['_scroll_id']
+        if domain in self.__dmarc_results:
+            self.__dmarc_results[domain].extend(hits)
+        else:
+            self.__dmarc_results[domain] = hits
+
+        # If there were fewer hits than ES_RETRIEVE_SIZE then there is no need
+        # to keep scrolling
+        if len(hits) < ES_RETRIEVE_SIZE:
+            scroll_again = False
+        
+        while scroll_again:
+            scroll_json = {
+                'scroll': '1m',
+                'scroll_id': scroll_id
+            }
+            response = requests.get('{}/_search/scroll'.format(ES_URL_NO_INDEX),
+                                    auth=awsauth,
+                                    json=scroll_json,
+                                    headers={'Content-Type': 'application/json'},
+                                    timeout=300)
+            # Raises an exception if we didn't get back a 200 code
+            response.raise_for_status()
+
+            hits = response.json()['hits']['hits']
+            self.__dmarc_results[domain].extend(hits)
+
+            # If there were fewer hits than ES_RETRIEVE_SIZE then there is no
+            # need to keep scrolling
+            if len(hits) < ES_RETRIEVE_SIZE:
+                scroll_again = False
+
     def __score_domain(self, domain):
         score = {'subdomain_scores': list(), 'live': domain['live'], 'has_live_smtp_subdomains': False}
+
+        # Take care of the DMARC agggregate report stuff
+        #
+        # Count up the number of DMARC failures from the DMARC aggregate
+        # reports for this base domain.
+        num_dmarc_failures = 0
+        dmarc_results = self.__dmarc_results.get(domain['domain'])
+        if dmarc_results is not None:
+            for report in self.__dmarc_results[domain['domain']]:
+                records = report['_source']['record']
+                if isinstance(records, list):
+                    for record in records:
+                        if ReportGenerator.is_failure(record):
+                            num_dmarc_failures += record['row']['count']
+                elif isinstance(records, dict):
+                    if ReportGenerator.is_failure(records):
+                        num_dmarc_failures += records['row']['count']
+
+        score['num_dmarc_failures'] = num_dmarc_failures
+
         if domain['live']:
             # Check if the current domain is the base domian.
             if domain['is_base_domain']:
@@ -394,6 +578,7 @@ class ReportGenerator(object):
     ###############################################################################
     def __generate_attachments(self):
         self.__generate_trustymail_attachment()
+        self.__generate_dmarc_failures_attachment()
 
     def __generate_trustymail_attachment(self):
         header_fields = ('Domain', 'Base Domain', 'Domain Is Base Domain', 'Live', 'MX Record', 'Mail Servers', 'Mail Server Ports Tested', 'Domain Supports SMTP', 'Domain Supports SMTP Results', 'Domain Supports STARTTLS', 'Domain Supports STARTTLS Results', 'SPF Record', 'Valid SPF', 'SPF Results', 'DMARC Record', 'Valid DMARC', 'DMARC Results', 'DMARC Record on Base Domain', 'Valid DMARC Record on Base Domain', 'DMARC Results on Base Domain', 'DMARC Policy', 'DMARC Policy Percentage', 'DMARC Aggregate Report URIs', 'DMARC Forensic Report URIs', 'DMARC Has Aggregate Report URI', 'DMARC Has Forensic Report URI', 'Syntax Errors', 'Debug Info', 'Domain Supports Weak Crypto', 'Mail-Sending Hosts with Weak Crypto')
@@ -469,6 +654,204 @@ class ReportGenerator(object):
                 hosts_with_weak_crypto = [rehydrate_hosts_with_weak_crypto(d) for d in domain['hosts_with_weak_crypto']]
                 domain['hosts_with_weak_crypto_str'] = format_list(hosts_with_weak_crypto)
                 data_writer.writerow(domain)
+
+    @staticmethod
+    def is_failure(record):
+        """Perform a quick check to determine if this record
+        represents a failure at all.
+
+        Parameters
+        ----------
+        record : dict
+            The DMARC aggregate report record to be checked.
+
+        Returns
+        -------
+        bool: True if the record represents a DMARC failure and
+        otherwise false.
+        """
+        policy_evaluated = record['row']['policy_evaluated']
+        dkim_and_alignment = policy_evaluated['dkim'].lower() == 'pass'
+        spf_and_alignment = policy_evaluated['spf'].lower() == 'pass'
+        return not dkim_and_alignment or not spf_and_alignment
+
+    def __generate_dmarc_failures_attachment(self):
+        """Generate the DMARC failures CSV attachment"""
+
+        def process_record(domain, record, policy_published):
+            """Process a DMARC aggregate report record, returning a
+            dictionary containing the data of interest.
+
+            Parameters
+            ----------
+            domain : str
+                The domain corresponding to this DMARC aggregate report.
+
+            record : dict
+                The DMARC aggregate report record to be processed.
+
+            policy_published : dict
+                The published DMARC policy.
+
+            Returns
+            -------
+            dict: A dictionary containing the data of interest.
+            """
+            x = {}
+            x['DMARC Domain'] = domain
+            ip = record['row']['source_ip']
+            x['Source IP'] = ip
+            # x['IP Owner'] = None
+
+            # Try to find a PTR record
+            x['PTR'] = None
+            try:
+                ans = self.__resolver.query(dns.reversename.from_address(ip), 'PTR', tcp=True)
+                # There is a trailing period that we don't want
+                x['PTR'] = ans[0].to_text()[:-1]
+            except (dns.resolver.NoNameservers, dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.exception.Timeout) as e:
+                # If we fail for any reason then there is no PTR record
+                pass
+
+            # Grab some values
+            x['ASN'] = self.__asndb.lookup(ip)[0]
+            x['Count'] = record['row']['count']
+            policy_evaluated = record['row']['policy_evaluated']
+            x['Policy Applied'] = policy_evaluated['disposition']
+
+            # SPF and DKIM alignment modes.  The default is 'r' for both.
+            spf_alignment_mode = 'r'
+            if 'aspf' in policy_published:
+                spf_alignment_mode = policy_published['aspf']
+            dkim_alignment_mode = 'r'
+            if 'adkim' in policy_published:
+                dkim_alignment_mode = policy_published['adkim']
+
+            # Override reason
+            x['Override Reason'] = None
+            if 'reason' in policy_evaluated:
+                reason = policy_evaluated['reason']
+                if isinstance(reason, list):
+                    x['Override Reason'] = ' '.join([rsn['type'] for rsn in reason])
+                else:
+                    x['Override Reason'] = reason['type']
+
+            # This field is required in the XSD
+            header_from = record['identifiers']['header_from']
+
+            # DKIM
+            auth_results = record['auth_results']
+            x['DKIM Alignment Result'] = None
+            x['DKIM Result'] = None
+            x['DKIM Domain'] = None
+            if 'dkim' in auth_results:
+                dkim = auth_results['dkim']
+                dkim_and_alignment = policy_evaluated['dkim']
+                if isinstance(dkim, list):
+                    x['DKIM Result'] = ' '.join([y['result'] for y in dkim])
+                    x['DKIM Domain'] = ' '.join([y['domain'] for y in dkim])
+                    results = []
+                    for y in dkim:
+                        if y['result'].lower() == 'pass':
+                            if dkim_alignment_mode.lower() == 's':
+                                # DKIM alignment mode is strict, so the from
+                                # header has to match the domain exactly
+                                if y['domain'].lower() == header_from.lower():
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
+                            else:
+                                # DKIM alignment is relaxed, so the header and
+                                # the domain just need to come from the same
+                                # base domain
+                                base_domain = self.__psl.get_public_suffix(y['domain']).lower()
+                                header_base_domain = self.__psl.get_public_suffix(header_from).lower()
+                                if base_domain == header_base_domain:
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
+                        else:
+                            results.append('fail')
+                    x['DKIM Alignment Result'] = ' '.join(results)
+                else:
+                    x['DKIM Result'] = dkim['result']
+                    x['DKIM Domain'] = dkim['domain']
+                    if x['DKIM Result'].lower() == 'pass':
+                        if dkim_and_alignment.lower() == 'pass':
+                            x['DKIM Alignment Result'] = 'aligned'
+                        else:
+                            x['DKIM Alignment Result'] = 'unaligned'
+                    else:
+                        x['DKIM Alignment Result'] = 'fail'
+
+            # SPF
+            #
+            # This field is required in the XSD, but occassionally it isn't
+            # actually present.
+            x['SPF Alignment Result'] = None
+            x['SPF Result'] = None
+            x['SPF Domain'] = None
+            if 'spf' in auth_results:
+                spf = auth_results['spf']
+                spf_and_alignment = policy_evaluated['spf']
+                if isinstance(spf, list):
+                    x['SPF Result'] = ' '.join([y['result'] for y in spf])
+                    x['SPF Domain'] = ' '.join([y['domain'] for y in spf])
+                    results = []
+                    for y in spf:
+                        if y['result'].lower() == 'pass':
+                            if spf_alignment_mode.lower() == 's':
+                                # SPF alignment mode is strict, so the from
+                                # header has to match the domain exactly
+                                if y['domain'].lower() == header_from.lower():
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
+                            else:
+                                # SPF alignment is relaxed, so the header and
+                                # the domain just need to come from the same
+                                # base domain
+                                base_domain = self.__psl.get_public_suffix(y['domain']).lower()
+                                header_base_domain = self.__psl.get_public_suffix(header_from).lower()
+                                if base_domain == header_base_domain:
+                                    results.append('aligned')
+                                else:
+                                    results.append('unaligned')
+                        else:
+                            results.append('fail')
+                    x['SPF Alignment Result'] = ' '.join(results)
+                else:
+                    x['SPF Result'] = spf['result']
+                    x['SPF Domain'] = spf['domain']
+                    if x['SPF Result'].lower() == 'pass':
+                        if spf_and_alignment.lower() == 'pass':
+                            x['SPF Alignment Result'] = 'aligned'
+                        else:
+                            x['SPF Alignment Result'] = 'unaligned'
+                    else:
+                        x['SPF Alignment Result'] = 'fail'
+
+            return x
+
+        records_to_save = []
+        for domain in self.__mail_domains:
+            for report in self.__dmarc_results[domain]:
+                records = report['_source']['record']
+                policy_published = report['_source']['policy_published']
+                if isinstance(records, list):
+                    failure_records = [process_record(domain, x, policy_published) for x in records if ReportGenerator.is_failure(x)]
+                    records_to_save.extend(failure_records)
+                elif isinstance(records, dict):
+                    if ReportGenerator.is_failure(records):
+                        records_to_save.append(process_record(domain, records, policy_published))
+
+        records_to_save.sort(key=lambda x: x['Count'], reverse=True)
+
+        fields = ('DMARC Domain', 'Policy Applied', 'Override Reason', 'Count', 'DKIM Alignment Result', 'DKIM Result', 'DKIM Domain', 'SPF Alignment Result', 'SPF Result', 'SPF Domain', 'Source IP', 'PTR', 'ASN')
+        with open(TRUSTYMAIL_DMARC_FAILURES_CSV_FILE, 'w') as out_file:
+            writer = csv.DictWriter(out_file, fields, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(records_to_save)
 
     ###############################################################################
     #  Chart Generation
@@ -583,6 +966,11 @@ def db_from_config(config_filename):
 
 def main():
     args = docopt(__doc__, version='v0.0.1')
+
+    # Set up logging
+    logging.basicConfig(format='%(asctime)-15s %(levelname)s %(message)s',
+                        level=logging.INFO)
+
     db = db_from_config(DB_CONFIG_FILE)
 
     print('Generating Trustymail Report...')
