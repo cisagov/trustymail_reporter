@@ -712,12 +712,14 @@ The CSV provides you with a list of IP addresses that were reported as
 sending email as your domain(s) but that fail these conditions.
 
 Your goal should be to review this list and determine \emph{which
-messages are legitimate} even though they fail authentication. We
-suggest you start with those domains that have the highest numbers in
-the \texttt{Count} field, since they are seeing the most errors, and
-investigate which have actually been authorized by your
-organization. Those are the domains you need to authenticate with
-SPF/DKIM and align with DMARC.
+messages are legitimate} even though they fail authentication. Though
+we have sorted the data by the \texttt{Count} field, highlighting those domains
+with the most errors, we actually suggest that you first determine the most
+critical services that you know send on your behalf (e.g., your primary MX,
+alerts and monitoring, payroll/HR systems, invoicing, etc.), and ensure they are
+properly authenticated. After that, you can work to investigate which of the
+rest of the emails have actually been authorized by your organization and
+proceed to authenticate with SPF/DKIM and align with DMARC.
 
 Generally speaking, we encourage you to avoid deep analysis on those
 systems that are not authorized to send mail as your domain, but
@@ -747,7 +749,10 @@ The fields in the \texttt{dmarc\_failures.csv} CSV are as follows:
   address (the email address that is represented as From: in email
   clients), or b) the organizational domain corresponding to that.
 \item[Override Reason] The reason (if any) that the reporter chose to
-  override the DMARC policy published by the domain.
+  override the DMARC policy published by the domain.  This sometimes happens
+  when mail providers observe traffic from known mailing lists or forwarders.
+  If you observe overrides, it typically means the message has been delivered
+  to spam, not to a user’s inbox.
 \item[Count] The number of emails that failed DMARC processing and are
   being reported.
 \item[Policy Applied] The DMARC policy that was applied by the
