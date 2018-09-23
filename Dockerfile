@@ -55,6 +55,9 @@ RUN tlmgr init-usertree
 #
 # numpy seems to be required to build basemap's wheel, so we'll
 # install it first.
+#
+# Note that matplotlib.basemap is currently incompatible with
+# matplotlib 3.x.
 RUN pip install --upgrade setuptools pip \
     && pip install --upgrade numpy \
     && pip install --upgrade \
@@ -62,7 +65,7 @@ RUN pip install --upgrade setuptools pip \
     dnspython \
     docopt \
     geos \
-    matplotlib \
+    matplotlib~=2.2.3 \
     pandas \
     publicsuffix \
     pyasn \
