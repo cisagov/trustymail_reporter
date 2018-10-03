@@ -428,20 +428,24 @@ Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (secon
 \begin{landscape}
 \section{Results}
 \label{sec:results}
-The following table presents observed STARTTLS, SPF, DMARC, and weak cryptography data for <<&agency>> hostnames. This table only shows data that meets the following critieria:
+The following table presents observed STARTTLS, SPF, DMARC, and weak
+cryptography data for <<&agency>> hostnames. This table only shows
+data that meets the following criteria:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
-  \item hostnames that are ``live" in DNS
-  \item second-level domains
-  \item subdomains with a DMARC record set directly
-  \item subdomains for which the second-level domain does not have a valid DMARC record.
-  \item subdomains that ``support SMTP"
+\item hostnames that are ``live'' in DNS
+\item second-level domains
+\item subdomains with a DMARC record set directly
+\item subdomains for which the second-level domain does not have a
+  valid DMARC record
+\item subdomains that ``support SMTP''
 \end{itemize}
 
-The table is optimized around showing those domains that are not currently protected by DMARC.\\~\\
+The table is optimized around showing those domains that are not
+currently protected by DMARC.\\~\\
 
 \textbf{Note:} The results in this report differ from the results on Pulse (\href{https://pulse.cio.gov}{https://pulse.cio.gov}). This difference is due to the scope that each service covers. Pulse data focuses solely on web security, where this report focuses on email security.\\~\\
 
-Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{dhs-blue}{Field Descriptions}}", after the table below.
+Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{dhs-blue}{Field Descriptions}}'', after the table below.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Table of Death
