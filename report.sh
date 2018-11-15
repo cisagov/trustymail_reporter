@@ -9,7 +9,7 @@ cp ./fonts/* /usr/share/fonts/truetype/
 fc-cache -f
 
 echo 'Waiting for saver'
-while [ "$(redis-cli -h orchestrator_redis_1 get saving_complete)" != "true" ]
+while [ "$(redis-cli -h redis get saving_complete)" != "true" ]
 do
     sleep 5
 done
@@ -47,7 +47,7 @@ $HOME_DIR/report/create_all_reports.py
 # Let redis know we're done.  We let the pshtt_reporter container do
 # the actual shutdown.  If that container isn't being used, though,
 # then you'll instead want to uncomment the shutdown line below.
-redis-cli -h orchestrator_redis_1 set trustymail_reporting_complete true
+redis-cli -h redis set trustymail_reporting_complete true
 
 # This is the end of the line, so tell redis to shutdown
-# redis-cli -h orchestrator_redis_1 shutdown
+# redis-cli -h redis shutdown
