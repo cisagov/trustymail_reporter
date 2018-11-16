@@ -19,7 +19,7 @@ echo "Saver finished"
 # it too.  We let that container do the delete.  If that container
 # isn't being used, though, then you'll want to uncomment the next
 # line.
-# redis-cli -h orchestrator_redis_1 del saving_complete
+# redis-cli -h redis del saving_complete
 
 echo "Creating reporting folder..."
 mkdir -p $SHARED_DIR/artifacts/reporting/trustymail_reports
