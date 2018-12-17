@@ -74,7 +74,7 @@ LATEX_ESCAPE_MAP = {
 }
 BOD1801_DMARC_RUA_URI = 'mailto:reports@dmarc.cyber.dhs.gov'
 ES_REGION = 'us-east-1'
-ES_URL = 'https://search-dmarc-import-elasticsearch-7ommkg6qt7a3c5bersj6a6ebaq.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
+ES_URL = 'https://search-dmarc-import-elasticsearch-dtbgkfx23yppmjmothuy6t7wd4.us-east-1.es.amazonaws.com/dmarc_aggregate_reports'
 ES_URL_NO_INDEX = re.sub('/[^/]*$', '', ES_URL)
 ES_RETRIEVE_SIZE = 10000
 PREPROCESSED_BGP_DATA_FILE = 'ipasn.dat'
