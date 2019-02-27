@@ -22,7 +22,7 @@ else
             echo Changing version from "$old_version" to "$new_version"
             sed -i "s/$old_version/$new_version/" $VERSION_FILE
             git add $VERSION_FILE
-            git commit -m"Bumping version from $old_version to $new_version"
+            git commit -m"Bump version from $old_version to $new_version"
             git push
             ;;
         finalize)
@@ -30,7 +30,7 @@ else
             echo Changing version from "$old_version" to "$new_version"
             sed -i "s/$old_version/$new_version/" $VERSION_FILE
             git add $VERSION_FILE
-            git commit -m"Bumping version from $old_version to $new_version"
+            git commit -m"Finalize version from $old_version to $new_version"
             git push
             ;;
         show)
