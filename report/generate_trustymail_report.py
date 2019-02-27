@@ -125,9 +125,9 @@ class ReportGenerator(object):
 
         # Our resolver
         #
-        # Note that it uses the system configuration in /etc/resolv.conf if no
-        # DNS hostnames are specified.
-        self.__resolver = dns.resolver.Resolver(configure=False)
+        # Note that it will use the system configuration in
+        # /etc/resolv.conf.
+        self.__resolver = dns.resolver.Resolver()
         # Retry DNS servers if we receive a SERVFAIL response from them.  We
         # set this to False because, unless the reason for the SERVFAIL is
         # truly temporary and resolves before trustymail finishes scanning the
@@ -135,8 +135,6 @@ class ReportGenerator(object):
         # DNS timeout because of the way dns.resolver.query() is written.  See
         # http://www.dnspython.org/docs/1.14.0/dns.resolver-pysrc.html#query.
         self.__resolver.retry_servfail = False
-        # Use Google DNS
-        self.__resolver.nameservers = ['8.8.8.8']
 
         # Get list of all domains from the database
         all_domains_cursor = self.__db.trustymail.find({'latest':True, 'agency.name': agency})
