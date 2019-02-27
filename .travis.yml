@@ -1,4 +1,6 @@
-sudo: required
+language: minimal
+dist: xenial
+sudo: true
 
 services:
   - docker
@@ -9,7 +11,11 @@ env:
     - DOCKER_USER=jsf9k
     - secure: "WfCuI6P7xu4pf56X5FacIcVXL0lpHO/S7KOyNRnWGiVVwBhs4r9BFAsMj8CoFtD9hloJUtISyLi0+t3zmXNMeYKUcixRCerGpWyT0z202GG7rAy5+9NvZRCXdkXO1YuV7xDm/OHZoNayx5ipSA3TMWoDkgAvHVyuRx2AOeJC41l7cQE05zPNIOuAhnOW0Or8S3P8V3eMQg4/u2yXZ+J/FQ3P7N5o2KWzyeG+aL7B0tjT/kBX92RpEzrZNaTUWWFjIbpxyK/2cGVKdpRX2ejBwNWxTLA2zDwFk2o74jh/21Rlf3W3ZAF69lEoPRPxCVSvB6AtlEG9t6+WdsZFfs7D08yyNkkgCOo1VGscFunX4T0nYREuukVly4Ev/NkyHYkIrTXMbS637dNijgmeJveXQY8XCY/CVU0wjMU95TaqJBMZURBn4E1agRdHY/cuDH1EIOG/lXkMHhP7b+EBT1ebVesIB5x+DTcki/vUfJybkPYBBQ76lN2+4CALryIdCCftW645ilTjBfmzsr5vZ3j5CIwY4r18gnRhPW9kd4jxztWiBbqXH90phABFB9Hl1HvD/nNHqn/vW/8uh56+cdKdZYRq+APX4KjJmP0T8UWa4RSc8uVV909NR89/GYR0UursGFycTaOYzLIkql3Zl9c5CLHMw2oD52xM+OIXs4E/N70="
 
+before_install:
+  - sudo apt-get install -y shellcheck
+
 script:
+  - shellcheck bump_version.sh tag.sh report.sh
   - bash travis_scripts/build_docker_image.sh
 
 deploy:
