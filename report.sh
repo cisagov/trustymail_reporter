@@ -26,7 +26,7 @@ mkdir -p $SHARED_DIR/artifacts/reporting/trustymail_reports
 
 # Generate agency reports
 # TODO? Separate cyhy reports from non-cyhy reports
-cd $SHARED_DIR/artifacts/reporting/trustymail_reports
+cd $SHARED_DIR/artifacts/reporting/trustymail_reports || exit 1
 $HOME_DIR/report/create_all_reports.py
 
 # Again, we let pshtt_reporter do the archiving.  If that container

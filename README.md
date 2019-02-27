@@ -1,13 +1,13 @@
 # NCATS Trustworthy Email Reporter :notebook: :file_folder: #
 
-[![Build Status](https://travis-ci.org/dhs-ncats/trustymail_reporter.svg?branch=master)](https://travis-ci.org/dhs-ncats/trustymail_reporter)
+[![Build Status](https://travis-ci.org/cisagov/trustymail_reporter.svg?branch=master)](https://travis-ci.org/cisagov/trustymail_reporter)
 
 This is a Docker container that creates PDF reports for individual
 second-level domains using data collected via
-[trustymail](https://github.com/dhs-ncats/trustymail) scans.
+[trustymail](https://github.com/cisagov/trustymail) scans.
 
 This Docker container is intended to be run via
-[orchestrator](https://github.com/dhs-ncats/orchestrator).
+[orchestrator](https://github.com/cisagov/orchestrator).
 
 ## License ##
 
