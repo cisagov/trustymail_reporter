@@ -1,6 +1,6 @@
 # NCATS Trustworthy Email Reporter :notebook: :file_folder: #
 
-[![Build Status](https://travis-ci.org/cisagov/trustymail_reporter.svg?branch=master)](https://travis-ci.org/cisagov/trustymail_reporter)
+[![Build Status](https://travis-ci.com/cisagov/trustymail_reporter.svg?branch=develop)](https://travis-ci.com/cisagov/trustymail_reporter)
 
 This is a Docker container that creates PDF reports for individual
 second-level domains using data collected via
