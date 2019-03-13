@@ -375,7 +375,10 @@ class ReportGenerator(object):
                 score['valid_dmarc_policy_subdomain_reject'] = True
 
             score['valid_dmarc_policy_pct'] = False
-            if score['valid_dmarc'] and domain['dmarc_pct'] == 100:
+            if (
+                    score['valid_dmarc'] and
+                    domain['dmarc_policy_percentage'] == 100
+            ):
                 self.__valid_dmarc_pct_count += 1
                 score['valid_dmarc_policy_pct'] = True
 
