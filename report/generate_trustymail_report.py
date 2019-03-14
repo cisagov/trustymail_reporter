@@ -372,7 +372,7 @@ class ReportGenerator(object):
                     domain['dmarc_subdomain_policy'] == 'reject'
             ):
                 self.__valid_dmarc_subdomain_reject_count += 1
-                score['valid_dmarc_policy_subdomain_reject'] = True
+                score['valid_dmarc_subdomain_policy_reject'] = True
 
             score['valid_dmarc_policy_pct'] = False
             if (
