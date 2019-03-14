@@ -106,6 +106,8 @@ class ReportGenerator(object):
         self.__valid_spf_count = 0
         self.__valid_dmarc_count = 0
         self.__valid_dmarc_reject_count = 0
+        self.__valid_dmarc_subdomain_reject_count = 0
+        self.__valid_dmarc_pct_count = 0
         self.__valid_dmarc_bod1801_rua_uri_count = 0
         self.__base_domain_supports_smtp_count = 0
         self.__domain_supports_smtp_count = 0
@@ -282,7 +284,7 @@ class ReportGenerator(object):
         # to keep scrolling
         if len(hits) < ES_RETRIEVE_SIZE:
             scroll_again = False
-        
+
         while scroll_again:
             scroll_json = {
                 'scroll': '1m',
@@ -360,9 +362,25 @@ class ReportGenerator(object):
             # in whether or not the DMARC record is valid, so we check here
             score['dmarc_policy'] = domain['dmarc_policy']
             score['valid_dmarc_policy_reject'] = False
-            if score['valid_dmarc'] and domain['dmarc_policy'] == "reject":
+            if score['valid_dmarc'] and domain['dmarc_policy'] == 'reject':
                 self.__valid_dmarc_reject_count += 1
                 score['valid_dmarc_policy_reject'] = True
+
+            score['valid_dmarc_subdomain_policy_reject'] = False
+            if (
+                    score['valid_dmarc'] and
+                    domain['dmarc_subdomain_policy'] == 'reject'
+            ):
+                self.__valid_dmarc_subdomain_reject_count += 1
+                score['valid_dmarc_subdomain_policy_reject'] = True
+
+            score['valid_dmarc_policy_pct'] = False
+            if (
+                    score['valid_dmarc'] and
+                    domain['dmarc_policy_percentage'] == 100
+            ):
+                self.__valid_dmarc_pct_count += 1
+                score['valid_dmarc_policy_pct'] = True
 
             # Does the domain have a valid DMARC record that includes
             # the correct BOD 18-01 rua URI
@@ -422,21 +440,46 @@ class ReportGenerator(object):
                                                         'weak_crypto_list_str':','.join(weak_crypto_list)})
 
             score['bod_1801_compliant'] = False
-            # For SPF, STARTTLS, Weak Crypto and BOD 18-01 Compliance, we only count base domains and subdomains that support SMTP
-            if domain['is_base_domain'] or (not domain['is_base_domain'] and domain['domain_supports_smtp']):
+            # For SPF, STARTTLS, Weak Crypto and BOD 18-01 Compliance,
+            # we only count base domains and subdomains that support
+            # SMTP
+            if (
+                    domain['is_base_domain'] or
+                    (
+                        not domain['is_base_domain'] and
+                        domain['domain_supports_smtp']
+                    )
+            ):
                 self.__base_domain_plus_smtp_subdomain_count += 1
                 if domain['valid_spf']:
                     self.__valid_spf_count += 1
                 if not domain['domain_has_weak_crypto']:
                     self.__has_no_weak_crypto_count += 1
-                if ((domain['domain_supports_smtp'] and domain['domain_supports_starttls']) or not domain['domain_supports_smtp']):
-                    self.__supports_starttls_count += 1   # If you don't support SMTP, you still get credit here for supporting STARTTLS
+                if (
+                        (
+                            domain['domain_supports_smtp'] and
+                            domain['domain_supports_starttls']
+                        ) or not domain['domain_supports_smtp']
+                ):
+                    # If you don't support SMTP, you still get credit
+                    # here for supporting STARTTLS
+                    self.__supports_starttls_count += 1
                     # Is the domain compliant with BOD 18-01?
-                    #  * Uses STARTTLS on all SMTP servers OR does not support SMTP
+                    #  * Uses STARTTLS on all SMTP servers OR does not
+                    #    support SMTP
                     #  * Has valid SPF Record
                     #  * Has no weak crypto (SSLv2, SSLv3, 3DES, RC4)
-                    #  * Has valid DMARC record with p=reject and rua=mailto:reports@dmarc.cyber.dhs.gov
-                    if domain['valid_spf'] and not domain['domain_has_weak_crypto'] and score['valid_dmarc_policy_reject'] and score['valid_dmarc_bod1801_rua_uri']:
+                    #  * Has valid DMARC record with p=reject,
+                    #    sp=reject, pct=100, and
+                    #    rua=mailto:reports@dmarc.cyber.dhs.gov
+                    if (
+                            domain['valid_spf'] and
+                            not domain['domain_has_weak_crypto'] and
+                            score['valid_dmarc_policy_reject'] and
+                            score['valid_dmarc_subdomain_policy_reject'] and
+                            score['valid_dmarc_policy_pct'] and
+                            score['valid_dmarc_bod1801_rua_uri']
+                    ):
                         score['bod_1801_compliant'] = True
                         self.__bod_1801_compliant_count += 1
 
