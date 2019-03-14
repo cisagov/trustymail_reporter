@@ -362,14 +362,14 @@ class ReportGenerator(object):
             # in whether or not the DMARC record is valid, so we check here
             score['dmarc_policy'] = domain['dmarc_policy']
             score['valid_dmarc_policy_reject'] = False
-            if score['valid_dmarc'] and domain['dmarc_policy'] == "reject":
+            if score['valid_dmarc'] and domain['dmarc_policy'] == 'reject':
                 self.__valid_dmarc_reject_count += 1
                 score['valid_dmarc_policy_reject'] = True
 
             score['valid_dmarc_subdomain_policy_reject'] = False
             if (
                     score['valid_dmarc'] and
-                    domain['dmarc_subdomain_policy'] == "reject"
+                    domain['dmarc_subdomain_policy'] == 'reject'
             ):
                 self.__valid_dmarc_subdomain_reject_count += 1
                 score['valid_dmarc_policy_subdomain_reject'] = True
