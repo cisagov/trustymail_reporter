@@ -74,8 +74,7 @@ RUN pip install --upgrade setuptools pip \
     pystache \
     pyyaml \
     requests \
-    requests_aws4auth \
-    https://github.com/matplotlib/basemap/archive/v1.1.0.tar.gz
+    requests_aws4auth
 
 ###
 # Create unprivileged User
