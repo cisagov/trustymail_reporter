@@ -387,7 +387,7 @@ We measure the presence of SPF and DMARC records in the DNS for your agency's pu
     \begin{itemize}[topsep=-6pt, itemsep=0pt]
       % Note that these counts can be higher than what is displayed in the Results table because that table excludes subdomains that are covered by a parent domain's DMARC record
       \item \textbf{\numprint{<<valid_dmarc_count>>}} hostnames (<<valid_dmarc_percentage>>\%) are subject to a valid DMARC \mbox{policy}
-      \item \textbf{\numprint{<<valid_dmarc_reject_count>>}} hostnames (<<valid_dmarc_reject_percentage>>\%) are subject to a valid DMARC \mbox{policy} that rejects non-compliant mail (``p=reject")
+      \item \textbf{\numprint{<<valid_dmarc_reject_count>>}} hostnames (<<valid_dmarc_reject_percentage>>\%) are subject to a valid DMARC \mbox{policy} that rejects non-compliant mail (``p=reject"; if specified, ``sp=reject" and ``pct=100")
       \item \textbf{\numprint{<<valid_dmarc_bod1801_rua_uri_count>>}} hostnames (<<valid_dmarc_bod1801_rua_uri_percentage>>\%) are subject to a valid DMARC \mbox{policy} that sends DMARC aggregate reports to DHS (``rua=mailto:reports@dmarc.cyber.dhs.gov")
     \end{itemize}
   \end{minipage}
@@ -454,7 +454,7 @@ Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{d
 \rowcolors{4}{white}{row-gray}
 \begin{longtable}{>{\raggedright}p{2.2in}p{1.2in}p{0.7in}p{1.2in}p{0.6in}p{2.3in}p{0.7in}p{0.8in}}
 	\toprule
-			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{dhs-blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{dhs-blue}{\textbf{Has\newline  SPF\newline Record}}} & \hyperlink{Has DMARC p=reject}{\color{dhs-blue}{\textbf{Has\newline  DMARC\newline p=reject}}} & \hyperlink{Reports DMARC To DHS}{\color{dhs-blue}{\textbf{Reports\newline DMARC\newline To DHS}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{dhs-blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Email Compliant}{\color{dhs-blue}{\textbf{BOD 18-01\newline Email\newline Compliant}}} & \hyperlink{DMARC Failures (Past 7 Days)}{\color{dhs-blue}{\textbf{DMARC\newline Failures\newline (Past 7 Days)}}}\\
+			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{dhs-blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Record}{\color{dhs-blue}{\textbf{Has\newline  SPF\newline Record}}} & \hyperlink{Has DMARC Policy of Reject}{\color{dhs-blue}{\textbf{Has\newline  DMARC\newline Policy of Reject}}} & \hyperlink{Reports DMARC To DHS}{\color{dhs-blue}{\textbf{Reports\newline DMARC\newline To DHS}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{dhs-blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Email Compliant}{\color{dhs-blue}{\textbf{BOD 18-01\newline Email\newline Compliant}}} & \hyperlink{DMARC Failures (Past 7 Days)}{\color{dhs-blue}{\textbf{DMARC\newline Failures\newline (Past 7 Days)}}}\\
 	\hhline{========}
 	\endhead
 	<<#report_doc.scores>>
@@ -511,14 +511,14 @@ In \texttt{trustymail}, ``Has SPF Record" is mapped to the value for ``Valid SPF
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Has DMARC p=reject} % Adds a subsection to toc
-\hypertarget{Has DMARC p=reject}{\subsubsection*{Has DMARC p=reject}}
+\addcontentsline{toc}{subsubsection}{Has DMARC Policy of Reject} % Adds a subsection to toc
+\hypertarget{Has DMARC Policy of Reject}{\subsubsection*{Has DMARC Policy of Reject}}
 \vspace*{-6mm}
-\textit{Values: \checkmark (valid DMARC record with p=reject), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without p=reject), N/A (hostname does not resolve in DNS)}\\~\\
+\textit{Values: \checkmark (valid DMARC record with policy of reject), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without policy of reject), N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether a valid DMARC (TXT) record with ``p=reject" is present at \_dmarc.<hostname>. See trustymail\_results.csv in the Attachments section for details.
+Whether a valid DMARC (TXT) record with ``p=reject" (and if specified, with optional attributes ``sp" and ``pct" set as ``sp=reject" and ``pct=100") is present at \_dmarc.<hostname>. See trustymail\_results.csv in the Attachments section for details.
 
-In \texttt{trustymail}, ``Has DMARC p=reject" is based on the value of ``DMARC Policy".
+In \texttt{trustymail}, ``Has DMARC Policy of Reject" is based on the value of ``DMARC Policy", ``DMARC Subdomain Policy", and ``DMARC Policy Percentage".
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
@@ -540,7 +540,8 @@ In \texttt{trustymail}, ``Reports DMARC To DHS" is based on the value of ``DMARC
 
 Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) or ciphers (3DES, RC4) are supported by any SMTP servers at the hostname. See trustymail\_results.csv in the Attachments section for details.
 
-\vspace*{-5mm}
+\newpage
+%\vspace*{-5mm}
 \phantomsection % links this section from toc
 \addcontentsline{toc}{subsubsection}{BOD 18-01 Email Compliant} % Adds a subsection to toc
 \hypertarget{BOD 18-01 Email Compliant}{\subsubsection*{BOD 18-01 Email Compliant}}
@@ -551,13 +552,16 @@ Whether a hostname meets all of the following criteria for being compliant with 
   \begin{itemize}[topsep=-6pt, itemsep=0pt]
     \item Uses STARTTLS on all SMTP servers (or has no SMTP servers)
     \item Has a valid SPF record
-    \item Has a valid DMARC record with ``p=reject"
+    \item Has a valid DMARC record with ``p=reject". If the following optional attributes are specified, they must be:
+    \begin{itemize}[topsep=-6pt, itemsep=0pt]
+      \item ``sp=reject"
+      \item ``pct=100"
+    \end{itemize}
     \item Has a valid DMARC record with ``rua=mailto:reports@dmarc.cyber.dhs.gov"
     \item SSLv2, SSLv3 and 3DES, RC4 ciphers are not supported on all SMTP servers (or has no SMTP servers)
   \end{itemize}
 
-\newpage
-\vspace*{-5mm}
+\vspace*{-3mm}
 \phantomsection % links this section from toc
 \addcontentsline{toc}{subsubsection}{DMARC Failures (Past 7 Days)} % Adds a subsection to toc
 \hypertarget{DMARC Failures (Past 7 Days)}{\subsubsection*{DMARC Failures (Past 7 Days)}}

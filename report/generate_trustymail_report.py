@@ -108,6 +108,7 @@ class ReportGenerator(object):
         self.__valid_dmarc_reject_count = 0
         self.__valid_dmarc_subdomain_reject_count = 0
         self.__valid_dmarc_pct_count = 0
+        self.__valid_dmarc_policy_of_reject_count = 0
         self.__valid_dmarc_bod1801_rua_uri_count = 0
         self.__base_domain_supports_smtp_count = 0
         self.__domain_supports_smtp_count = 0
@@ -382,6 +383,19 @@ class ReportGenerator(object):
                 self.__valid_dmarc_pct_count += 1
                 score['valid_dmarc_policy_pct'] = True
 
+            # valid_dmarc_policy_of_reject means that the DMARC record is:
+            #  - valid
+            #  - policy is 'reject' (p=reject)
+            #  - subdomain policy is 'reject' (sp=reject, if specified)
+            #  - policy percentage is 100 (pct=100, if specified)
+            if (
+                score['valid_dmarc_policy_reject'] and
+                score['valid_dmarc_subdomain_policy_reject'] and
+                score['valid_dmarc_policy_pct']
+            ):
+                self.__valid_dmarc_policy_of_reject_count += 1
+                score['valid_dmarc_policy_of_reject'] = True
+
             # Does the domain have a valid DMARC record that includes
             # the correct BOD 18-01 rua URI
             score['valid_dmarc_bod1801_rua_uri'] = False
@@ -531,12 +545,16 @@ class ReportGenerator(object):
         self.__valid_spf_percentage = round((((self.__valid_spf_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
         self.__has_no_weak_crypto_percentage = round((((self.__has_no_weak_crypto_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
         self.__valid_dmarc_percentage = round((((self.__valid_dmarc_count)/float(self.__all_eligible_domains_count)) * 100), 1)
-        self.__valid_dmarc_reject_percentage = round((((self.__valid_dmarc_reject_count)/float(self.__all_eligible_domains_count)) * 100), 1)
+        self.__valid_dmarc_reject_percentage = round((((self.__valid_dmarc_policy_of_reject_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__valid_dmarc_bod1801_rua_uri_percentage = round((((self.__valid_dmarc_bod1801_rua_uri_count)/float(self.__all_eligible_domains_count)) * 100), 1)
         self.__bod_1801_compliant_percentage = round((((self.__bod_1801_compliant_count)/float(self.__base_domain_plus_smtp_subdomain_count)) * 100), 1)
 
-        # print('Agency,Base Domains,Found Subdomains,Live,Valid SPF Record,Valid DMARC Record,Base Domain DMARC Reject,All Domains DMARC Reject Count,All Domains DMARC Reject Percentage)
-        print(self.__agency_id, self.__agency, self.__base_domain_count, self.__subdomain_count, self.__all_eligible_domains_count, self.__valid_spf_count, self.__valid_dmarc_count, self.__valid_dmarc_reject_count, self.__valid_dmarc_reject_percentage)
+        # print('Agency ID,Agency Name,Base Domains,Found Subdomains,Live,Valid SPF Record,Valid DMARC Record,All Domains DMARC Policy of Reject Count,All Domains DMARC Policy of Reject Percentage)
+        print(self.__agency_id, self.__agency, self.__base_domain_count,
+              self.__subdomain_count, self.__all_eligible_domains_count,
+              self.__valid_spf_count, self.__valid_dmarc_count,
+              self.__valid_dmarc_policy_of_reject_count,
+              self.__valid_dmarc_reject_percentage)
 
     def __latex_escape(self, to_escape):
         return ''.join([LATEX_ESCAPE_MAP.get(i,i) for i in to_escape])
@@ -622,8 +640,8 @@ class ReportGenerator(object):
         self.__generate_dmarc_failures_attachment()
 
     def __generate_trustymail_attachment(self):
-        header_fields = ('Domain', 'Base Domain', 'Domain Is Base Domain', 'Live', 'MX Record', 'Mail Servers', 'Mail Server Ports Tested', 'Domain Supports SMTP', 'Domain Supports SMTP Results', 'Domain Supports STARTTLS', 'Domain Supports STARTTLS Results', 'SPF Record', 'Valid SPF', 'SPF Results', 'DMARC Record', 'Valid DMARC', 'DMARC Results', 'DMARC Record on Base Domain', 'Valid DMARC Record on Base Domain', 'DMARC Results on Base Domain', 'DMARC Policy', 'DMARC Policy Percentage', 'DMARC Aggregate Report URIs', 'DMARC Forensic Report URIs', 'DMARC Has Aggregate Report URI', 'DMARC Has Forensic Report URI', 'Syntax Errors', 'Debug Info', 'Domain Supports Weak Crypto', 'Mail-Sending Hosts with Weak Crypto')
-        data_fields = ('domain', 'base_domain', 'is_base_domain', 'live', 'mx_record', 'mail_servers', 'mail_server_ports_tested', 'domain_supports_smtp', 'domain_supports_smtp_results', 'domain_supports_starttls', 'domain_supports_starttls_results', 'spf_record', 'valid_spf', 'spf_results', 'dmarc_record', 'valid_dmarc', 'dmarc_results', 'dmarc_record_base_domain', 'valid_dmarc_base_domain', 'dmarc_results_base_domain', 'dmarc_policy', 'dmarc_policy_percentage', 'aggregate_report_uris', 'forensic_report_uris', 'has_aggregate_report_uri', 'has_forensic_report_uri', 'syntax_errors', 'debug_info', 'domain_has_weak_crypto', 'hosts_with_weak_crypto_str')
+        header_fields = ('Domain', 'Base Domain', 'Domain Is Base Domain', 'Live', 'MX Record', 'Mail Servers', 'Mail Server Ports Tested', 'Domain Supports SMTP', 'Domain Supports SMTP Results', 'Domain Supports STARTTLS', 'Domain Supports STARTTLS Results', 'SPF Record', 'Valid SPF', 'SPF Results', 'DMARC Record', 'Valid DMARC', 'DMARC Results', 'DMARC Record on Base Domain', 'Valid DMARC Record on Base Domain', 'DMARC Results on Base Domain', 'DMARC Policy', 'DMARC Policy Percentage', 'DMARC Subdomain Policy', 'DMARC Aggregate Report URIs', 'DMARC Forensic Report URIs', 'DMARC Has Aggregate Report URI', 'DMARC Has Forensic Report URI', 'Syntax Errors', 'Debug Info', 'Domain Supports Weak Crypto', 'Mail-Sending Hosts with Weak Crypto')
+        data_fields = ('domain', 'base_domain', 'is_base_domain', 'live', 'mx_record', 'mail_servers', 'mail_server_ports_tested', 'domain_supports_smtp', 'domain_supports_smtp_results', 'domain_supports_starttls', 'domain_supports_starttls_results', 'spf_record', 'valid_spf', 'spf_results', 'dmarc_record', 'valid_dmarc', 'dmarc_results', 'dmarc_record_base_domain', 'valid_dmarc_base_domain', 'dmarc_results_base_domain', 'dmarc_policy', 'dmarc_policy_percentage', 'dmarc_subdomain_policy', 'aggregate_report_uris', 'forensic_report_uris', 'has_aggregate_report_uri', 'has_forensic_report_uri', 'syntax_errors', 'debug_info', 'domain_has_weak_crypto', 'hosts_with_weak_crypto_str')
         with open(TRUSTYMAIL_RESULTS_CSV_FILE, 'w') as out_file:
             header_writer = csv.DictWriter(out_file, header_fields, extrasaction='ignore')
             header_writer.writeheader()
@@ -908,7 +926,7 @@ class ReportGenerator(object):
                                                         self.__valid_dmarc_reject_percentage,
                                                         self.__valid_dmarc_bod1801_rua_uri_percentage],
                                        label_list=['Valid\nDMARC',
-                                                   'DMARC\np=reject',
+                                                   'DMARC\nPolicy of Reject',
                                                    'Reports DMARC\nto DHS'],
                                        fill_color=graphs.DARK_BLUE)
         dmarc_bar.plot(filename='dmarc-compliance')
@@ -949,7 +967,7 @@ class ReportGenerator(object):
         result['has_no_weak_crypto_percentage'] = self.__has_no_weak_crypto_percentage
         result['valid_dmarc_count'] = self.__valid_dmarc_count
         result['valid_dmarc_percentage'] = self.__valid_dmarc_percentage
-        result['valid_dmarc_reject_count'] = self.__valid_dmarc_reject_count
+        result['valid_dmarc_reject_count'] = self.__valid_dmarc_policy_of_reject_count
         result['valid_dmarc_reject_percentage'] = self.__valid_dmarc_reject_percentage
         result['valid_dmarc_bod1801_rua_uri_count'] = self.__valid_dmarc_bod1801_rua_uri_count
         result['valid_dmarc_bod1801_rua_uri_percentage'] = self.__valid_dmarc_bod1801_rua_uri_percentage
