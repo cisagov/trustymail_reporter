@@ -420,7 +420,6 @@ class MyPie(object):
                             )
 
     def plot(self, filename, size=1.0):
-        (w, h) = plt.rcParams['figure.figsize']
         fig = plt.figure(1)
         fig.set_size_inches(fig.get_size_inches() * size)
         ax = fig.add_subplot(1, 1, 1)
