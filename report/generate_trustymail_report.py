@@ -760,7 +760,6 @@ class ReportGenerator(object):
                 self.__agency_id, datestamp
             )
             shutil.move(src_filename, dest_filename)
-            src_filename = os.path.join(temp_working_dir, REPORT_JSON)
         return self.__results
 
     def __setup_work_directory(self, work_dir):
