@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.com/cisagov/trustymail_reporter.svg?branch=develop)](https://travis-ci.com/cisagov/trustymail_reporter)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/cisagov/trustymail_reporter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cisagov/trustymail_reporter/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/cisagov/trustymail_reporter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cisagov/trustymail_reporter/context:python)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/cisagov/trustymail_reporter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cisagov/trustymail_reporter/context:javascript)
 
 This is a Docker container that creates PDF reports for individual
 second-level domains using data collected via
