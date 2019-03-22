@@ -218,7 +218,7 @@ class ReportGenerator(object):
                 }).sort([('domain', 1)]))
                 self.__subdomain_count += len(domain_doc['subdomains'])
                 for subdomain_doc in domain_doc['subdomains']:
-                    subdomain_doc = add_weak_crypto_data_to_domain(
+                    add_weak_crypto_data_to_domain(
                         subdomain_doc, sslyze_data_all_domains
                     )
                 self.__base_domains.append(domain_doc)
