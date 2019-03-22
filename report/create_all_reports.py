@@ -6,11 +6,11 @@ import os
 from urllib.error import URLError
 
 import publicsuffix
-import pyasn
 
 HOME_DIR = '/home/reporter'
 SHARED_DATA_DIR = HOME_DIR + '/shared/'
 PUBLIC_SUFFIX_LIST_FILENAME = 'psl.txt'
+
 
 def main():
     # Download the public suffix list
@@ -35,12 +35,14 @@ def main():
 
     agency_csv = open(SHARED_DATA_DIR + 'artifacts/unique-agencies.csv')
     for row in sorted(csv.reader(agency_csv)):
-        bashCommand = HOME_DIR + '/report/generate_trustymail_report.py ' + '"' + row[0] + '"'
+        bashCommand = HOME_DIR + '/report/generate_trustymail_report.py ' + \
+            '"' + row[0] + '"'
         os.system(bashCommand)
 
     logging.info('Cleaning up...')
     os.system('rm ipasn.dat')
     os.system('rm psl.txt')
+
 
 if __name__ == '__main__':
     main()
