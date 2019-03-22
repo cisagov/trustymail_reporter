@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib.patches import Rectangle, Ellipse
 from matplotlib.collections import PatchCollection
 from matplotlib.ticker import MaxNLocator
 from matplotlib.dates import DateFormatter
