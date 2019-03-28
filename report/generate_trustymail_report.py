@@ -1178,11 +1178,11 @@ class ReportGenerator(object):
         bod_1801_email_bar = graphs.MyTrustyBar(
             percentage_list=[
                 self.__supports_starttls_percentage,
-                self.__valid_spf_percentage,
+                self.__spf_coverered_percentage,
                 self.__has_no_weak_crypto_percentage
             ],
             label_list=['Supports\nSTARTTLS',
-                        'Valid\nSPF',
+                        'SPF\nCovered',
                         'No SSLv2/v3,\n3DES,RC4'],
             fill_color=graphs.DARK_BLUE
         )
