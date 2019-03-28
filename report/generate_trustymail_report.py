@@ -457,6 +457,7 @@ class ReportGenerator(object):
             #  - policy is 'reject' (p=reject)
             #  - subdomain policy is 'reject' (sp=reject, if specified)
             #  - policy percentage is 100 (pct=100, if specified)
+            score['valid_dmarc_policy_of_reject'] = False
             if (
                 score['valid_dmarc_policy_reject'] and
                 score['valid_dmarc_subdomain_policy_reject'] and
