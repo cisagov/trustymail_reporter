@@ -106,6 +106,7 @@ class ReportGenerator(object):
         self.__subdomain_count = 0
         self.__mx_record_count = 0
         self.__valid_spf_count = 0
+        self.__spf_covered_count = 0
         self.__valid_dmarc_count = 0
         self.__valid_dmarc_reject_count = 0
         self.__valid_dmarc_subdomain_reject_count = 0
@@ -457,6 +458,7 @@ class ReportGenerator(object):
             #  - policy is 'reject' (p=reject)
             #  - subdomain policy is 'reject' (sp=reject, if specified)
             #  - policy percentage is 100 (pct=100, if specified)
+            score['valid_dmarc_policy_of_reject'] = False
             if (
                 score['valid_dmarc_policy_reject'] and
                 score['valid_dmarc_subdomain_policy_reject'] and
@@ -494,6 +496,18 @@ class ReportGenerator(object):
 
             # Is the record syntactically and logically correct
             score['valid_spf'] = domain['valid_spf']
+
+            # For base domains, "SPF covered" is simply the value of
+            # domain['valid_spf'].
+            # For non-base domains, "SPF covered" means that the domain either
+            # has valid SPF or has no SPF record and is covered by a
+            # DMARC "policy of reject"
+            if domain['is_base_domain']:
+                score['spf_covered'] = domain['valid_spf']
+            else:
+                score['spf_covered'] = domain['valid_spf'] or (
+                    domain['spf_record'] is False and
+                    score['valid_dmarc_policy_of_reject'])
 
             # Placeholder for future use in reports.
             if domain['spf_results'] is None or \
@@ -560,6 +574,8 @@ class ReportGenerator(object):
                 self.__base_domain_plus_smtp_subdomain_count += 1
                 if domain['valid_spf']:
                     self.__valid_spf_count += 1
+                if score['spf_covered']:
+                    self.__spf_covered_count += 1
                 if not domain['domain_has_weak_crypto']:
                     self.__has_no_weak_crypto_count += 1
                 if (
@@ -574,13 +590,13 @@ class ReportGenerator(object):
                     # Is the domain compliant with BOD 18-01?
                     #  * Uses STARTTLS on all SMTP servers OR does not
                     #    support SMTP
-                    #  * Has valid SPF Record
+                    #  * Has "SPF covered" (see comment above for definition)
                     #  * Has no weak crypto (SSLv2, SSLv3, 3DES, RC4)
                     #  * Has valid DMARC record with p=reject,
                     #    sp=reject, pct=100, and
                     #    rua=mailto:reports@dmarc.cyber.dhs.gov
                     if (
-                            domain['valid_spf'] and
+                            score['spf_covered'] and
                             not domain['domain_has_weak_crypto'] and
                             score['valid_dmarc_policy_reject'] and
                             score['valid_dmarc_subdomain_policy_reject'] and
@@ -660,8 +676,8 @@ class ReportGenerator(object):
             self.__base_domain_plus_smtp_subdomain_count * 100.0,
             1
         )
-        self.__valid_spf_percentage = round(
-            self.__valid_spf_count /
+        self.__spf_coverered_percentage = round(
+            self.__spf_covered_count /
             self.__base_domain_plus_smtp_subdomain_count * 100.0,
             1
         )
@@ -693,7 +709,7 @@ class ReportGenerator(object):
 
         print(self.__agency_id, self.__agency, self.__base_domain_count,
               self.__subdomain_count, self.__all_eligible_domains_count,
-              self.__valid_spf_count, self.__valid_dmarc_count,
+              self.__spf_covered_count, self.__valid_dmarc_count,
               self.__valid_dmarc_policy_of_reject_count,
               self.__valid_dmarc_reject_percentage)
 
@@ -1162,11 +1178,11 @@ class ReportGenerator(object):
         bod_1801_email_bar = graphs.MyTrustyBar(
             percentage_list=[
                 self.__supports_starttls_percentage,
-                self.__valid_spf_percentage,
+                self.__spf_coverered_percentage,
                 self.__has_no_weak_crypto_percentage
             ],
             label_list=['Supports\nSTARTTLS',
-                        'Valid\nSPF',
+                        'SPF\nCovered',
                         'No SSLv2/v3,\n3DES,RC4'],
             fill_color=graphs.DARK_BLUE
         )
@@ -1198,8 +1214,8 @@ class ReportGenerator(object):
             self.__generated_time.strftime('{%d}{%m}{%Y}')
         result['agency'] = self.__agency
         result['agency_id'] = self.__agency_id
-        result['valid_spf_count'] = self.__valid_spf_count
-        result['valid_spf_percentage'] = self.__valid_spf_percentage
+        result['spf_covered_count'] = self.__spf_covered_count
+        result['spf_coverered_percentage'] = self.__spf_coverered_percentage
         result['has_no_weak_crypto_count'] = self.__has_no_weak_crypto_count
         result['has_no_weak_crypto_percentage'] = \
             self.__has_no_weak_crypto_percentage
