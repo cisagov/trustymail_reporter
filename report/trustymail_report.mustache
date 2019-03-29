@@ -403,7 +403,7 @@ Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (secon
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
   % Note that these counts can be higher than what is displayed in the Results table because that table excludes subdomains that are covered by a parent domain's DMARC record
   \item \textbf{\numprint{<<supports_starttls_count>>}} hostnames (<<supports_starttls_percentage>>\%) support STARTTLS (or have no mail-sending hosts)
-  \item \textbf{\numprint{<<spf_covered_count>>}} hostnames (<<spf_coverered_percentage>>\%) have SPF covered (either has a valid SPF record or is a subdomain with no SPF record that is ``covered" by a DMARC policy of reject)
+  \item \textbf{\numprint{<<spf_covered_count>>}} hostnames (<<spf_coverered_percentage>>\%) have SPF covered (either have a valid SPF record or are a subdomain with no SPF record that is ``covered" by a DMARC policy of reject)
   \item \textbf{\numprint{<<has_no_weak_crypto_count>>}} hostnames (<<has_no_weak_crypto_percentage>>\%) do not support SSLv2, SSLv3, 3DES, or RC4
   \item \textbf{\numprint{<<bod_1801_compliant_count>>}} hostnames (<<bod_1801_compliant_percentage>>\%) are \href{https://cyber.dhs.gov/bod/18-01}{BOD 18-01} Compliant for email security
 \end{itemize}
@@ -505,9 +505,9 @@ In \texttt{trustymail}, ``Uses STARTTLS" is mapped to the value for ``Domain Sup
 \vspace*{-6mm}
 \textit{Values: \checkmark (valid SPF record present), Covered (no SPF record present, but subdomain is ``covered" by a DMARC policy of reject), \xmark \ (no valid SPF record present and, if a subdomain, not ``covered" by a DMARC policy of reject), Syntax Error, N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether a valid SPF (TXT) record (per \href{https://tools.ietf.org/html/rfc7208#section-3}{RFC 7208}) is present at the hostname. For subdomains, if no SPF record is present, SPF is considered to be ``covered" if it has a valid DMARC policy of reject. See trustymail\_results.csv in the Attachments section for syntax errors.
+Whether a valid SPF (TXT) record (per \href{https://tools.ietf.org/html/rfc7208#section-3}{RFC 7208}) is present at the hostname. For subdomains, if no SPF record is present, SPF is considered to be ``covered" if it has a valid DMARC policy of reject at the subdomain or at the corresponding second-level domain. See trustymail\_results.csv in the Attachments section for syntax errors.
 
-In \texttt{trustymail}, ``Has SPF Covered" is based on the value of ``Valid SPF" and ``DMARC Policy".
+In \texttt{trustymail}, ``Has SPF Covered" is based on the values of ``Valid SPF" and ``DMARC Policy".
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
@@ -518,7 +518,7 @@ In \texttt{trustymail}, ``Has SPF Covered" is based on the value of ``Valid SPF"
 
 Whether a valid DMARC (TXT) record with ``p=reject" (and if specified, with optional attributes ``sp" and ``pct" set as ``sp=reject" and ``pct=100") is present at \_dmarc.<hostname>. See trustymail\_results.csv in the Attachments section for details.
 
-In \texttt{trustymail}, ``Has DMARC Policy of Reject" is based on the value of ``DMARC Policy", ``DMARC Subdomain Policy", and ``DMARC Policy Percentage".
+In \texttt{trustymail}, ``Has DMARC Policy of Reject" is based on the values of ``DMARC Policy", ``DMARC Subdomain Policy", and ``DMARC Policy Percentage".
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
