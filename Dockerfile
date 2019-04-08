@@ -66,13 +66,12 @@ RUN pip install --upgrade setuptools pip \
     docopt \
     geos \
     matplotlib~=2.2.3 \
+    https://github.com/cisagov/mongo-db-from-config/tarball/develop \
     pandas \
     publicsuffix \
     pyasn \
-    pymongo \
     pypdf2 \
     pystache \
-    pyyaml \
     requests \
     requests_aws4auth
 
