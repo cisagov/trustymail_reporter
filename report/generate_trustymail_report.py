@@ -1168,7 +1168,7 @@ class ReportGenerator(object):
             ],
             label_list=['Valid\nDMARC',
                         'DMARC\nPolicy of Reject',
-                        'Reports DMARC\nto DHS'],
+                        'Reports DMARC\nto CISA'],
             fill_color=graphs.DARK_BLUE
         )
         dmarc_bar.plot(filename='dmarc-compliance')

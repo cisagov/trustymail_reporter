@@ -49,10 +49,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% PDF Metadata
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage[pdfauthor={National Cybersecurity Assessments and Technical Services},
+\usepackage[pdfauthor={CISA Assessments team},
             pdftitle={Trustworthy Email Report},
             pdfsubject={Trustworthy Email Report},
-            pdfkeywords={email, trustworthy, cybersecurity, SPF, DKIM, DMARC, report, dhs, nppd, cs\&c, nccic, ncats<<#report_oid>>, oid:<<&report_oid>><</report_oid>>},
+            pdfkeywords={email, trustworthy, cybersecurity, SPF, DKIM, DMARC, report, cisa, ncats<<#report_oid>>, oid:<<&report_oid>><</report_oid>>},
             pdfcreator={XeTeX with hyperref},
 			hidelinks]{hyperref}
 
@@ -288,11 +288,7 @@ opacity=0.04
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \usepackage[acronym]{glossaries}
 % \makeglossaries
-% \newacronym{DHS}{DHS}{Department of Homeland Security}
-% \newacronym{NPPD}{NPPD}{National Protection and Programs Directorate}
-% \newacronym{CSC}{CS\&C}{Office of Cybersecurity and Communications}
-% \newacronym{NCCIC}{NCCIC}{National Cybersecurity and Communications Integration Center}
-% \newacronym{NOI}{NO\&I}{NCCIC Operations and Integration}
+% \newacronym{CISA}{CISA}{Cybersecurity and Infrastructure Security Agency}
 % \newacronym{NCATS}{NCATS}{National Cybersecurity Assessments and Technical Services}
 % \newacronym{CH}{CH}{Cyber Hygiene}
 
@@ -332,7 +328,7 @@ opacity=0.04
 		\vspace*{1.6in}
 		\begin{minipage}{\textwidth}
     	\begin{minipage}{.32\linewidth}
-				\hspace*{3mm} \raggedright \includegraphics[height=0.8in]{assets/dhs-nccic-logo}
+				\hspace*{3mm} \raggedright \includegraphics[height=0.8in]{assets/cisa-logo}
 			\end{minipage}
 			\begin{minipage}{.34\linewidth}
 				\   % placeholder for center of footer
@@ -364,7 +360,7 @@ opacity=0.04
 \label{sec:executive summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
-This weekly report, created by the National Cybersecurity Assessments and Technical Services (NCATS) team inside the Department of Homeland Security's National Cybersecurity and Communications Integration Center (NCCIC), is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
+This weekly report, created by the National Cybersecurity Assessments and Technical Services (NCATS) team inside the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
 
 \vspace*{-3mm}
 \addcontentsline{toc}{subsection}{Overview} % Adds a subsection to toc
@@ -388,7 +384,7 @@ We measure the presence of SPF and DMARC records in the DNS for your agency's pu
       % Note that these counts can be higher than what is displayed in the Results table because that table excludes subdomains that are covered by a parent domain's DMARC record
       \item \textbf{\numprint{<<valid_dmarc_count>>}} hostnames (<<valid_dmarc_percentage>>\%) are subject to a valid DMARC \mbox{policy}
       \item \textbf{\numprint{<<valid_dmarc_reject_count>>}} hostnames (<<valid_dmarc_reject_percentage>>\%) are subject to a valid DMARC \mbox{policy} that rejects non-compliant mail (``p=reject"; if specified, ``sp=reject" and ``pct=100")
-      \item \textbf{\numprint{<<valid_dmarc_bod1801_rua_uri_count>>}} hostnames (<<valid_dmarc_bod1801_rua_uri_percentage>>\%) are subject to a valid DMARC \mbox{policy} that sends DMARC aggregate reports to DHS (``rua=mailto:reports@dmarc.cyber.dhs.gov")
+      \item \textbf{\numprint{<<valid_dmarc_bod1801_rua_uri_count>>}} hostnames (<<valid_dmarc_bod1801_rua_uri_percentage>>\%) are subject to a valid DMARC \mbox{policy} that sends DMARC aggregate reports to CISA (``rua=mailto:reports@dmarc.cyber.dhs.gov")
     \end{itemize}
   \end{minipage}
   \hspace{0.06\linewidth}
@@ -454,7 +450,7 @@ Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{d
 \rowcolors{4}{white}{row-gray}
 \begin{longtable}{>{\raggedright}p{2.2in}p{1.2in}p{0.7in}p{1.2in}p{0.6in}p{2.3in}p{0.7in}p{0.8in}}
 	\toprule
-			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{dhs-blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Covered}{\color{dhs-blue}{\textbf{Has\newline  SPF\newline Covered}}} & \hyperlink{Has DMARC Policy of Reject}{\color{dhs-blue}{\textbf{Has\newline  DMARC\newline Policy of Reject}}} & \hyperlink{Reports DMARC To DHS}{\color{dhs-blue}{\textbf{Reports\newline DMARC\newline To DHS}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{dhs-blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Email Compliant}{\color{dhs-blue}{\textbf{BOD 18-01\newline Email\newline Compliant}}} & \hyperlink{DMARC Failures (Past 7 Days)}{\color{dhs-blue}{\textbf{DMARC\newline Failures\newline (Past 7 Days)}}}\\
+			\textbf{Domain} & \hyperlink{Uses STARTTLS}{\color{dhs-blue}{\textbf{Uses STARTTLS}}} & \hyperlink{Has SPF Covered}{\color{dhs-blue}{\textbf{Has\newline  SPF\newline Covered}}} & \hyperlink{Has DMARC Policy of Reject}{\color{dhs-blue}{\textbf{Has\newline  DMARC\newline Policy of Reject}}} & \hyperlink{Reports DMARC To CISA}{\color{dhs-blue}{\textbf{Reports\newline DMARC\newline To CISA}}} & \hyperlink{Free of SSLv2, SSLv3, 3DES, RC4}{\color{dhs-blue}{\textbf{Free of SSLv2, SSLv3, 3DES, RC4}}} & \hyperlink{BOD 18-01 Email Compliant}{\color{dhs-blue}{\textbf{BOD 18-01\newline Email\newline Compliant}}} & \hyperlink{DMARC Failures (Past 7 Days)}{\color{dhs-blue}{\textbf{DMARC\newline Failures\newline (Past 7 Days)}}}\\
 	\hhline{========}
 	\endhead
 	<<#report_doc.scores>>
@@ -522,14 +518,14 @@ In \texttt{trustymail}, ``Has DMARC Policy of Reject" is based on the values of 
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
-\addcontentsline{toc}{subsubsection}{Reports DMARC To DHS} % Adds a subsection to toc
-\hypertarget{Reports DMARC To DHS}{\subsubsection*{Reports DMARC To DHS}}
+\addcontentsline{toc}{subsubsection}{Reports DMARC To CISA} % Adds a subsection to toc
+\hypertarget{Reports DMARC To CISA}{\subsubsection*{Reports DMARC To CISA}}
 \vspace*{-6mm}
 \textit{Values: \checkmark (valid DMARC record with rua=mailto:reports@dmarc.cyber.dhs.gov), \xmark \ (no DMARC record or invalid DMARC record or valid DMARC record without mailto:reports@dmarc.cyber.dhs.gov), N/A (hostname does not resolve in DNS)}\\~\\
 
 Whether a valid DMARC (TXT) record with ``rua=mailto:reports@dmarc.cyber.dhs.gov" is present at \_dmarc.<hostname>. See trustymail\_results.csv in the Attachments section for details.
 
-In \texttt{trustymail}, ``Reports DMARC To DHS" is based on the value of ``DMARC Aggregate Report URIs".
+In \texttt{trustymail}, ``Reports DMARC To CISA" is based on the value of ``DMARC Aggregate Report URIs".
 
 \vspace*{-5mm}
 \phantomsection % links this section from toc
@@ -581,7 +577,7 @@ See dmarc\_failures.csv in the Attachments section for details.
 \newpage
 \section{Background}
 \label{sec:background}
-DHS seeks to incentivize the thoughtful deployment of email authentication technologies and generally increase the security of messages to and from government agencies.
+CISA seeks to incentivize the thoughtful deployment of email authentication technologies and generally increase the security of messages to and from government agencies.
 
 This section is a recital and elaboration of key points in two recent Federal documents:
 
