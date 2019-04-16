@@ -471,7 +471,8 @@ class ReportGenerator(object):
             score['valid_dmarc_bod1801_rua_uri'] = False
             if score['valid_dmarc']:
                 for uri_dict in domain['aggregate_report_uris']:
-                    if uri_dict['uri'] == BOD1801_DMARC_RUA_URI:
+                    if uri_dict['uri'].lower() == \
+                       BOD1801_DMARC_RUA_URI.lower():
                         self.__valid_dmarc_bod1801_rua_uri_count += 1
                         score['valid_dmarc_bod1801_rua_uri'] = True
                         break
