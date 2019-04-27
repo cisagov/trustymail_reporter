@@ -447,8 +447,8 @@ class ReportGenerator(object):
             #
             # See here for more details:
             # https://tools.ietf.org/html/rfc7489#section-6.3
-            if not domain['is_base_domain'] or (
-                    score['valid_dmarc'] and
+            if score['valid_dmarc'] and (
+                    not domain['is_base_domain'] or
                     domain['dmarc_subdomain_policy'] == 'reject'
             ):
                 self.__valid_dmarc_subdomain_reject_count += 1
