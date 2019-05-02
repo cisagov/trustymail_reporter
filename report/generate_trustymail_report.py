@@ -397,6 +397,7 @@ class ReportGenerator(object):
         score['num_dmarc_failures'] = num_dmarc_failures
 
         if domain['live']:
+            score['is_base_domain'] = domain['is_base_domain']
             # Check if the current domain is the base domian.
             if domain['is_base_domain']:
                 self.__eligible_domains_count += 1
@@ -438,8 +439,16 @@ class ReportGenerator(object):
 
             score['dmarc_subdomain_policy'] = domain['dmarc_subdomain_policy']
             score['valid_dmarc_subdomain_policy_reject'] = False
-            if (
-                    score['valid_dmarc'] and
+            # According to RFC7489, "'sp' will be ignored for DMARC
+            # records published on subdomains of Organizational
+            # Domains due to the effect of the DMARC policy discovery
+            # mechanism."  Therefore we have chosen not to penalize
+            # for sp!=reject when considering subdomains.
+            #
+            # See here for more details:
+            # https://tools.ietf.org/html/rfc7489#section-6.3
+            if score['valid_dmarc'] and (
+                    not domain['is_base_domain'] or
                     domain['dmarc_subdomain_policy'] == 'reject'
             ):
                 self.__valid_dmarc_subdomain_reject_count += 1
