@@ -140,6 +140,17 @@ class ReportGenerator(object):
         # DNS timeout because of the way dns.resolver.query() is written.  See
         # http://www.dnspython.org/docs/1.14.0/dns.resolver-pysrc.html#query.
         self.__resolver.retry_servfail = False
+        # Add a least-recently used cache with the default of 100000
+        # entries.  This only slightly speeds up the retrieval of PTR
+        # records corresponding to DMARC aggregate reports, since the
+        # IPs in separate reports are rarely the same.
+        self.__resolver.cache = dns.resolver.LRUCache()
+        # Allow DNS queries 2.5 seconds to complete before timing out.
+        # The default is 30s, but such a long lifetime can cause the
+        # reporting to take forever since the PTR record lookups for
+        # many of the IPs in DMARC aggregate reports hang and consume
+        # the entire lifetime.
+        self.__resolver.lifetime = 2.5
 
         # Get list of all domains from the database
         all_domains_cursor = self.__db.trustymail.find({
@@ -231,11 +242,12 @@ class ReportGenerator(object):
             'is_base_domain': True
         }).count()
 
-        # Get a list of all domains with DMARC records that are associated with
-        # this agency's email servers.  The domain associated with an aggregate
-        # report will the domain corresponding to the DMARC record that applies
-        # (whether this is the domain itself or the base domain), so clearly we
-        # only need to concern ourselves with domains for which there is a
+        # Get a list of all domains with DMARC records that are
+        # associated with this agency's email servers.  The domain
+        # associated with an aggregate report will be the domain
+        # corresponding to the DMARC record that applies (whether this
+        # is the domain itself or the base domain), so clearly we only
+        # need to concern ourselves with domains for which there is a
         # DMARC record.
         #
         # See here for details:
@@ -989,14 +1001,16 @@ class ReportGenerator(object):
             try:
                 ans = self.__resolver.query(dns.reversename.from_address(ip),
                                             'PTR',
-                                            tcp=True)
+                                            tcp=True,
+                                            raise_on_no_answer=True)
                 # There is a trailing period that we don't want
                 x['PTR'] = ans[0].to_text()[:-1]
             except (dns.resolver.NoNameservers,
                     dns.resolver.NXDOMAIN,
                     dns.resolver.NoAnswer,
                     dns.exception.Timeout) as e:
-                # If we fail for any reason then there is no PTR record
+                # If we fail for any reason then there is no PTR
+                # record
                 pass
 
             # Grab some values
