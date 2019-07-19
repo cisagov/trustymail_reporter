@@ -966,7 +966,7 @@ class ReportGenerator(object):
         policy_evaluated = record['row']['policy_evaluated']
         dkim_and_alignment = policy_evaluated['dkim'].lower() == 'pass'
         spf_and_alignment = policy_evaluated['spf'].lower() == 'pass'
-        return not dkim_and_alignment or not spf_and_alignment
+        return not (dkim_and_alignment or spf_and_alignment)
 
     def __generate_dmarc_failures_attachment(self):
         """Generate the DMARC failures CSV attachment"""
