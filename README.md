@@ -1,4 +1,4 @@
-# NCATS Trustworthy Email Reporter :notebook: :file_folder: #
+# CISA Trustworthy Email Reporter :notebook: :file_folder: #
 
 [![Build Status](https://travis-ci.com/cisagov/trustymail_reporter.svg?branch=develop)](https://travis-ci.com/cisagov/trustymail_reporter)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/cisagov/trustymail_reporter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cisagov/trustymail_reporter/alerts/)
