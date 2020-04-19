@@ -52,7 +52,7 @@
 \usepackage[pdfauthor={CISA Assessments team},
             pdftitle={Trustworthy Email Report},
             pdfsubject={Trustworthy Email Report},
-            pdfkeywords={email, trustworthy, cybersecurity, SPF, DKIM, DMARC, report, cisa, ncats<<#report_oid>>, oid:<<&report_oid>><</report_oid>>},
+            pdfkeywords={email, trustworthy, cybersecurity, SPF, DKIM, DMARC, report, cisa<<#report_oid>>, oid:<<&report_oid>><</report_oid>>},
             pdfcreator={XeTeX with hyperref},
 			hidelinks]{hyperref}
 
@@ -289,7 +289,6 @@ opacity=0.04
 % \usepackage[acronym]{glossaries}
 % \makeglossaries
 % \newacronym{CISA}{CISA}{Cybersecurity and Infrastructure Security Agency}
-% \newacronym{NCATS}{NCATS}{National Cybersecurity Assessments and Technical Services}
 % \newacronym{CH}{CH}{Cyber Hygiene}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -360,7 +359,7 @@ opacity=0.04
 \label{sec:executive summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
-This weekly report, created by the National Cybersecurity Assessments and Technical Services (NCATS) team inside the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
+This weekly report, created by the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
 
 \vspace*{-3mm}
 \addcontentsline{toc}{subsection}{Overview} % Adds a subsection to toc
@@ -640,7 +639,7 @@ Please see \href{https://cyber.dhs.gov/bod/18-01/#resources}{https://cyber.dhs.g
 \subsubsection*{Get Help}
 \vspace*{-3mm}
 
-You can reach out to the NCATS team at \href{mailto:ncats@hq.dhs.gov}{ncats@hq.dhs.gov}.
+You can reach out to CISA at \href{mailto:vulnerability@cisa.dhs.gov}{vulnerability@cisa.dhs.gov}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -664,7 +663,7 @@ aggregate reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.
 As they arrive, the DMARC aggregate reports are continually processed
 and saved to a database using
 \href{https://github.com/cisagov/dmarc-import}{an open source tool
-created by the NCATS team}.  This database is then queried at the time
+created by CISA}.  This database is then queried at the time
 of report generation in order to populate the report with DMARC
 failure data. See \texttt{dmarc\_failures.csv} for more information.
 
@@ -675,7 +674,7 @@ Note that DMARC failures can occur for the following reasons:
 \item \href{https://tools.ietf.org/html/rfc7489#section-3.1}{DMARC failure} (\href{https://tools.ietf.org/html/rfc7489#appendix-B.1}{identifier alignment failure})
 \end{itemize}
 
-Your agency is also welcome to request additional domains/subdomains be scanned that you find missing from this report by emailing \href{mailto:ncats@hq.dhs.gov}{ncats@hq.dhs.gov}.\\~\\~\\
+Your agency is also welcome to request additional domains/subdomains be scanned that you find missing from this report by emailing \href{mailto:vulnerability@cisa.dhs.gov}{vulnerability@cisa.dhs.gov}.\\~\\~\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Attachments Section
