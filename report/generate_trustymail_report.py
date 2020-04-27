@@ -210,7 +210,8 @@ class ReportGenerator(object):
         # Get list of all domains from the database
         all_domains_cursor = self.__db.trustymail.find({
             'latest': True,
-            'agency.name': agency}
+            'agency.name': agency},
+            no_cursor_timeout=True
         )
         self.__domain_count = all_domains_cursor.count()
 
@@ -233,6 +234,10 @@ class ReportGenerator(object):
                     )
                 self.__base_domains.append(domain_doc)
             self.__agency_id = domain_doc['agency']['id']
+
+        # We instantiated this cursor without a timeout, so we have to
+        # close it manually.
+        all_domains_cursor.close()
 
         # Get count of second-level domains an agency owns
         self.__base_domain_count = self.__db.trustymail.find({
