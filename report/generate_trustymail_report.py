@@ -152,20 +152,12 @@ class ReportGenerator(object):
         # the entire lifetime.
         self.__resolver.lifetime = 2.5
 
-        # Get list of all domains from the database
-        all_domains_cursor = self.__db.trustymail.find({
-            'latest': True,
-            'agency.name': agency}
-        )
-        self.__domain_count = all_domains_cursor.count()
-
         # Get weak crypto data for this agency's domains from the
         # sslyze-scan collection
         #
         # TODO: Consider using aggregation $lookup with uncorrelated
         # subquery to fetch trustymail and sslyze_scan data in one
         # query (MongoDB server 3.6 and later)
-
         sslyze_data_all_domains = dict()
         for host in self.__db.sslyze_scan.find({
                 'latest': True,
@@ -214,6 +206,13 @@ class ReportGenerator(object):
                         domain_doc['domain_has_weak_crypto'] = True
                         domain_doc['hosts_with_weak_crypto'].append(host)
             return domain_doc
+
+        # Get list of all domains from the database
+        all_domains_cursor = self.__db.trustymail.find({
+            'latest': True,
+            'agency.name': agency}
+        )
+        self.__domain_count = all_domains_cursor.count()
 
         for domain_doc in all_domains_cursor:
             domain_doc = add_weak_crypto_data_to_domain(
