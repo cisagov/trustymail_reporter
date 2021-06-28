@@ -1,5 +1,34 @@
+ARG VERSION=unspecified
+
 FROM python:3.6-stretch
-MAINTAINER Shane Frasier <jeremy.frasier@trio.dhs.gov>
+
+ARG VERSION
+
+# For a list of pre-defined annotation keys and value types see:
+# https://github.com/opencontainers/image-spec/blob/master/annotations.md
+# Note: Additional labels are added by the build workflow.
+LABEL org.opencontainers.image.authors="jeremy.frasier@cisa.dhs.gov"
+LABEL org.opencontainers.image.vendor="Cybersecurity and Infrastructure Security Agency"
+
+###
+# Setup the user and its home directory
+###
+
+ARG CISA_GID=421
+ARG CISA_UID=${CISA_GID}
+ENV CISA_USER="cisa"
+ENV CISA_GROUP=${CISA_USER}
+ENV CISA_HOME="/home/cisa"
+
+###
+# Create unprivileged user
+###
+RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP}
+RUN useradd --system --uid ${CISA_UID} --gid ${CISA_GROUP} --comment "${CISA_USER} user" ${CISA_USER}
+
+###
+# Install everything we need
+###
 
 ###
 # Dependencies
@@ -51,16 +80,23 @@ RUN apt-get update -qq \
 # Setup texlive latex stuff
 RUN tlmgr init-usertree
 
+###
 # Install requirements for report generation
+#
+# Make sure pip and setuptools are the latest versions
+#
+# Note that we use pip --no-cache-dir to avoid writing to a local
+# cache.  This results in a smaller final image, at the cost of
+# slightly longer install times.
 #
 # numpy seems to be required to build basemap's wheel, so we'll
 # install it first.
 #
 # Note that matplotlib.basemap is currently incompatible with
 # matplotlib 3.x.
-RUN pip install --upgrade setuptools pip \
-    && pip install --upgrade numpy \
-    && pip install --upgrade \
+RUN pip install --no-cache-dir --upgrade pip setuptools \
+    && pip install --no-cache-dir --upgrade numpy \
+    && pip install --no-cache-dir --upgrade \
     boto3 \
     dnspython \
     docopt \
@@ -76,27 +112,25 @@ RUN pip install --upgrade setuptools pip \
     requests_aws4auth
 
 ###
-# Create unprivileged User
-###
-ENV REPORTER_HOME /home/reporter
-RUN groupadd -r reporter \
-    && useradd -r -c "Reporter user" -g reporter reporter
-
-# It would be nice to get rid of some build dependencies at this point
-
 # Clean up aptitude cruft
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+###
+RUN apt-get --quiet --quiet clean
+RUN rm -rf /var/lib/apt/lists/*
+
+###
+# Setup working directory and entrypoint
+###
 
 # Put this just before we change users because the copy (and every
 # step after it) will always be rerun by docker, but we need to be
 # root for the chown command.
-COPY . $REPORTER_HOME
-RUN chown -R reporter:reporter ${REPORTER_HOME}
+COPY src ${CISA_HOME}
+RUN chown -R ${CISA_USER}:${CISA_GROUP} ${CISA_HOME}
 
 ###
 # Prepare to Run
 ###
 # Right now we need to run as root for the font stuff
-# USER reporter:reporter
-WORKDIR $REPORTER_HOME
+# USER ${CISA_USER}:${CISA_GROUP}
+WORKDIR ${CISA_HOME}
 ENTRYPOINT ["./report.sh"]

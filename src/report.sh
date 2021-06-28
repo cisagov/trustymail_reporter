@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOME_DIR='/home/reporter'
+HOME_DIR='/home/cisa'
 SHARED_DIR=$HOME_DIR'/shared'
 
 # Prepare fonts
@@ -11,7 +11,7 @@ fc-cache -f
 echo 'Waiting for saver'
 while [ "$(redis-cli -h redis get saving_complete)" != "true" ]
 do
-    sleep 5
+  sleep 5
 done
 echo "Saver finished"
 
