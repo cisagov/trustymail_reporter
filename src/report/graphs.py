@@ -61,8 +61,6 @@ def setup():
     fig_size = [fig_width, fig_height]
     params = {
         "backend": "pdf",
-        # 'font.family': 'sans-serif',
-        # 'font.sans-serif': ['Avenir Next'],
         "axes.labelsize": 10,
         "legend.fontsize": 8,
         "xtick.labelsize": 8,
