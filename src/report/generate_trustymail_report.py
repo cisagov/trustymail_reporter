@@ -1356,7 +1356,8 @@ def main():
     db = db_from_config(DB_CONFIG_FILE)
 
     print("Generating Trustymail Report...")
-    # TODO: Use agency ID instead of full agency name
+    # TODO: Use agency ID instead of full agency name.  See issue #46
+    # for more details.
     generator = ReportGenerator(db, args['"AGENCY"'], debug=args["--debug"])
     generator.generate_trustymail_report()
     print("Done")
