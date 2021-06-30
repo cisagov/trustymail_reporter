@@ -686,8 +686,6 @@ class ReportGenerator(object):
                 self.__report_doc["scores"].append(score)
 
         if not self.__all_eligible_domains_count:
-            # TODO Decide if we want to generate an empty report in
-            # this case
             print(
                 'ERROR: "{}" has no live domains - exiting without generating report!'.format(
                     self.__agency
