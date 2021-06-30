@@ -687,7 +687,7 @@ class ReportGenerator(object):
 
         if not self.__all_eligible_domains_count:
             print(
-                'ERROR: "{}" has no live domains - exiting without generating report!'.format(
+                'WARNING: "{}" has no live domains - exiting without generating report!'.format(
                     self.__agency
                 )
             )
