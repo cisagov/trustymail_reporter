@@ -156,7 +156,7 @@ containerize.  It is recommended that most users use a version tag (e.g.
 | Image:tag | Description |
 |-----------|-------------|
 |`cisagov/trustymail_reporter:1.2.0`| An exact release version. |
-|`cisagov/trustymail_reporter:1.1`| The most recent release matching the major and minor version numbers. |
+|`cisagov/trustymail_reporter:1.2`| The most recent release matching the major and minor version numbers. |
 |`cisagov/trustymail_reporter:1`| The most recent release matching the major version number. |
 |`cisagov/trustymail_reporter:edge` | The most recent image built from a merge into the `develop` branch of this repository. |
 |`cisagov/trustymail_reporter:nightly` | A nightly build of the `develop` branch of this repository. |
