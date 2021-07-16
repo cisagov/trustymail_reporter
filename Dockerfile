@@ -1,4 +1,3 @@
-
 FROM python:3.6.14-stretch
 
 # For a list of pre-defined annotation keys and value types see:
