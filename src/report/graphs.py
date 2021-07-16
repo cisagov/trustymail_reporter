@@ -1185,10 +1185,3 @@ class MyDonutPie(object):
         plt.tight_layout()  # trims margins down nicely
         plt.savefig(filename + ".pdf", bbox_inches=extent, pad_inches=0)
         plt.close()
-
-
-if __name__ == "__main__":
-    setup()
-
-    m = MyMessage("Figure Omitted\nNo Vulnerabilities Detected")
-    m.plot("message")
