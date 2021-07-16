@@ -220,7 +220,6 @@ Build the image locally using this git repository as the [build context](https:/
 
 ```console
 docker build \
-  --build-arg VERSION=1.2.0 \
   --tag cisagov/trustymail_reporter:1.2.0 \
   https://github.com/cisagov/trustymail_reporter.git#develop
 ```
@@ -251,7 +250,6 @@ Docker:
     docker buildx build \
       --file Dockerfile-x \
       --platform linux/amd64 \
-      --build-arg VERSION=1.2.0 \
       --output type=docker \
       --tag cisagov/trustymail_reporter:1.2.0 .
     ```

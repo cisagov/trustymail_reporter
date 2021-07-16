@@ -1,8 +1,5 @@
-ARG VERSION=unspecified
 
 FROM python:3.6.14-stretch
-
-ARG VERSION
 
 # For a list of pre-defined annotation keys and value types see:
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
