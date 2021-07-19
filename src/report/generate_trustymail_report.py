@@ -1094,7 +1094,7 @@ class ReportGenerator(object):
             x["DKIM Alignment Result"] = None
             x["DKIM Result"] = None
             x["DKIM Domain"] = None
-            if "dkim" in auth_results:
+            if auth_results is not None and "dkim" in auth_results:
                 dkim = auth_results["dkim"]
                 dkim_and_alignment = policy_evaluated["dkim"]
                 if isinstance(dkim, list):
@@ -1145,7 +1145,7 @@ class ReportGenerator(object):
             x["SPF Alignment Result"] = None
             x["SPF Result"] = None
             x["SPF Domain"] = None
-            if "spf" in auth_results:
+            if auth_results is not None and "spf" in auth_results:
                 spf = auth_results["spf"]
                 spf_and_alignment = policy_evaluated["spf"]
                 if isinstance(spf, list):
