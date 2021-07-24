@@ -9,8 +9,7 @@ cp ./fonts/* /usr/share/fonts/truetype/
 fc-cache -f
 
 echo 'Waiting for saver'
-while [ "$(redis-cli -h redis get saving_complete)" != "true" ]
-do
+while [ "$(redis-cli -h redis get saving_complete)" != "true" ]; do
   sleep 5
 done
 echo "Saver finished"
