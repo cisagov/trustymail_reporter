@@ -1,4 +1,4 @@
-FROM python:3.7.11-stretch
+FROM python:3.7.11-bullseye
 
 # For a list of pre-defined annotation keys and value types see:
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
@@ -69,7 +69,7 @@ RUN apt-get update -qq \
     texlive-xetex \
     fonts-lmodern \
     lmodern \
-    texlive-math-extra \
+    texlive-science \
     fontconfig \
     redis-tools
 
