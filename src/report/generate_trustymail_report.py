@@ -1047,7 +1047,7 @@ class ReportGenerator(object):
             try:
                 # Use UDP to hopefully avoid triggering DNS throttling
                 # in AWS.
-                ans = self.__resolver.query(
+                ans = self.__resolver.resolve(
                     dns.reversename.from_address(ip),
                     "PTR",
                     tcp=False,
