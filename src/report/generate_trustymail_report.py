@@ -1045,10 +1045,12 @@ class ReportGenerator(object):
             # Try to find a PTR record
             x["PTR"] = None
             try:
+                # Use UDP to hopefully avoid triggering DNS throttling
+                # in AWS.
                 ans = self.__resolver.query(
                     dns.reversename.from_address(ip),
                     "PTR",
-                    tcp=True,
+                    tcp=False,
                     raise_on_no_answer=True,
                 )
                 # There is a trailing period that we don't want
