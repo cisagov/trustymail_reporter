@@ -94,6 +94,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools \
     && pip install --no-cache-dir --upgrade numpy \
     && pip install --no-cache-dir --upgrade \
     boto3 \
+    chevron \
     dnspython \
     docopt \
     geos \
@@ -103,7 +104,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools \
     publicsuffix \
     pyasn \
     pypdf2 \
-    pystache \
     requests \
     requests_aws4auth
 
