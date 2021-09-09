@@ -221,9 +221,9 @@ class ReportGenerator(object):
         all_domains_cursor = self.__db.trustymail.find(
             {"latest": True, "agency.name": agency}, no_cursor_timeout=True
         )
-        self.__domain_count = all_domains_cursor.count()
 
         for domain_doc in all_domains_cursor:
+            self.__domain_count += 1
             domain_doc = add_weak_crypto_data_to_domain(
                 domain_doc, sslyze_data_all_domains
             )
@@ -251,9 +251,9 @@ class ReportGenerator(object):
         all_domains_cursor.close()
 
         # Get count of second-level domains an agency owns
-        self.__base_domain_count = self.__db.trustymail.find(
+        self.__base_domain_count = self.__db.trustymail.count_documents(
             {"latest": True, "agency.name": agency, "is_base_domain": True}
-        ).count()
+        )
 
         # Get a list of all domains with DMARC records that are
         # associated with this agency's email servers.  The domain
@@ -1045,10 +1045,12 @@ class ReportGenerator(object):
             # Try to find a PTR record
             x["PTR"] = None
             try:
-                ans = self.__resolver.query(
+                # Use UDP to hopefully avoid triggering DNS throttling
+                # in AWS.
+                ans = self.__resolver.resolve(
                     dns.reversename.from_address(ip),
                     "PTR",
-                    tcp=True,
+                    tcp=False,
                     raise_on_no_answer=True,
                 )
                 # There is a trailing period that we don't want

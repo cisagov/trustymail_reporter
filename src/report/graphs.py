@@ -6,15 +6,19 @@ from textwrap import TextWrapper
 
 # Third-Party Libraries
 import matplotlib
-import matplotlib as mpl
-from matplotlib.collections import PatchCollection
-from matplotlib.dates import DateFormatter
-from matplotlib.patches import Ellipse, Rectangle
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
-import numpy as np
 
+# This line is oddly located, but it must come before the
+# matplotlib.pyplot import below.  This also creates a bunch of flake8
+# E402 errors for the imports that follow because they are not at the
+# top of the file, so I added a noqa comment for each of those lines.
 matplotlib.use("Agg")
+# Third-Party Libraries
+from matplotlib.collections import PatchCollection  # noqa: E402
+from matplotlib.dates import DateFormatter  # noqa: E402
+from matplotlib.patches import Ellipse, Rectangle  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.ticker import MaxNLocator  # noqa: E402
+import numpy as np  # noqa: E402
 
 # Blue, Green, Yellow, Orange, Red,
 BLUE = "#5c90ba"
@@ -614,14 +618,14 @@ class MyColorBar(object):
 
     def plot(self, filename, size=1.0):
         """Create the graph."""
-        cmap = mpl.cm.RdYlGn_r
-        norm = mpl.colors.Normalize(vmin=0, vmax=10)
+        cmap = matplotlib.cm.RdYlGn_r
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=10)
         fig = plt.figure(figsize=(8, 2))
         fig.set_size_inches(fig.get_size_inches() * size)
         plt.axis("off")
 
         ax2 = fig.add_axes([0.05, 0.25, 0.9, 0.15])
-        cb1 = mpl.colorbar.ColorbarBase(
+        cb1 = matplotlib.colorbar.ColorbarBase(
             ax2, cmap=cmap, norm=norm, orientation="horizontal"
         )
         cb1.set_label("CVSS Score")
@@ -1138,7 +1142,7 @@ class MyDonutPie(object):
         fig_width = fig_height = 4.0 * size
         plt.rcParams.update({"figure.figsize": [fig_width, fig_height]})
         # Minimize whitespace around chart
-        extent = mpl.transforms.Bbox(((0, 0), (fig_width, fig_height)))
+        extent = matplotlib.transforms.Bbox(((0, 0), (fig_width, fig_height)))
 
         labels = "", ""
         sizes = [100 - self.percentage_full, self.percentage_full]
