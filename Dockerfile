@@ -1,4 +1,4 @@
-FROM python:3.7.11-bullseye
+FROM python:3.9.7-bullseye
 
 # For a list of pre-defined annotation keys and value types see:
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
