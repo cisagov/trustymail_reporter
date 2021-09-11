@@ -30,16 +30,16 @@ import tempfile
 
 # Third-Party Libraries
 import boto3
+
+# intra-project modules
+import chevron
 import dns.resolver
 import dns.reversename
 from docopt import docopt
-
-# intra-project modules
 import graphs
 from mongo_db_from_config import db_from_config
 import publicsuffix
 import pyasn
-import pystache
 import requests
 from requests_aws4auth import AWS4Auth
 
@@ -1329,14 +1329,10 @@ class ReportGenerator(object):
             out.write(json.dumps(result))
 
     def __generate_latex(self, mustache_file, json_file, latex_file):
-        template = codecs.open(mustache_file, "r", encoding="utf-8").read()
-
-        with codecs.open(json_file, "r", encoding="utf-8") as data_file:
-            data = json.load(data_file)
-
-        r = pystache.render(template, data)
-        with codecs.open(latex_file, "w", encoding="utf-8") as output:
-            output.write(r)
+        with codecs.open(mustache_file, "r", encoding="utf-8") as template, codecs.open(
+            json_file, "r", encoding="utf-8"
+        ) as data_file, codecs.open(latex_file, "w", encoding="utf-8") as output:
+            output.write(chevron.render(template, json.load(data_file)))
 
     def __generate_final_pdf(self):
         xelatex = ["/usr/bin/xelatex", REPORT_TEX]
