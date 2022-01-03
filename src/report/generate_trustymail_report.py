@@ -396,6 +396,20 @@ class ReportGenerator(object):
             if len(hits) < ES_RETRIEVE_SIZE:
                 scroll_again = False
 
+        # Delete the scroll context.  These are expensive resources,
+        # so there is a limit on the number that can be kept around.
+        # The default limit is 500, and we have bumped into that limit
+        # before.
+        response = requests.delete(
+            "{}/_search/scroll".format(ES_URL_NO_INDEX),
+            auth=awsauth,
+            json={"scroll_id": scroll_id},
+            headers={"Content-Type": "application/json"},
+            timeout=300,
+        )
+        # Raise an exception if we don't get back a 200 code
+        response.raise_for_status()
+
     def __score_domain(self, domain):
         score = {
             "subdomain_scores": list(),
