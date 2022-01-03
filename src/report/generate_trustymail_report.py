@@ -407,7 +407,7 @@ class ReportGenerator(object):
             headers={"Content-Type": "application/json"},
             timeout=300,
         )
-        # Raises an exception if we didn't get back a 200 code
+        # Raise an exception if we don't get back a 200 code
         response.raise_for_status()
 
     def __score_domain(self, domain):
