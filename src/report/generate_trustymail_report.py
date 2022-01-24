@@ -1130,13 +1130,28 @@ class ReportGenerator(object):
                                 # DKIM alignment is relaxed, so the header and
                                 # the domain just need to come from the same
                                 # base domain
-                                base_domain = self.__psl.get_public_suffix(
-                                    y["domain"]
-                                ).lower()
+                                domain = y["domain"]
+                                base_domain = self.__psl.get_public_suffix(domain)
+                                if base_domain is None:
+                                    logging.warn(
+                                        "Unable to determine public suffix for domain %s",
+                                        domain,
+                                    )
+                                    results.append("unaligned")
+                                    continue
+
                                 header_base_domain = self.__psl.get_public_suffix(
                                     header_from
-                                ).lower()
-                                if base_domain == header_base_domain:
+                                )
+                                if header_base_domain is None:
+                                    logging.warn(
+                                        "Unable to determine public suffix for header domain %s",
+                                        header_from,
+                                    )
+                                    results.append("unaligned")
+                                    continue
+
+                                if base_domain.lower() == header_base_domain.lower():
                                     results.append("aligned")
                                 else:
                                     results.append("unaligned")
@@ -1181,13 +1196,28 @@ class ReportGenerator(object):
                                 # SPF alignment is relaxed, so the header and
                                 # the domain just need to come from the same
                                 # base domain
-                                base_domain = self.__psl.get_public_suffix(
-                                    y["domain"]
-                                ).lower()
+                                domain = y["domain"]
+                                base_domain = self.__psl.get_public_suffix(domain)
+                                if base_domain is None:
+                                    logging.warn(
+                                        "Unable to determine public suffix for domain %s",
+                                        domain,
+                                    )
+                                    results.append("unaligned")
+                                    continue
+
                                 header_base_domain = self.__psl.get_public_suffix(
                                     header_from
-                                ).lower()
-                                if base_domain == header_base_domain:
+                                )
+                                if header_base_domain is None:
+                                    logging.warn(
+                                        "Unable to determine public suffix for header domain %s",
+                                        header_from,
+                                    )
+                                    results.append("unaligned")
+                                    continue
+
+                                if base_domain.lower() == header_base_domain.lower():
                                     results.append("aligned")
                                 else:
                                     results.append("unaligned")
