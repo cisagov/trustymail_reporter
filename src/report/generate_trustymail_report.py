@@ -1133,7 +1133,7 @@ class ReportGenerator(object):
                                 domain = y["domain"]
                                 base_domain = self.__psl.get_public_suffix(domain)
                                 if base_domain is None:
-                                    logging.warn(
+                                    logging.warning(
                                         "Unable to determine public suffix for domain %s",
                                         domain,
                                     )
@@ -1144,7 +1144,7 @@ class ReportGenerator(object):
                                     header_from
                                 )
                                 if header_base_domain is None:
-                                    logging.warn(
+                                    logging.warning(
                                         "Unable to determine public suffix for header domain %s",
                                         header_from,
                                     )
@@ -1199,7 +1199,7 @@ class ReportGenerator(object):
                                 domain = y["domain"]
                                 base_domain = self.__psl.get_public_suffix(domain)
                                 if base_domain is None:
-                                    logging.warn(
+                                    logging.warning(
                                         "Unable to determine public suffix for domain %s",
                                         domain,
                                     )
@@ -1210,7 +1210,7 @@ class ReportGenerator(object):
                                     header_from
                                 )
                                 if header_base_domain is None:
-                                    logging.warn(
+                                    logging.warning(
                                         "Unable to determine public suffix for header domain %s",
                                         header_from,
                                     )
