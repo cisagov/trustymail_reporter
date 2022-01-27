@@ -1131,8 +1131,15 @@ class ReportGenerator(object):
                                 # the domain just need to come from the same
                                 # base domain
                                 domain = y["domain"]
-                                base_domain = self.__psl.get_public_suffix(domain)
-                                if base_domain is None:
+                                if (
+                                    domain is None
+                                    or (
+                                        base_domain := self.__psl.get_public_suffix(
+                                            domain
+                                        )
+                                    )
+                                    is None
+                                ):
                                     logging.warning(
                                         "Unable to determine public suffix for domain %s",
                                         domain,
@@ -1140,10 +1147,15 @@ class ReportGenerator(object):
                                     results.append("unaligned")
                                     continue
 
-                                header_base_domain = self.__psl.get_public_suffix(
-                                    header_from
-                                )
-                                if header_base_domain is None:
+                                if (
+                                    header_from is None
+                                    or (
+                                        header_base_domain := self.__psl.get_public_suffix(
+                                            header_from
+                                        )
+                                    )
+                                    is None
+                                ):
                                     logging.warning(
                                         "Unable to determine public suffix for header domain %s",
                                         header_from,
@@ -1197,8 +1209,15 @@ class ReportGenerator(object):
                                 # the domain just need to come from the same
                                 # base domain
                                 domain = y["domain"]
-                                base_domain = self.__psl.get_public_suffix(domain)
-                                if base_domain is None:
+                                if (
+                                    domain is None
+                                    or (
+                                        base_domain := self.__psl.get_public_suffix(
+                                            domain
+                                        )
+                                    )
+                                    is None
+                                ):
                                     logging.warning(
                                         "Unable to determine public suffix for domain %s",
                                         domain,
@@ -1206,10 +1225,15 @@ class ReportGenerator(object):
                                     results.append("unaligned")
                                     continue
 
-                                header_base_domain = self.__psl.get_public_suffix(
-                                    header_from
-                                )
-                                if header_base_domain is None:
+                                if (
+                                    header_from is None
+                                    or (
+                                        header_base_domain := self.__psl.get_public_suffix(
+                                            header_from
+                                        )
+                                    )
+                                    is None
+                                ):
                                     logging.warning(
                                         "Unable to determine public suffix for header domain %s",
                                         header_from,
