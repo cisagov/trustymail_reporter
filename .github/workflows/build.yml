@@ -29,13 +29,13 @@ env:
   CURL_CACHE_DIR: ~/.cache/curl
   IMAGE_NAME: cisagov/trustymail_reporter
   PIP_CACHE_DIR: ~/.cache/pip
-  # The Debian Stretch + Python 3.6 Docker container upon which this
-  # container is based does not support all the platforms listed
-  # below.  This can probably be remedied by upgrading to a newer base
-  # container.  See #45 for more details.
+  # Not all these platforms can be built in the six hour time limit
+  # imposed by GitHub Actions, so we remove the two most obscure
+  # platforms.
   # PLATFORMS: "linux/amd64,linux/arm/v6,linux/arm/v7,\
   # linux/arm64,linux/ppc64le,linux/s390x"
-  PLATFORMS: "linux/amd64,linux/arm/v7,linux/arm64"
+  PLATFORMS: "linux/amd64,linux/arm/v6,linux/arm/v7,\
+  linux/arm64"
   PRE_COMMIT_CACHE_DIR: ~/.cache/pre-commit
   RUN_TMATE: ${{ secrets.RUN_TMATE }}
 
