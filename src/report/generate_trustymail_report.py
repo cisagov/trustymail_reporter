@@ -1098,9 +1098,11 @@ class ReportGenerator(object):
             if "reason" in policy_evaluated:
                 reason = policy_evaluated["reason"]
                 if isinstance(reason, list):
-                    x["Override Reason"] = " ".join([rsn["type"] for rsn in reason])
+                    x["Override Reason"] = " ".join(
+                        [str(rsn["type"]) for rsn in reason]
+                    )
                 else:
-                    x["Override Reason"] = reason["type"]
+                    x["Override Reason"] = str(reason["type"])
 
             # This field is required in the XSD
             header_from = record["identifiers"]["header_from"]
@@ -1114,8 +1116,8 @@ class ReportGenerator(object):
                 dkim = auth_results["dkim"]
                 dkim_and_alignment = policy_evaluated["dkim"]
                 if isinstance(dkim, list):
-                    x["DKIM Result"] = " ".join([y["result"] for y in dkim])
-                    x["DKIM Domain"] = " ".join([y["domain"] for y in dkim])
+                    x["DKIM Result"] = " ".join([str(y["result"]) for y in dkim])
+                    x["DKIM Domain"] = " ".join([str(y["domain"]) for y in dkim])
                     results = []
                     for y in dkim:
                         if y["result"].lower() == "pass":
@@ -1171,8 +1173,8 @@ class ReportGenerator(object):
                             results.append("fail")
                     x["DKIM Alignment Result"] = " ".join(results)
                 else:
-                    x["DKIM Result"] = dkim["result"]
-                    x["DKIM Domain"] = dkim["domain"]
+                    x["DKIM Result"] = str(dkim["result"])
+                    x["DKIM Domain"] = str(dkim["domain"])
                     if x["DKIM Result"].lower() == "pass":
                         if dkim_and_alignment.lower() == "pass":
                             x["DKIM Alignment Result"] = "aligned"
@@ -1192,8 +1194,8 @@ class ReportGenerator(object):
                 spf = auth_results["spf"]
                 spf_and_alignment = policy_evaluated["spf"]
                 if isinstance(spf, list):
-                    x["SPF Result"] = " ".join([y["result"] for y in spf])
-                    x["SPF Domain"] = " ".join([y["domain"] for y in spf])
+                    x["SPF Result"] = " ".join([str(y["result"]) for y in spf])
+                    x["SPF Domain"] = " ".join([str(y["domain"]) for y in spf])
                     results = []
                     for y in spf:
                         if y["result"].lower() == "pass":
@@ -1249,8 +1251,8 @@ class ReportGenerator(object):
                             results.append("fail")
                     x["SPF Alignment Result"] = " ".join(results)
                 else:
-                    x["SPF Result"] = spf["result"]
-                    x["SPF Domain"] = spf["domain"]
+                    x["SPF Result"] = str(spf["result"])
+                    x["SPF Domain"] = str(spf["domain"])
                     if x["SPF Result"].lower() == "pass":
                         if spf_and_alignment.lower() == "pass":
                             x["SPF Alignment Result"] = "aligned"
