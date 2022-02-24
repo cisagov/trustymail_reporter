@@ -1099,7 +1099,7 @@ class ReportGenerator(object):
                 reason = policy_evaluated["reason"]
                 if isinstance(reason, list):
                     x["Override Reason"] = " ".join(
-                        [str(rsn["type"]) for rsn in reason]
+                        str(rsn["type"]) for rsn in reason
                     )
                 else:
                     x["Override Reason"] = str(reason["type"])
@@ -1116,8 +1116,8 @@ class ReportGenerator(object):
                 dkim = auth_results["dkim"]
                 dkim_and_alignment = policy_evaluated["dkim"]
                 if isinstance(dkim, list):
-                    x["DKIM Result"] = " ".join([str(y["result"]) for y in dkim])
-                    x["DKIM Domain"] = " ".join([str(y["domain"]) for y in dkim])
+                    x["DKIM Result"] = " ".join(str(y["result"]) for y in dkim)
+                    x["DKIM Domain"] = " ".join(str(y["domain"]) for y in dkim)
                     results = []
                     for y in dkim:
                         if y["result"].lower() == "pass":
@@ -1194,8 +1194,8 @@ class ReportGenerator(object):
                 spf = auth_results["spf"]
                 spf_and_alignment = policy_evaluated["spf"]
                 if isinstance(spf, list):
-                    x["SPF Result"] = " ".join([str(y["result"]) for y in spf])
-                    x["SPF Domain"] = " ".join([str(y["domain"]) for y in spf])
+                    x["SPF Result"] = " ".join(str(y["result"]) for y in spf)
+                    x["SPF Domain"] = " ".join(str(y["domain"]) for y in spf)
                     results = []
                     for y in spf:
                         if y["result"].lower() == "pass":
