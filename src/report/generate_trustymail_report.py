@@ -1098,9 +1098,7 @@ class ReportGenerator(object):
             if "reason" in policy_evaluated:
                 reason = policy_evaluated["reason"]
                 if isinstance(reason, list):
-                    x["Override Reason"] = " ".join(
-                        str(rsn["type"]) for rsn in reason
-                    )
+                    x["Override Reason"] = " ".join(str(rsn["type"]) for rsn in reason)
                 else:
                     x["Override Reason"] = str(reason["type"])
 
