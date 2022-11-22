@@ -36,7 +36,6 @@ RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP} \
 # will be removed at the end of the build process.
 ###
 ENV DEPS \
-ENV DEPS \
     build-essential \
     curl \
     git \
