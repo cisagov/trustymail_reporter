@@ -142,7 +142,7 @@ RUN rm -rf /var/lib/apt/lists/*
 # step after it) will always be rerun by Docker, but we need to be
 # root for the chown command.
 COPY src ${CISA_HOME}
-RUN chown -R ${CISA_USER}:${CISA_GROUP} ${CISA_HOME}
+RUN chown --recursive ${CISA_USER}:${CISA_GROUP} ${CISA_HOME}
 
 ###
 # Prepare to Run
