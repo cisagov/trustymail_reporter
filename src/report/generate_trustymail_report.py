@@ -86,7 +86,7 @@ PREPROCESSED_BGP_DATA_FILE = "ipasn.dat"
 PUBLIC_SUFFIX_LIST_FILENAME = "psl.txt"
 
 
-class ReportGenerator(object):
+class ReportGenerator:
     """Class for generating a Trustworthy Email report."""
 
     def __init__(self, db, agency, debug=False):
