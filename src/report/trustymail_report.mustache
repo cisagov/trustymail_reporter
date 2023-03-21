@@ -771,6 +771,8 @@ The fields in the \texttt{dmarc\_failures.csv} CSV are as follows:
   \href{https://cyber.dhs.gov/bod/18-01/#alignment-and-conformance}{message-From}
   address (the email address that is represented as From: in email
   clients), or b) the organizational domain corresponding to that.
+\item[Policy Applied] The DMARC policy that was applied by the
+  reporter.
 \item[Override Reason] The reason (if any) that the reporter chose to
   override the DMARC policy published by the domain.  This sometimes happens
   when mail providers observe traffic from known mailing lists or forwarders.
@@ -778,8 +780,9 @@ The fields in the \texttt{dmarc\_failures.csv} CSV are as follows:
   to spam, not to a user’s inbox.
 \item[Count] The number of emails that failed DMARC processing and are
   being reported.
-\item[Policy Applied] The DMARC policy that was applied by the
-  reporter.
+\item[Header From] The address in the message-FROM header of the email
+  message.  This is the From: address represented to the end user in
+  an email client.
 \item[DKIM Alignment Result] \hfill
   \begin{itemize}
     \item \texttt{aligned} if DKIM passed and the DKIM domain aligned
