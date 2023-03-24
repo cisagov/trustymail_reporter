@@ -1104,6 +1104,7 @@ class ReportGenerator:
 
             # This field is required in the XSD
             header_from = record["identifiers"]["header_from"]
+            x["Header From"] = header_from
 
             # DKIM
             auth_results = record["auth_results"]
@@ -1286,6 +1287,7 @@ class ReportGenerator:
             "Policy Applied",
             "Override Reason",
             "Count",
+            "Header From",
             "DKIM Alignment Result",
             "DKIM Result",
             "DKIM Domain",
