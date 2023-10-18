@@ -44,6 +44,7 @@ RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP} \
 ###
 ENV DEPS \
     build-essential \
+    cmake \
     curl \
     git \
     libc6-dev \
