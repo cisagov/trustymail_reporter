@@ -47,8 +47,10 @@ ENV DEPS \
     cmake \
     curl \
     git \
+    libblas-dev \
     libc6-dev \
     libfontconfig1 \
+    liblapack-dev \
     libreadline-dev \
     libssl-dev \
     libxml2-dev \
