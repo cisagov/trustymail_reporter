@@ -367,14 +367,15 @@
 \newpage
 \renewcommand{\footrulewidth}{0.4pt}
 \section{Executive Summary}
-\label{sec:executive summary}
+\label{sec:executive_summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
 This weekly report, created by the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
 
 \vspace*{-3mm}
+\phantomsection
 \addcontentsline{toc}{subsection}{Overview} % Adds a subsection to toc
-\subsection*{Overview}
+\hypertarget{Overview}{\subsection*{Overview}}
 \vspace*{-3mm}
 \raggedright
 We measure the presence of SPF and DMARC records in the DNS for your agency's publicly accessible .gov hostnames, as well as support for STARTTLS by your agency's SMTP servers.  This report includes all agency-registered \href{https://github.com/cisagov/dotgov-data/blob/main/current-federal.csv}{second-level .gov domains} and known subdomains, collectively referred to as ``hostnames" in this document. Any hostnames that respond with NXDOMAIN (``nonexistent") in the public DNS are removed from the compliance figures below.\\~\\
