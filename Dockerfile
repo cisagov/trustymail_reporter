@@ -5,7 +5,7 @@
 #
 # For more information:
 # https://github.com/python/cpython/blob/3.12/Lib/configparser.py
-FROM python:3.11.6-bullseye
+FROM python:3.11.8-bookworm
 
 ###
 # For a list of pre-defined annotation keys and value types see:
