@@ -42,8 +42,7 @@ RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP} \
 # Install dependencies are only needed for software installation and
 # will be removed at the end of the build process.
 ###
-ENV DEPS \
-    build-essential \
+ENV DEPS="build-essential \
     cmake \
     curl \
     git \
@@ -86,7 +85,7 @@ ENV DEPS \
     lmodern \
     texlive-science \
     fontconfig \
-    redis-tools
+    redis-tools"
 # ENV INSTALL_DEPS \
 #     git
 RUN apt-get install --quiet --quiet --yes \
