@@ -116,11 +116,13 @@ RUN tlmgr init-usertree
 # slightly longer install times.
 #
 # numpy seems to be required to build basemap's wheel, so we'll
-# install it first.
+# install it first.  Note that numpy>=2 lacks the numpy/noprefix.h
+# header required when building the wheel for matplotlib~=2.2.3, so we
+# have to pin numpy to <2.
 #
 # Note that matplotlib.basemap is currently incompatible with
 # matplotlib 3.x.
-RUN pip3 install --no-cache-dir --upgrade numpy \
+RUN pip3 install --no-cache-dir --upgrade "numpy<2" \
     && pip3 install --no-cache-dir --upgrade \
     boto3 \
     chevron \
