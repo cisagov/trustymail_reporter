@@ -36,7 +36,8 @@ def main():
     # pyasn_util_download.py isn't written in a way that easily allows
     # it to be run in any other way.  Hence the nosec.
     # download_cmd = "/usr/local/bin/pyasn_util_download.py --latestv46"
-    download_cmd = "wget https://archive.routeviews.org/route-views4/bgpdata/2024.07/RIBS/rib.20240707.0200.bz2"
+    # download_cmd = "wget https://archive.routeviews.org/route-views4/bgpdata/2024.07/RIBS/rib.20240707.0200.bz2"
+    download_cmd = f"cp {HOME_DIR}/report/rib.20240707.0200.bz2 ."
     os.system(download_cmd)  # nosec B605
     logging.info("Preprocessing BGP data for pyasn...")
     # pyasn_util_convert.py isn't written in a way that easily allows
