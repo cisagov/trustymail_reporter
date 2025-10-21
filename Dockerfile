@@ -5,7 +5,10 @@
 #
 # For more information:
 # https://github.com/python/cpython/blob/3.12/Lib/configparser.py
-FROM python:3.11.8-bookworm
+#
+# Official Docker images are in the form library/<app> while non-official
+# images are in the form <user>/<app>.
+FROM docker.io/library/python:3.11.8-bookworm
 
 ###
 # For a list of pre-defined annotation keys and value types see:
