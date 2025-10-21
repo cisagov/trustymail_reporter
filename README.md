@@ -38,7 +38,7 @@ docker run cisagov/trustymail_reporter:1.5.6
 
     ```yaml
     ---
-    name: skeleton-docker
+    name: trustymail_reporter
 
     services:
       trustymail_reporter:
@@ -91,7 +91,7 @@ environment variables.  See the
 
     ```yaml
     ---
-    name: skeleton-docker
+    name: trustymail_reporter
 
     secrets:
       aws_config:
