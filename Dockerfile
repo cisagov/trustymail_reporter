@@ -30,8 +30,8 @@ ENV CISA_HOME="/home/${CISA_USER}"
 ###
 # Upgrade the system
 ###
-RUN apt-get update --quiet --quiet \
-    && apt-get upgrade --quiet --quiet
+RUN apt update --quiet --quiet \
+    && apt upgrade --quiet --quiet
 
 ###
 # Create unprivileged user
@@ -91,7 +91,7 @@ ENV DEPS="build-essential \
     redis-tools"
 # ENV INSTALL_DEPS \
 #     git
-RUN apt-get install --quiet --quiet --yes \
+RUN apt install --quiet --quiet --yes \
     --no-install-recommends --no-install-suggests \
     $DEPS $INSTALL_DEPS
 
@@ -148,7 +148,7 @@ RUN pip3 install --no-cache-dir --upgrade "numpy<2" \
 ###
 # Clean up aptitude cruft
 ###
-RUN apt-get --quiet --quiet clean \
+RUN apt clean --quiet --quiet \
     && rm --recursive --force /var/lib/apt/lists/*
 
 ###
