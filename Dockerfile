@@ -8,7 +8,59 @@
 #
 # Official Docker images are in the form library/<app> while non-official
 # images are in the form <user>/<app>.
-FROM docker.io/library/python:3.11.8-bookworm
+FROM docker.io/library/python:3.11.8-bookworm AS compile-stage
+
+###
+# Unprivileged user variables
+###
+ARG CISA_USER="cisa"
+ENV CISA_HOME="/home/${CISA_USER}"
+ENV VIRTUAL_ENV="${CISA_HOME}/.venv"
+
+# Versions of the Python packages installed directly
+ENV PYTHON_PIP_VERSION=25.2
+# This is the latest version of pipenv available for Python 3.11.8.
+ENV PYTHON_PIPENV_VERSION=2025.0.4
+ENV PYTHON_SETUPTOOLS_VERSION=80.9.0
+ENV PYTHON_WHEEL_VERSION=0.45.1
+
+###
+# Install the specified versions of pip, setuptools, and wheel into the system
+# Python environment; install the specified version of pipenv into the system Python
+# environment; set up a Python virtual environment (venv); and install the specified
+# versions of pip, setuptools, and wheel into the venv.
+#
+# Note that we use the --no-cache-dir flag to avoid writing to a local
+# cache.  This results in a smaller final image, at the cost of
+# slightly longer install times.
+###
+RUN python3 -m pip install --no-cache-dir --upgrade \
+        pip==${PYTHON_PIP_VERSION} \
+        setuptools==${PYTHON_SETUPTOOLS_VERSION} \
+        wheel==${PYTHON_WHEEL_VERSION} \
+    && python3 -m pip install --no-cache-dir --upgrade \
+        pipenv==${PYTHON_PIPENV_VERSION} \
+    # Manually create the virtual environment
+    && python3 -m venv ${VIRTUAL_ENV} \
+    # Ensure the core Python packages are installed in the virtual environment
+    && ${VIRTUAL_ENV}/bin/python3 -m pip install --no-cache-dir --upgrade \
+        pip==${PYTHON_PIP_VERSION} \
+        setuptools==${PYTHON_SETUPTOOLS_VERSION} \
+        wheel==${PYTHON_WHEEL_VERSION}
+
+###
+# Install the Python dependencies into the virtual environment.
+#
+# Note that pipenv will install into a virtual environment if the VIRTUAL_ENV
+# environment variable is set.
+###
+WORKDIR /tmp
+COPY src/Pipfile src/Pipfile.lock ./
+RUN pipenv install --clear --deploy --extra-pip-args "--no-cache-dir" --verbose
+
+# Official Docker images are in the form library/<app> while non-official
+# images are in the form <user>/<app>.
+FROM docker.io/library/python:3.11.8-bookworm AS build-stage
 
 ###
 # For a list of pre-defined annotation keys and value types see:
@@ -26,12 +78,13 @@ ARG CISA_GID=${CISA_UID}
 ARG CISA_USER="cisa"
 ENV CISA_GROUP=${CISA_USER}
 ENV CISA_HOME="/home/${CISA_USER}"
+ENV VIRTUAL_ENV="${CISA_HOME}/.venv"
 
 ###
 # Upgrade the system
 ###
-RUN apt update --quiet --quiet \
-    && apt upgrade --quiet --quiet --yes
+# RUN apt update --quiet --quiet \
+#     && apt upgrade --quiet --quiet --yes
 
 ###
 # Create unprivileged user
@@ -91,54 +144,26 @@ ENV DEPS="build-essential \
     redis-tools"
 # ENV INSTALL_DEPS \
 #     git
-RUN apt install --quiet --quiet --yes \
+RUN apt update --quiet --quiet \
+    && apt install --quiet --quiet --yes \
     --no-install-recommends --no-install-suggests \
     $DEPS $INSTALL_DEPS
-
-###
-# Make sure pip, setuptools, and wheel are the latest versions
-#
-# Note that we use pip3 --no-cache-dir to avoid writing to a local
-# cache.  This results in a smaller final image, at the cost of
-# slightly longer install times.
-###
-RUN pip3 install --no-cache-dir --upgrade \
-    pip \
-    setuptools \
-    wheel
 
 # Setup texlive latex stuff.
 RUN tlmgr init-usertree
 
 ###
-# Install requirements for report generation
+# Copy in the Python virtual environment created in compile-stage, symlink the
+# Python binary in the venv to the system-wide Python, and add the venv to the PATH.
 #
-# Note that we use pip3 --no-cache-dir to avoid writing to a local
-# cache.  This results in a smaller final image, at the cost of
-# slightly longer install times.
-#
-# numpy seems to be required to build basemap's wheel, so we'll
-# install it first.  Note that numpy>=2 lacks the numpy/noprefix.h
-# header required when building the wheel for matplotlib~=2.2.3, so we
-# have to pin numpy to <2.
-#
-# Note that matplotlib.basemap is currently incompatible with
-# matplotlib 3.x.
-RUN pip3 install --no-cache-dir --upgrade "numpy<2" \
-    && pip3 install --no-cache-dir --upgrade \
-    boto3 \
-    chevron \
-    dnspython \
-    docopt \
-    geos \
-    matplotlib~=2.2.3 \
-    https://github.com/cisagov/mongo-db-from-config/tarball/develop \
-    pandas \
-    publicsuffix \
-    pyasn \
-    pypdf2 \
-    requests \
-    requests_aws4auth
+# Note that we symlink the Python binary in the venv to the system-wide Python so that
+# any calls to `python3` will use our virtual environment. We are using short flags
+# because the ln binary in Alpine Linux does not support long flags. The -f instructs
+# ln to remove the existing file and the -s instructs ln to create a symbolic link.
+###
+COPY --from=compile-stage --chown=${CISA_USER}:${CISA_GROUP} ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+RUN ln -fs "$(command -v python3)" "${VIRTUAL_ENV}"/bin/python3
+ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
 ###
 # Remove install dependencies
@@ -148,7 +173,7 @@ RUN pip3 install --no-cache-dir --upgrade "numpy<2" \
 ###
 # Clean up aptitude cruft
 ###
-RUN apt clean --quiet --quiet \
+RUN apt --quiet --quiet clean \
     && rm --recursive --force /var/lib/apt/lists/*
 
 ###
