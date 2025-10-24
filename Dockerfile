@@ -88,9 +88,6 @@ RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP} \
 
 ###
 # Install everything we need
-#
-# Install dependencies are only needed for software installation and
-# will be removed at the end of the build process.
 ###
 ENV DEPS="build-essential \
     cmake \
@@ -136,12 +133,10 @@ ENV DEPS="build-essential \
     texlive-science \
     fontconfig \
     redis-tools"
-# ENV INSTALL_DEPS \
-#     git
 RUN apt update --quiet --quiet \
     && apt install --quiet --quiet --yes \
     --no-install-recommends --no-install-suggests \
-    $DEPS $INSTALL_DEPS
+    $DEPS
 
 # Setup texlive latex stuff.
 RUN tlmgr init-usertree
@@ -158,11 +153,6 @@ RUN tlmgr init-usertree
 COPY --from=compile-stage --chown=${CISA_USER}:${CISA_GROUP} ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 RUN ln -fs "$(command -v python3)" "${VIRTUAL_ENV}"/bin/python3
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
-
-###
-# Remove install dependencies
-###
-# RUN apt-get remove --quiet --quiet $INSTALL_DEPS
 
 ###
 # Clean up aptitude cruft
