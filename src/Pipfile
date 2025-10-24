@@ -10,7 +10,7 @@ chevron = "*"
 dnspython = "*"
 docopt = "*"
 geos = "*"
-matplotlib = "~=2.2.3"
+matplotlib = ">=2.2.3"
 mongo-db-from-config = {file = "https://github.com/cisagov/mongo-db-from-config/tarball/develop" }
 numpy = "<2"
 pandas = "*"
