@@ -1,14 +1,6 @@
-# We can't upgrade to Python 3.12 right now because matplotlib uses
-# configparser.SafeConfigParser, but as of Python 3.12 that object has
-# been removed from the configparser library. Hence we are stuck at
-# 3.11 until we can upgrade matplotlib.
-#
-# For more information:
-# https://github.com/python/cpython/blob/3.12/Lib/configparser.py
-#
 # Official Docker images are in the form library/<app> while non-official
 # images are in the form <user>/<app>.
-FROM docker.io/library/python:3.11.8-bookworm AS compile-stage
+FROM docker.io/library/python:3.12.3-bookworm AS compile-stage
 
 ###
 # Unprivileged user variables
@@ -103,7 +95,7 @@ RUN pipenv install --clear --deploy --extra-pip-args "--no-cache-dir" --verbose
 
 # Official Docker images are in the form library/<app> while non-official
 # images are in the form <user>/<app>.
-FROM docker.io/library/python:3.11.8-bookworm AS build-stage
+FROM docker.io/library/python:3.12.3-bookworm AS build-stage
 
 ###
 # For a list of pre-defined annotation keys and value types see:
