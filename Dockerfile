@@ -50,6 +50,8 @@ RUN python3 -m pip install --no-cache-dir --upgrade \
 
 ###
 # Install everything we need to build wheels
+#
+# TODO: Remove any packages we don't need.  See #123 for more details.
 ###
 ENV DEPS="build-essential \
     cmake \
@@ -129,6 +131,10 @@ RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP} \
 
 ###
 # Install everything we need
+#
+# TODO: Remove any packages we don't need.  See #123 for more details.
+# For example, it should be possible to install libblas-dev above but
+# only install libblas here.
 ###
 ENV DEPS="build-essential \
     cmake \
