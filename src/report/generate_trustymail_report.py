@@ -95,7 +95,7 @@ class ReportGenerator:
         self.__agency = agency
         self.__agency_id = None
         self.__debug = debug
-        self.__generated_time = datetime.utcnow()
+        self.__generated_time = datetime.now(timezone.utc)
         self.__results = dict()  # reusable query results
         self.__mail_domains = set()
         self.__dmarc_results = dict()
