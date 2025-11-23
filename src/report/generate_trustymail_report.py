@@ -95,7 +95,7 @@ class ReportGenerator:
         self.__agency = agency
         self.__agency_id = None
         self.__debug = debug
-        self.__generated_time = datetime.utcnow()
+        self.__generated_time = datetime.now(timezone.utc)
         self.__results = dict()  # reusable query results
         self.__mail_domains = set()
         self.__dmarc_results = dict()
@@ -1372,22 +1372,22 @@ class ReportGenerator:
         result["valid_dmarc_percentage"] = self.__valid_dmarc_percentage
         result["valid_dmarc_reject_count"] = self.__valid_dmarc_policy_of_reject_count
         result["valid_dmarc_reject_percentage"] = self.__valid_dmarc_reject_percentage
-        result[
-            "valid_dmarc_bod1801_rua_uri_count"
-        ] = self.__valid_dmarc_bod1801_rua_uri_count
-        result[
-            "valid_dmarc_bod1801_rua_uri_percentage"
-        ] = self.__valid_dmarc_bod1801_rua_uri_percentage
+        result["valid_dmarc_bod1801_rua_uri_count"] = (
+            self.__valid_dmarc_bod1801_rua_uri_count
+        )
+        result["valid_dmarc_bod1801_rua_uri_percentage"] = (
+            self.__valid_dmarc_bod1801_rua_uri_percentage
+        )
         result["domain_supports_smtp_count"] = self.__domain_supports_smtp_count
-        result[
-            "base_domain_supports_smtp_count"
-        ] = self.__base_domain_supports_smtp_count
+        result["base_domain_supports_smtp_count"] = (
+            self.__base_domain_supports_smtp_count
+        )
         result["subdomain_supports_smtp_count"] = (
             self.__domain_supports_smtp_count - self.__base_domain_supports_smtp_count
         )
-        result[
-            "base_domain_plus_smtp_subdomain_count"
-        ] = self.__base_domain_plus_smtp_subdomain_count
+        result["base_domain_plus_smtp_subdomain_count"] = (
+            self.__base_domain_plus_smtp_subdomain_count
+        )
         result["supports_starttls_count"] = self.__supports_starttls_count
         result["supports_starttls_percentage"] = self.__supports_starttls_percentage
         result["bod_1801_compliant_count"] = self.__bod_1801_compliant_count

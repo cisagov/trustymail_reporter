@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+# List any Python dependencies for the image here
+[packages]
+boto3 = "*"
+chevron = "*"
+dnspython = "*"
+docopt = "*"
+geos = "*"
+matplotlib = ">=2.2.3"
+mongo-db-from-config = {file = "https://github.com/cisagov/mongo-db-from-config/tarball/develop" }
+numpy = "<2"
+pandas = "*"
+publicsuffix = "*"
+pyasn = "*"
+pypdf2 = "*"
+requests = "*"
+requests_aws4auth = "*"
+
+# This version should match the version of Python in the image
+[requires]
+python_full_version = "3.11.8"
