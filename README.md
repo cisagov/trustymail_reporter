@@ -29,7 +29,7 @@ expects the secrets in a different location.
 To run the `cisagov/trustymail_reporter` image via Docker:
 
 ```console
-docker run cisagov/trustymail_reporter:1.6.0-rc.2
+docker run cisagov/trustymail_reporter:1.6.0
 ```
 
 ### Running with Docker Compose ###
@@ -42,7 +42,7 @@ docker run cisagov/trustymail_reporter:1.6.0-rc.2
 
     services:
       trustymail_reporter:
-        image: cisagov/trustymail_reporter:1.6.0-rc.2
+        image: cisagov/trustymail_reporter:1.6.0
         volumes:
           - type: bind
             source: <your_log_dir>
@@ -101,7 +101,7 @@ environment variables.  See the
 
     services:
       trustymail_reporter:
-        image: cisagov/trustymail_reporter:1.6.0-rc.2
+        image: cisagov/trustymail_reporter:1.6.0
         volumes:
           - type: bind
             source: <your_log_dir>
@@ -140,7 +140,7 @@ environment variables.  See the
 1. Pull the new image:
 
     ```console
-    docker pull cisagov/trustymail_reporter:1.6.0-rc.2
+    docker pull cisagov/trustymail_reporter:1.6.0
     ```
 
 1. Recreate and run the container by following the [previous instructions](#running-with-docker).
@@ -179,11 +179,11 @@ and then update dependencies as you would above.
 The images of this container are tagged with [semantic
 versions](https://semver.org) of the underlying example project that they
 containerize.  It is recommended that most users use a version tag (e.g.
-`:1.6.0-rc.2`).
+`:1.6.0`).
 
 | Image:tag | Description |
 |-----------|-------------|
-|`cisagov/trustymail_reporter:1.6.0-rc.2`| An exact release version. |
+|`cisagov/trustymail_reporter:1.6.0`| An exact release version. |
 |`cisagov/trustymail_reporter:1.6`| The most recent release matching the major and minor version numbers. |
 |`cisagov/trustymail_reporter:1`| The most recent release matching the major version number. |
 |`cisagov/trustymail_reporter:edge` | The most recent image built from a merge into the `develop` branch of this repository. |
@@ -248,7 +248,7 @@ Build the image locally using this git repository as the [build context](https:/
 
 ```console
 docker build \
-  --tag cisagov/trustymail_reporter:1.6.0-rc.2 \
+  --tag cisagov/trustymail_reporter:1.6.0 \
   https://github.com/cisagov/trustymail_reporter.git#develop
 ```
 
@@ -279,7 +279,7 @@ Docker:
       --file Dockerfile-x \
       --platform linux/amd64 \
       --output type=docker \
-      --tag cisagov/trustymail_reporter:1.6.0-rc.2 .
+      --tag cisagov/trustymail_reporter:1.6.0 .
     ```
 
 ## Contributing ##
