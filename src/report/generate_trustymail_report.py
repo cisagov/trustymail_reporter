@@ -354,7 +354,7 @@ class ReportGenerator:
         scroll_again = True
         scroll_id = None
         response = requests.get(
-            "{}/_search?scroll=1m".format(ES_URL),
+            f"{ES_URL}/_search?scroll=1m",
             auth=awsauth,
             json=query,
             headers={"Content-Type": "application/json"},
@@ -377,7 +377,7 @@ class ReportGenerator:
 
         while scroll_again:
             scroll_json = {"scroll": "1m", "scroll_id": scroll_id}
-            url = "{}/_search/scroll".format(ES_URL_NO_INDEX)
+            url = f"{ES_URL_NO_INDEX}/_search/scroll"
             response = requests.get(
                 url,
                 auth=awsauth,
@@ -401,7 +401,7 @@ class ReportGenerator:
         # The default limit is 500, and we have bumped into that limit
         # before.
         response = requests.delete(
-            "{}/_search/scroll".format(ES_URL_NO_INDEX),
+            f"{ES_URL_NO_INDEX}/_search/scroll",
             auth=awsauth,
             json={"scroll_id": scroll_id},
             headers={"Content-Type": "application/json"},
@@ -942,7 +942,7 @@ class ReportGenerator:
                 if not modifier:
                     result = uri
                 else:
-                    result = "{}!{}".format(uri, modifier)
+                    result = f"{uri}!{modifier}"
 
                 return result
 

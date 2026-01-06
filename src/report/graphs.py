@@ -183,7 +183,7 @@ class MyStackedBar:
                 # decimal point and 0 by converting width to int type
                 width = int(rect.get_width())
 
-                labelString = "{:,d}".format(width)
+                labelString = f"{width:,d}"
                 # TODO handle too labels getting squeezed, need box
                 # width in points
                 if width > 0:
@@ -326,7 +326,7 @@ class MyBar:
                 color = "white"
                 offset = (0, -14)
 
-            labelString = "{:,d}".format(yloc)
+            labelString = f"{yloc:,d}"
 
             ax.annotate(
                 labelString,
@@ -390,7 +390,7 @@ class MyDistributionBar:
 
         tick_labels = list(self.series.index)
         if self.final_bucket_accumulate:
-            tick_labels[-1] = "{}+".format(tick_labels[-1])
+            tick_labels[-1] = f"{tick_labels[-1]}+"
 
         plt.bar(
             pos,
@@ -409,7 +409,7 @@ class MyDistributionBar:
             # draw reference lines
             plt.axvline(x=day, color="#777777", linewidth=0.5)
             ax.annotate(
-                "{} Days ".format(day),
+                f"{day} Days ",
                 xy=(day - 1, y_max),
                 rotation="vertical",
                 fontsize=7,
@@ -447,7 +447,7 @@ class MyDistributionBar:
                 tick.set_visible(False)
             else:
                 tick.set_visible(True)
-                tick.set_label("{}".format(self.series.index[i]))
+                tick.set_label(f"{self.series.index[i]}")
 
         if self.final_bucket_accumulate:
             # Show final tick (just in case it isn't already visible)
@@ -522,7 +522,7 @@ class MyPie:
             if wedge.theta2 - wedge.theta1 > TOO_SMALL_WEDGE:
                 new_text = outer.get_text()  # transfer old label text
             else:
-                new_text = "{}\n({})".format(outer.get_text(), inner.get_text())
+                new_text = f"{outer.get_text()}\n({inner.get_text()})"
                 # too small to show inner label, add to outer
                 inner.set_visible(False)
 
@@ -642,7 +642,7 @@ class MyColorBar:
         agencyLabel = "{} {}\n{:1.2f}".format(
             self.agencyName, self.label, self.agencyScore
         )
-        federalLabel = "Federal {}\n{:1.2f}".format(self.label, self.federalScore)
+        federalLabel = f"Federal {self.label}\n{self.federalScore:1.2f}"
 
         ax2.annotate(
             agencyLabel,
