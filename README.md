@@ -1,6 +1,7 @@
 # Trustworthy Email Reporter #
 
 [![GitHub Build Status](https://github.com/cisagov/trustymail_reporter/workflows/build/badge.svg)](https://github.com/cisagov/trustymail_reporter/actions/workflows/build.yml)
+[![License](https://img.shields.io/github/license/cisagov/trustymail_reporter)](https://spdx.org/licenses/)
 [![CodeQL](https://github.com/cisagov/trustymail_reporter/workflows/CodeQL/badge.svg)](https://github.com/cisagov/trustymail_reporter/actions/workflows/codeql-analysis.yml)
 
 ## Docker Image ##
