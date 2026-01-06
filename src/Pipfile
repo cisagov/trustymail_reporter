@@ -22,4 +22,4 @@ requests_aws4auth = "*"
 
 # This version should match the version of Python in the image
 [requires]
-python_full_version = "3.12.3"
+python_full_version = "3.14.2"
