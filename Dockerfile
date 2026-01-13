@@ -41,43 +41,8 @@ RUN python3 -m pip install --no-cache-dir --upgrade \
 
 ###
 # Install everything we need to build wheels
-#
-# TODO: Remove any packages we don't need.  See #123 for more details.
-#
-# TODO: Pin these packages to enable reproducible builds.  See #124
-# for more details.
 ###
-ENV DEPS="build-essential \
-    cmake \
-    curl \
-    git \
-    libblas-dev \
-    libc6-dev \
-    libfontconfig1 \
-    liblapack-dev \
-    libreadline-dev \
-    libssl-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libyaml-dev \
-    make \
-    unzip \
-    wget \
-    zlib1g-dev \
-    autoconf \
-    automake \
-    bison \
-    libffi-dev \
-    libgdbm-dev \
-    libncurses5-dev \
-    libsqlite3-dev \
-    libtool \
-    pkg-config \
-    sqlite3 \
-    # Additional dependencies for python-build
-    libbz2-dev \
-    llvm \
-    libncursesw5-dev"
+ENV DEPS="build-essential=12.12"
 RUN apt update --quiet --quiet \
     && apt install --quiet --quiet --yes \
     --no-install-recommends --no-install-suggests \
