@@ -67,7 +67,6 @@ ENV DEPS="build-essential \
     autoconf \
     automake \
     bison \
-    gawk \
     libffi-dev \
     libgdbm-dev \
     libncurses5-dev \
@@ -153,7 +152,6 @@ ENV DEPS="build-essential \
     autoconf \
     automake \
     bison \
-    gawk \
     libffi-dev \
     libgdbm-dev \
     libncurses5-dev \
