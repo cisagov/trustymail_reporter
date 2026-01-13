@@ -74,7 +74,6 @@ ENV DEPS="build-essential \
     libtool \
     pkg-config \
     sqlite3 \
-    libgeos-dev \
     # Additional dependencies for python-build
     libbz2-dev \
     llvm \
@@ -159,7 +158,6 @@ ENV DEPS="build-essential \
     libtool \
     pkg-config \
     sqlite3 \
-    libgeos-dev \
     # Additional dependencies for python-build
     libbz2-dev \
     llvm \
