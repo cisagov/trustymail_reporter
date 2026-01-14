@@ -88,56 +88,18 @@ RUN groupadd --system --gid ${CISA_GID} ${CISA_GROUP} \
 
 ###
 # Install everything we need
-#
-# TODO: Remove any packages we don't need.  See #123 for more details.
-# For example, it should be possible to install libblas-dev above but
-# only install libblas here.
-#
-# TODO: Pin these packages to enable reproducible builds.  See #124
-# for more details.
 ###
-ENV DEPS="build-essential \
-    cmake \
-    curl \
-    git \
-    libblas-dev \
-    libc6-dev \
-    libfontconfig1 \
-    liblapack-dev \
-    libreadline-dev \
-    libssl-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libyaml-dev \
-    make \
-    unzip \
-    wget \
-    zlib1g-dev \
-    autoconf \
-    automake \
-    bison \
-    libffi-dev \
-    libgdbm-dev \
-    libncurses5-dev \
-    libsqlite3-dev \
-    libtool \
-    pkg-config \
-    sqlite3 \
-    # Additional dependencies for python-build
-    libbz2-dev \
-    llvm \
-    libncursesw5-dev \
-    # Latex stuff
-    xzdec \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra \
-    texlive-xetex \
-    fonts-lmodern \
-    lmodern \
-    texlive-science \
-    fontconfig \
-    redis-tools"
+ENV DEPS="fontconfig=2.15.0-2.3 \
+    lmodern=2.005-1 \
+    redis-tools=5:8.0.2-3+deb13u1 \
+    texlive-latex-base=2024.20250309-1 \
+    texlive-latex-recommended=2024.20250309-1 \
+    texlive-latex-extra=2024.20250309-2 \
+    texlive-xetex=2024.20250309-1 \
+    texlive-science=2024.20250309-2 \
+    unzip=6.0-29 \
+    wget=1.25.0-2 \
+    xzdec=5.8.1-1"
 RUN apt update --quiet --quiet \
     && apt install --quiet --quiet --yes \
     --no-install-recommends --no-install-suggests \
