@@ -10,10 +10,12 @@ ENV CISA_HOME="/home/${CISA_USER}"
 ENV VIRTUAL_ENV="${CISA_HOME}/.venv"
 
 # Versions of the Python packages installed directly
-ENV PYTHON_PIP_VERSION=25.3
+ENV PYTHON_PIP_VERSION=26.0.1
 ENV PYTHON_PIPENV_VERSION=2026.0.3
-ENV PYTHON_SETUPTOOLS_VERSION=80.9.0
-ENV PYTHON_WHEEL_VERSION=0.45.1
+# We require setuptools<81 since publicsuffix uses pkg_resources,
+# which is deprecated as an API.
+ENV PYTHON_SETUPTOOLS_VERSION=80.10.2
+ENV PYTHON_WHEEL_VERSION=0.46.3
 
 ###
 # Install the specified versions of pip, setuptools, and wheel;
