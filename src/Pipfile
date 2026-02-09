@@ -22,4 +22,4 @@ setuptools = "<81"
 
 # This version should match the version of Python in the image
 [requires]
-python_full_version = "3.14.2"
+python_full_version = "3.14.3"
