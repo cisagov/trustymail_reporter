@@ -6,10 +6,9 @@ import csv
 import logging
 import os
 from pathlib import Path
-from urllib.error import URLError
 
 # Third-Party Libraries
-import publicsuffix
+from publicsuffixlist.update import updatePSL
 
 HOME_DIR = "/home/cisa"
 SHARED_DATA_DIR = HOME_DIR + "/shared/"
@@ -21,14 +20,12 @@ def main():
     # Download the public suffix list
     logging.info("Downloading the public suffix list...")
     try:
-        psl = publicsuffix.fetch()
-    except URLError:
+        updatePSL(PUBLIC_SUFFIX_LIST_FILENAME)
+    except Exception:
         logging.critical(
             "Unable to download the Public Suffix List", exc_info=True, stack_info=True
         )
         return
-    with open(PUBLIC_SUFFIX_LIST_FILENAME, "w", encoding="utf-8") as psl_file:
-        psl_file.write(psl.read())
 
     # Download and preprocess some BGP data for later use by pyasn
     # inside of generate_trustymail_report.py
