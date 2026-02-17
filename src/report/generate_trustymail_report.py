@@ -296,8 +296,8 @@ class ReportGenerator:
             )
 
     def get_psl(self):
-        """Populate the Public Suffix List."""
-        # Download the PSL if necessary
+        """Load the Public Suffix List from the local PSL file."""
+        # Load the PSL from the local PUBLIC_SUFFIX_LIST_FILENAME file
         with open(PUBLIC_SUFFIX_LIST_FILENAME, encoding="utf-8") as psl_file:
             self.__psl = PublicSuffixList(psl_file)
 
