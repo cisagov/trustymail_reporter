@@ -9,6 +9,7 @@ from pathlib import Path
 
 # Third-Party Libraries
 from publicsuffixlist.update import updatePSL
+from requests.exceptions import RequestException
 
 HOME_DIR = "/home/cisa"
 SHARED_DATA_DIR = HOME_DIR + "/shared/"
@@ -21,7 +22,11 @@ def main():
     logging.info("Downloading the public suffix list...")
     try:
         updatePSL(PUBLIC_SUFFIX_LIST_FILENAME)
-    except Exception:
+    # RequestException is the base class for all exceptions raised by
+    # the requests library, which is what is used by
+    # publicsuffixlist.update.updatePSL to make the actual HTTP request
+    # to download the PSL.
+    except RequestException:
         logging.critical(
             "Unable to download the Public Suffix List", exc_info=True, stack_info=True
         )
