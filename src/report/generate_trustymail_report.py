@@ -129,7 +129,7 @@ class ReportGenerator:
         # self.__report_oid = ObjectId()     # For future use
         # The pyasn database mapping IPs to ASNs and vice versa
         self.__asndb = pyasn.pyasn(PREPROCESSED_BGP_DATA_FILE)
-        # Download the public suffix list
+        # Load the public suffix list from the local file
         self.get_psl()
 
         #
