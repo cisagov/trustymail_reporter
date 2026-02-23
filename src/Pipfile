@@ -12,18 +12,10 @@ docopt = ">=0.6.2"
 matplotlib = ">=3.10.8"
 mongo-db-from-config = {file = "https://github.com/cisagov/mongo-db-from-config/archive/v1.2.1.tar.gz"}
 numpy = ">=2.4.1"
-# TODO - Replace this dependency with one that is still maintained.
-# See #138 for more details.  Once this happens we can remove the
-# setuptools dependency below as well.
-publicsuffix = ">=1.1.1"
+publicsuffixlist = ">=1.0.2.20260214"
 pyasn = ">=1.6.2"
 requests = ">=2.32.5"
 requests_aws4auth = ">=1.3.1"
-# Required since publicsuffix uses pkg_resources, which is deprecated
-# as an API.
-#
-# TODO - Get rid of this dependency.  See #138 for more details.
-setuptools = "<81"
 
 # This version should match the version of Python in the image
 [requires]

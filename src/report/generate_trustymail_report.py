@@ -38,7 +38,7 @@ import dns.reversename
 from docopt import docopt
 import graphs
 from mongo_db_from_config import db_from_config
-import publicsuffix
+from publicsuffixlist.compat import PublicSuffixList
 import pyasn
 import requests
 from requests_aws4auth import AWS4Auth
@@ -129,8 +129,8 @@ class ReportGenerator:
         # self.__report_oid = ObjectId()     # For future use
         # The pyasn database mapping IPs to ASNs and vice versa
         self.__asndb = pyasn.pyasn(PREPROCESSED_BGP_DATA_FILE)
-        # The public suffix list
-        self.__psl = publicsuffix.PublicSuffixList(PUBLIC_SUFFIX_LIST_FILENAME)
+        # Load the public suffix list from the local file
+        self.get_psl()
 
         #
         # Configure the dnspython library
@@ -294,6 +294,12 @@ class ReportGenerator:
                     len(self.__dmarc_results[domain]), domain
                 )
             )
+
+    def get_psl(self):
+        """Load the Public Suffix List from the local PSL file."""
+        # Load the PSL from the local PUBLIC_SUFFIX_LIST_FILENAME file
+        with open(PUBLIC_SUFFIX_LIST_FILENAME, encoding="utf-8") as psl_file:
+            self.__psl = PublicSuffixList(psl_file)
 
     def __query_elasticsearch(self, domain):
         """Query for all aggregate reports in the past week.
