@@ -708,9 +708,8 @@ class ReportGenerator:
 
         if not self.__all_eligible_domains_count:
             print(
-                'WARNING: "{}" has no live domains - exiting without generating report!'.format(
-                    self.__agency
-                )
+                f'WARNING: "{self.__agency}" has no live domains - exiting '
+                "without generating report!"
             )
             sys.exit(-1)
 
@@ -1149,7 +1148,10 @@ class ReportGenerator:
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for domain %s"
+                                        ),
                                         domain,
                                     )
                                     results.append("unaligned")
@@ -1158,14 +1160,22 @@ class ReportGenerator:
                                 if (
                                     header_from is None
                                     or (
-                                        header_base_domain := self.__psl.get_public_suffix(
+                                        # black insists on writing the
+                                        # next line in the way it
+                                        # appears, so flake8 must be
+                                        # warded off with the noqa
+                                        # comment.
+                                        header_base_domain := self.__psl.get_public_suffix(  # noqa: B950
                                             header_from
                                         )
                                     )
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for header domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for header domain %s"
+                                        ),
                                         header_from,
                                     )
                                     results.append("unaligned")
@@ -1227,7 +1237,10 @@ class ReportGenerator:
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for domain %s"
+                                        ),
                                         domain,
                                     )
                                     results.append("unaligned")
@@ -1236,14 +1249,22 @@ class ReportGenerator:
                                 if (
                                     header_from is None
                                     or (
-                                        header_base_domain := self.__psl.get_public_suffix(
+                                        # black insists on writing the
+                                        # next line in the way it
+                                        # appears, so flake8 must be
+                                        # warded off with the noqa
+                                        # comment.
+                                        header_base_domain := self.__psl.get_public_suffix(  # noqa: B950
                                             header_from
                                         )
                                     )
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for header domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for header domain %s"
+                                        ),
                                         header_from,
                                     )
                                     results.append("unaligned")
