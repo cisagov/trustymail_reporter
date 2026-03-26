@@ -216,41 +216,41 @@ class MyBar:
         self,
         series,
         yscale="linear",
-        bigLabels=False,
-        barSeverities=None,
-        legendLabels=None,
+        big_labels=False,
+        bar_severities=None,
+        legend_labels=None,
     ):
         """Initialize."""
         self.series = series
         self.yscale = yscale
-        self.bigLabels = bigLabels
-        self.barSeverities = barSeverities
-        self.legendLabels = legendLabels
+        self.big_labels = big_labels
+        self.bar_severities = bar_severities
+        self.legend_labels = legend_labels
 
     def plot(self, filename, size=1.0):
         """Create the graph."""
         fig = plt.figure(1)
         fig.set_size_inches(fig.get_size_inches() * size)
 
-        if self.bigLabels:
+        if self.big_labels:
             fig.subplots_adjust(bottom=0.4)
 
         ax = fig.add_subplot(1, 1, 1)
         ax.set_yscale(self.yscale)
         pos = np.arange(len(self.series))  # the bar centers on the x axis
 
-        if self.barSeverities:
+        if self.bar_severities:
             barColors = []
-            for i in self.barSeverities:
+            for i in self.bar_severities:
                 barColors.append(COLORS[i - 1])
-            if self.legendLabels:
+            if self.legend_labels:
                 # build a dummy set of bars ('underneath' the real
                 # bars) to be used
 
                 # to color the legend; legendLabels are implicitly
                 # tied to COLORS
                 legendColors = []
-                for i in range(len(self.legendLabels)):
+                for i in range(len(self.legend_labels)):
                     legendColors.append(COLORS[i])
                 dummy_legend_rects = plt.bar(
                     pos,
@@ -262,8 +262,8 @@ class MyBar:
                 )
                 leg = plt.legend(
                     dummy_legend_rects,
-                    self.legendLabels,
-                    ncol=len(self.legendLabels),
+                    self.legend_labels,
+                    ncol=len(self.legend_labels),
                     loc="upper center",
                     fancybox=True,
                     prop={"size": 4},
@@ -288,7 +288,7 @@ class MyBar:
                 width=0.5,
             )
 
-        if self.bigLabels:
+        if self.big_labels:
             plt.xticks(pos, wrap_labels(self.series.index, 24), rotation=55, fontsize=7)
             # Extremely nice function to auto-rotate the x axis labels.
             # It was made for dates (hence the name) but it works
