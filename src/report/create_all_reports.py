@@ -50,13 +50,13 @@ def main():
 
     agency_csv = open(SHARED_DATA_DIR + "artifacts/unique-agencies.csv")
     for row in sorted(csv.reader(agency_csv)):
-        bashCommand = (
+        bash_command = (
             HOME_DIR + "/report/generate_trustymail_report.py " + '"' + row[0] + '"'
         )
         # generate_trustymail_report.py isn't written in a way that
         # easily allows it to be run in any other way.  Hence the
         # nosec.
-        os.system(bashCommand)  # nosec B605
+        os.system(bash_command)  # nosec B605
 
     logging.info("Cleaning up...")
     (Path.cwd() / "ipasn.dat").unlink()
