@@ -493,7 +493,7 @@ class MyPie:
         """Determine if we are too close."""
         if len(trips) <= 1:
             return False
-        for inner, outer, wedge in trips:
+        for _inner, _outer, wedge in trips:
             if wedge.theta2 - wedge.theta1 < TOO_SMALL_WEDGE:
                 return True
         return False
@@ -868,7 +868,7 @@ class MyStackedLine:
         )
         # set the alpha value of the legend: it will be translucent
         leg.get_frame().set_alpha(0.5)
-        for i, tick in enumerate(axes.xaxis.get_major_ticks()):
+        for _i, tick in enumerate(axes.xaxis.get_major_ticks()):
             tick.label.set_fontsize(6)
         fig.set_tight_layout(True)
         plt.savefig(filename + ".pdf")
@@ -925,7 +925,7 @@ class Boxes:
             color = color_iter.next()
             # iterate remainding values of row
             for tup_i, count in enumerate(tup):
-                for k in range(count):
+                for _k in range(count):
                     center = [i * width + (width / 2), 1 - (j * height - (height / 2))]
                     bottom_left = [i * width, 1 - (j * height)]
                     r = Rectangle(bottom_left, width, height)
