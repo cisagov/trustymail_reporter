@@ -12,6 +12,7 @@ Options:
   -h --help                      Show this screen.
   --version                      Show version.
 """
+
 # Standard Python Libraries
 import codecs
 import csv
@@ -96,9 +97,9 @@ class ReportGenerator:
         self.__agency_id = None
         self.__debug = debug
         self.__generated_time = datetime.now(timezone.utc)
-        self.__results = dict()  # reusable query results
+        self.__results = {}  # reusable query results
         self.__mail_domains = set()
-        self.__dmarc_results = dict()
+        self.__dmarc_results = {}
         self.__requests = None
         self.__report_doc = {"scores": []}
         self.__all_domains = []
@@ -166,7 +167,7 @@ class ReportGenerator:
         # TODO: Consider using aggregation $lookup with uncorrelated
         # subquery to fetch trustymail and sslyze_scan data in one
         # query (MongoDB server 3.6 and later)
-        sslyze_data_all_domains = dict()
+        sslyze_data_all_domains = {}
         for host in self.__db.sslyze_scan.find(
             {
                 "latest": True,
@@ -418,7 +419,7 @@ class ReportGenerator:
 
     def __score_domain(self, domain):
         score = {
-            "subdomain_scores": list(),
+            "subdomain_scores": [],
             "live": domain["live"],
             "has_live_smtp_subdomains": False,
         }
@@ -570,7 +571,7 @@ class ReportGenerator:
 
             # Does the domain support SMTP?
             score["domain_supports_smtp"] = domain["domain_supports_smtp"]
-            score["smtp_servers"] = list()
+            score["smtp_servers"] = []
             if domain["domain_supports_smtp"]:
                 score["smtp_servers"] = [
                     s.strip() for s in domain["domain_supports_smtp_results"].split(",")
@@ -590,9 +591,9 @@ class ReportGenerator:
 
             # Does the domain have weak crypto?
             score["domain_has_weak_crypto"] = domain["domain_has_weak_crypto"]
-            score["hosts_with_weak_crypto"] = list()
+            score["hosts_with_weak_crypto"] = []
             for host in domain["hosts_with_weak_crypto"]:
-                weak_crypto_list = list()
+                weak_crypto_list = []
                 for wc_key, wc_text in [
                     ("sslv2", "SSLv2"),
                     ("sslv3", "SSLv3"),
@@ -707,9 +708,8 @@ class ReportGenerator:
 
         if not self.__all_eligible_domains_count:
             print(
-                'WARNING: "{}" has no live domains - exiting without generating report!'.format(
-                    self.__agency
-                )
+                f'WARNING: "{self.__agency}" has no live domains - exiting '
+                "without generating report!"
             )
             sys.exit(-1)
 
@@ -970,7 +970,7 @@ class ReportGenerator:
                 hostname = d["scanned_hostname"]
                 port = d["scanned_port"]
 
-                weak_crypto_list = list()
+                weak_crypto_list = []
                 for wc_key, wc_text in [
                     ("sslv2", "SSLv2"),
                     ("sslv3", "SSLv3"),
@@ -1148,7 +1148,10 @@ class ReportGenerator:
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for domain %s"
+                                        ),
                                         domain,
                                     )
                                     results.append("unaligned")
@@ -1157,14 +1160,22 @@ class ReportGenerator:
                                 if (
                                     header_from is None
                                     or (
-                                        header_base_domain := self.__psl.get_public_suffix(
+                                        # black insists on writing the
+                                        # next line in the way it
+                                        # appears, so flake8 must be
+                                        # warded off with the noqa
+                                        # comment.
+                                        header_base_domain := self.__psl.get_public_suffix(  # noqa: B950
                                             header_from
                                         )
                                     )
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for header domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for header domain %s"
+                                        ),
                                         header_from,
                                     )
                                     results.append("unaligned")
@@ -1226,7 +1237,10 @@ class ReportGenerator:
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for domain %s"
+                                        ),
                                         domain,
                                     )
                                     results.append("unaligned")
@@ -1235,14 +1249,22 @@ class ReportGenerator:
                                 if (
                                     header_from is None
                                     or (
-                                        header_base_domain := self.__psl.get_public_suffix(
+                                        # black insists on writing the
+                                        # next line in the way it
+                                        # appears, so flake8 must be
+                                        # warded off with the noqa
+                                        # comment.
+                                        header_base_domain := self.__psl.get_public_suffix(  # noqa: B950
                                             header_from
                                         )
                                     )
                                     is None
                                 ):
                                     logging.warning(
-                                        "Unable to determine public suffix for header domain %s",
+                                        (
+                                            "Unable to determine public suffix "
+                                            "for header domain %s"
+                                        ),
                                         header_from,
                                     )
                                     results.append("unaligned")

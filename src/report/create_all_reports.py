@@ -36,27 +36,27 @@ def main():
     # inside of generate_trustymail_report.py
     logging.info("Downloading BGP data for pyasn...")
     # pyasn_util_download.py isn't written in a way that easily allows
-    # it to be run in any other way.  Hence the nosec.
+    # it to be run in any other way.  Hence the nosec and noqa.
     download_cmd = "pyasn_util_download.py --latestv46"
-    os.system(download_cmd)  # nosec B605
+    os.system(download_cmd)  # nosec B605 # noqa: DUO106
     logging.info("Preprocessing BGP data for pyasn...")
     # pyasn_util_convert.py isn't written in a way that easily allows
-    # it to be run in any other way.  Hence the nosec.
+    # it to be run in any other way.  Hence the nosec and noqa.
     convert_cmd = "pyasn_util_convert.py --single rib.*.bz2 ipasn.dat"
-    os.system(convert_cmd)  # nosec 605
+    os.system(convert_cmd)  # nosec 605 # noqa: DUO106
     logging.info("Cleaning up...")
     for p in Path.cwd().glob("rib.*.bz2"):
         p.unlink()
 
     agency_csv = open(SHARED_DATA_DIR + "artifacts/unique-agencies.csv")
     for row in sorted(csv.reader(agency_csv)):
-        bashCommand = (
+        bash_command = (
             HOME_DIR + "/report/generate_trustymail_report.py " + '"' + row[0] + '"'
         )
         # generate_trustymail_report.py isn't written in a way that
         # easily allows it to be run in any other way.  Hence the
         # nosec.
-        os.system(bashCommand)  # nosec B605
+        os.system(bash_command)  # nosec B605 # noqa: DUO106
 
     logging.info("Cleaning up...")
     (Path.cwd() / "ipasn.dat").unlink()
