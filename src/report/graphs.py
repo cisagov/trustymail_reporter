@@ -120,11 +120,11 @@ class MyMessage:
 class MyStackedBar:
     """A stacked bar chart."""
 
-    def __init__(self, data, ylabels, dataLabels):
+    def __init__(self, data, ylabels, data_labels):
         """Initialize."""
         self.data = data
         self.ylabels = ylabels
-        self.dataLabels = dataLabels
+        self.dataLabels = data_labels
 
     def plot(self, filename, size=1.0):
         """Create the graph."""
