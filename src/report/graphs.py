@@ -470,12 +470,12 @@ class MyDistributionBar:
 class MyPie:
     """A pie chart."""
 
-    def __init__(self, data, labels, explode=None, showValue=False):
+    def __init__(self, data, labels, explode=None, show_value=False):
         """Initialize."""
         self.data = data
         self.labels = wrap_labels(labels, 20)
         self.explode = explode
-        self.showValue = showValue
+        self.showValue = show_value
 
     def left_right(self, trips):
         """Lefts and rights."""
@@ -611,11 +611,11 @@ class MyPie:
 class MyColorBar:
     """A color bar chart."""
 
-    def __init__(self, agencyName, agencyScore, federalScore, label="Average"):
+    def __init__(self, agency_name, agency_score, federal_score, label="Average"):
         """Initialize."""
-        self.agencyName = agencyName
-        self.agencyScore = agencyScore
-        self.federalScore = federalScore
+        self.agencyName = agency_name
+        self.agencyScore = agency_score
+        self.federalScore = federal_score
         self.label = label
 
     def plot(self, filename, size=1.0):
