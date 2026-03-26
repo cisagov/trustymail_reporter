@@ -419,7 +419,7 @@ class ReportGenerator:
 
     def __score_domain(self, domain):
         score = {
-            "subdomain_scores": list(),
+            "subdomain_scores": [],
             "live": domain["live"],
             "has_live_smtp_subdomains": False,
         }
@@ -571,7 +571,7 @@ class ReportGenerator:
 
             # Does the domain support SMTP?
             score["domain_supports_smtp"] = domain["domain_supports_smtp"]
-            score["smtp_servers"] = list()
+            score["smtp_servers"] = []
             if domain["domain_supports_smtp"]:
                 score["smtp_servers"] = [
                     s.strip() for s in domain["domain_supports_smtp_results"].split(",")
@@ -591,9 +591,9 @@ class ReportGenerator:
 
             # Does the domain have weak crypto?
             score["domain_has_weak_crypto"] = domain["domain_has_weak_crypto"]
-            score["hosts_with_weak_crypto"] = list()
+            score["hosts_with_weak_crypto"] = []
             for host in domain["hosts_with_weak_crypto"]:
-                weak_crypto_list = list()
+                weak_crypto_list = []
                 for wc_key, wc_text in [
                     ("sslv2", "SSLv2"),
                     ("sslv3", "SSLv3"),
@@ -971,7 +971,7 @@ class ReportGenerator:
                 hostname = d["scanned_hostname"]
                 port = d["scanned_port"]
 
-                weak_crypto_list = list()
+                weak_crypto_list = []
                 for wc_key, wc_text in [
                     ("sslv2", "SSLv2"),
                     ("sslv3", "SSLv3"),
