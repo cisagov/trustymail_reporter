@@ -295,7 +295,9 @@ class MyBar:
             # for any long x tick labels
             # fig.autofmt_xdate()
         else:
-            plt.xticks(pos, wrap_labels(self.series.index, 6), rotation=None, fontsize=8)
+            plt.xticks(
+                pos, wrap_labels(self.series.index, 6), rotation=None, fontsize=8
+            )
 
         ax.yaxis.grid(False)
         ax.yaxis.tick_left()  # ticks only on left
