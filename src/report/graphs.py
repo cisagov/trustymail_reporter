@@ -183,7 +183,7 @@ class MyStackedBar:
                 # decimal point and 0 by converting width to int type
                 width = int(rect.get_width())
 
-                labelString = f"{width:,d}"
+                label_string = f"{width:,d}"
                 # TODO handle too labels getting squeezed, need box
                 # width in points
                 if width > 0:
@@ -192,7 +192,7 @@ class MyStackedBar:
                     # Center the text vertically in the bar
                     yloc = rect.get_y() + rect.get_height() / 2.0
                     ax.annotate(
-                        labelString,
+                        label_string,
                         xy=(xloc, yloc),
                         xycoords="data",
                         xytext=(-4, 0),
