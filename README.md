@@ -153,9 +153,6 @@ Both updating dependencies and changing the [Pipenv] configuration in `src/Pipfi
 will result in a modified `src/Pipfile.lock` file that should be committed to the
 repository.
 
-> [!WARNING]
-> The `src/Pipfile.lock` as generated will fail `pre-commit` checks due to JSON formatting.
-
 ### Updating dependencies ###
 
 If you want to update existing dependencies you would run the following command
@@ -183,13 +180,13 @@ containerize.  It is recommended that most users use a version tag (e.g.
 `:1.7.2`).
 
 | Image:tag | Description |
-|-----------|-------------|
-|`cisagov/trustymail_reporter:1.7.2`| An exact release version. |
-|`cisagov/trustymail_reporter:1.7`| The most recent release matching the major and minor version numbers. |
-|`cisagov/trustymail_reporter:1`| The most recent release matching the major version number. |
-|`cisagov/trustymail_reporter:edge` | The most recent image built from a merge into the `develop` branch of this repository. |
-|`cisagov/trustymail_reporter:nightly` | A nightly build of the `develop` branch of this repository. |
-|`cisagov/trustymail_reporter:latest`| The most recent release image pushed to a container registry.  Pulling an image using the `:latest` tag [should be avoided.](https://vsupalov.com/docker-latest-tag/) |
+| --------- | ----------- |
+| `cisagov/trustymail_reporter:1.7.2` | An exact release version. |
+| `cisagov/trustymail_reporter:1.7` | The most recent release matching the major and minor version numbers. |
+| `cisagov/trustymail_reporter:1` | The most recent release matching the major version number. |
+| `cisagov/trustymail_reporter:edge` | The most recent image built from a merge into the `develop` branch of this repository. |
+| `cisagov/trustymail_reporter:nightly` | A nightly build of the `develop` branch of this repository. |
+| `cisagov/trustymail_reporter:latest` | The most recent release image pushed to a container registry.  Pulling an image using the `:latest` tag [should be avoided.](https://vsupalov.com/docker-latest-tag/) |
 
 See the [tags
 tab](https://hub.docker.com/r/cisagov/trustymail_reporter/tags) on
@@ -197,8 +194,8 @@ Docker Hub for a list of all the supported tags.
 
 ## Volumes ##
 
-| Mount point | Purpose        |
-|-------------|----------------|
+| Mount point | Purpose |
+| ----------- | ------- |
 | /home/cisa/shared | Output |
 
 ## Ports ##
@@ -207,8 +204,8 @@ There are no ports exposed by this container.
 
 <!-- The following ports are exposed by this container: -->
 
-<!-- | Port | Purpose        | -->
-<!-- |------|----------------| -->
+<!-- | Port | Purpose | -->
+<!-- | ---- | ------- | -->
 <!-- | 8080 | Example only; nothing is actually listening on the port | -->
 
 <!-- The sample [Docker composition](docker-compose.yml) publishes the -->
@@ -221,8 +218,8 @@ There are no ports exposed by this container.
 There are no required environment variables.
 
 <!--
-| Name  | Purpose | Default |
-|-------|---------|---------|
+| Name | Purpose | Default |
+| ---- | ------- | ------- |
 | `REQUIRED_VARIABLE` | Describe its purpose. | `null` |
 -->
 
@@ -231,15 +228,15 @@ There are no required environment variables.
 There are no optional environment variables.
 
 <!--
-| Name  | Purpose | Default |
-|-------|---------|---------|
+| Name | Purpose | Default |
+| ---- | ------- | ------- |
 | `OPTIONAL_VARIABLE` | Describe its purpose. | `null` |
 -->
 
 ## Secrets ##
 
-| Filename      | Purpose              |
-|---------------|----------------------|
+| Filename | Purpose |
+| -------- | ------- |
 | database_creds.yml | Cyber Hygiene read-only database credentials in [this format](https://github.com/cisagov/mongo-db-from-config#usage) |
 | aws_config | AWS credentials allowing read-only access to the Elasticsearch DMARC database in [this format](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) |
 
