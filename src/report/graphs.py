@@ -223,47 +223,47 @@ class MyBar:
         """Initialize."""
         self.series = series
         self.yscale = yscale
-        self.big_labels = big_labels
-        self.bar_severities = bar_severities
-        self.legend_labels = legend_labels
+        self.bigLabels = big_labels
+        self.barSeverities = bar_severities
+        self.legendLabels = legend_labels
 
     def plot(self, filename, size=1.0):
         """Create the graph."""
         fig = plt.figure(1)
         fig.set_size_inches(fig.get_size_inches() * size)
 
-        if self.big_labels:
+        if self.bigLabels:
             fig.subplots_adjust(bottom=0.4)
 
         ax = fig.add_subplot(1, 1, 1)
         ax.set_yscale(self.yscale)
         pos = np.arange(len(self.series))  # the bar centers on the x axis
 
-        if self.bar_severities:
-            barColors = []
-            for i in self.bar_severities:
-                barColors.append(COLORS[i - 1])
-            if self.legend_labels:
+        if self.barSeverities:
+            bar_colors = []
+            for i in self.barSeverities:
+                bar_colors.append(COLORS[i - 1])
+            if self.legendLabels:
                 # build a dummy set of bars ('underneath' the real
                 # bars) to be used
 
                 # to color the legend; legendLabels are implicitly
                 # tied to COLORS
-                legendColors = []
-                for i in range(len(self.legend_labels)):
-                    legendColors.append(COLORS[i])
+                legend_colors = []
+                for i in range(len(self.legendLabels)):
+                    legend_colors.append(COLORS[i])
                 dummy_legend_rects = plt.bar(
                     pos,
                     self.series.values,
                     align="center",
-                    color=legendColors,
+                    color=legend_colors,
                     edgecolor="white",
                     width=0.5,
                 )
                 leg = plt.legend(
                     dummy_legend_rects,
-                    self.legend_labels,
-                    ncol=len(self.legend_labels),
+                    self.legendLabels,
+                    ncol=len(self.legendLabels),
                     loc="upper center",
                     fancybox=True,
                     prop={"size": 4},
@@ -274,7 +274,7 @@ class MyBar:
                 pos,
                 self.series.values,
                 align="center",
-                color=barColors,
+                color=bar_colors,
                 edgecolor="white",
                 width=0.5,
             )
@@ -288,7 +288,7 @@ class MyBar:
                 width=0.5,
             )
 
-        if self.big_labels:
+        if self.bigLabels:
             plt.xticks(pos, wrap_labels(self.series.index, 24), rotation=55, fontsize=7)
             # Extremely nice function to auto-rotate the x axis labels.
             # It was made for dates (hence the name) but it works
@@ -328,10 +328,10 @@ class MyBar:
                 color = "white"
                 offset = (0, -14)
 
-            labelString = f"{yloc:,d}"
+            label_string = f"{yloc:,d}"
 
             ax.annotate(
-                labelString,
+                label_string,
                 xy=(xloc, yloc),
                 xycoords="data",
                 xytext=offset,
@@ -635,22 +635,22 @@ class MyColorBar:
         ax2.xaxis.tick_bottom()
 
         if self.agencyScore <= self.federalScore:
-            agencyTextXY = (0.25, 0.66)
-            federalTextXY = (0.75, 0.66)
+            agency_text_xy = (0.25, 0.66)
+            federal_text_xy = (0.75, 0.66)
         else:
-            agencyTextXY = (0.75, 0.66)
-            federalTextXY = (0.25, 0.66)
+            agency_text_xy = (0.75, 0.66)
+            federal_text_xy = (0.25, 0.66)
 
-        agencyLabel = "{} {}\n{:1.2f}".format(
+        agency_label = "{} {}\n{:1.2f}".format(
             self.agencyName, self.label, self.agencyScore
         )
-        federalLabel = f"Federal {self.label}\n{self.federalScore:1.2f}"
+        federal_label = f"Federal {self.label}\n{self.federalScore:1.2f}"
 
         ax2.annotate(
-            agencyLabel,
+            agency_label,
             xy=(self.agencyScore / 10, 1),
             xycoords="data",
-            xytext=agencyTextXY,
+            xytext=agency_text_xy,
             textcoords="figure fraction",
             size=14,
             ha="center",
@@ -666,10 +666,10 @@ class MyColorBar:
         )
 
         ax2.annotate(
-            federalLabel,
+            federal_label,
             xy=(self.federalScore / 10, 1),
             xycoords="data",
-            xytext=federalTextXY,
+            xytext=federal_text_xy,
             textcoords="figure fraction",
             size=14,
             ha="center",
