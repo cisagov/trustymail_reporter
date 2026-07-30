@@ -370,7 +370,7 @@
 \label{sec:executive_summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
-This weekly report, created by the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://cyber.dhs.gov}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found at \href{https://cyber.dhs.gov/bod/18-01}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.
+This weekly report, created by the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=Strict\%20Transport\%20Security-,Compliance\%20Guide,-This\%20page\%20provides}{in the Compliance Guide}.
 
 \vspace*{-3mm}
 \phantomsection
@@ -412,7 +412,7 @@ Of \textit{\numprint{<<base_domain_plus_smtp_subdomain_count>>} hostnames (secon
   \item \textbf{\numprint{<<supports_starttls_count>>}} hostnames (<<supports_starttls_percentage>>\%) support STARTTLS (or have no mail-sending hosts)
   \item \textbf{\numprint{<<spf_covered_count>>}} hostnames (<<spf_coverered_percentage>>\%) have SPF covered (either have a valid SPF record or are a subdomain with no SPF record that is ``covered" by a DMARC policy of reject)
   \item \textbf{\numprint{<<has_no_weak_crypto_count>>}} hostnames (<<has_no_weak_crypto_percentage>>\%) do not support SSLv2, SSLv3, 3DES, or RC4
-  \item \textbf{\numprint{<<bod_1801_compliant_count>>}} hostnames (<<bod_1801_compliant_percentage>>\%) are \href{https://cyber.dhs.gov/bod/18-01}{BOD 18-01} Compliant for email security
+  \item \textbf{\numprint{<<bod_1801_compliant_count>>}} hostnames (<<bod_1801_compliant_percentage>>\%) are \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security}{BOD 18-01} Compliant for email security
 \end{itemize}
 
 \vspace*{-4mm}
@@ -449,8 +449,6 @@ data that meets the following criteria:
 
 The table is optimized around showing those domains that are not
 currently protected by DMARC.\\~\\
-
-\textbf{Note:} The results in this report differ from the results on Pulse (\href{https://pulse.cio.gov}{https://pulse.cio.gov}). This difference is due to the scope that each service covers. Pulse data focuses solely on web security, where this report focuses on email security.\\~\\
 
 Definitions of the field values are in ``\hyperlink{Field Descriptions}{\color{dhs-blue}{Field Descriptions}}'', after the table below.
 
@@ -555,7 +553,7 @@ Whether any weak cryptographic protocols (Secure Sockets Layer (SSL)v2, SSLv3) o
 \vspace*{-6mm}
 \textit{Values: \checkmark (compliant), \xmark \ (not compliant), N/A (hostname does not resolve in DNS)}\\~\\
 
-Whether a hostname meets all of the following criteria for being compliant with \href{https://cyber.dhs.gov/bod/18-01}{BOD 18-01} for email security:
+Whether a hostname meets all of the following criteria for being compliant with \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security}{BOD 18-01} for email security:
   \begin{itemize}[topsep=-6pt, itemsep=0pt]
     \item Uses STARTTLS on all SMTP servers (or has no SMTP servers)
     \item Has a valid SPF record or, if a subdomain with no SPF record, is ``covered" by a valid DMARC policy of reject
@@ -577,7 +575,7 @@ Whether a hostname meets all of the following criteria for being compliant with 
 
 The number of DMARC failures reported in the past seven days, as
 determined by the
-\href{https://cyber.dhs.gov/bod/18-01/#what-are-dmarc-reports}{DMARC
+\href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=What\%20are\%20DMARC\%20reports\%3F}{DMARC
   aggregate reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.
 See dmarc\_failures.csv in the Attachments section for details.
 
@@ -616,13 +614,13 @@ Email authentication can impede the delivery of phishing emails that attempt to 
   \item internal government users who may rely on information that appears to come, e.g., from an important colleague.
 \end{itemize}
 
-There are three predominant forms of email authentication technology: \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{SPF}, \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{DKIM}, and \href{https://cyber.dhs.gov/bod/18-01/#dmarc}{DMARC}. Conceptually, each operate similarly:
+There are three predominant forms of email authentication technology: \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=enable\%20email\%20authentication\%3F-,SPF\%20\%26\%20DKIM,-SPF\%2C\%20or\%20Sender}{SPF}, \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=enable\%20email\%20authentication\%3F-,SPF\%20\%26\%20DKIM,-SPF\%2C\%20or\%20Sender}{DKIM}, and \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=serves\%20this\%20role.-,DMARC,-Domain\%2Dbased\%20Message}{DMARC}. Conceptually, each operate similarly:
 \begin{enumerate}[topsep=-6pt, itemsep=0pt]
   \item When an email arrives at a recipient mail server, it queries the sending domain's DNS to check for relevant email authentication records.
   \item If email authentication records are found, the server evaluates the email it received against the email authentication records and makes a determination: deliver it, deliver it but mark it as questionable, or discard it altogether.
 \end{enumerate}
 
-See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.pdf#page=37}{SP 800-177, section 4} for a detailed technical description. For additional information, please see \href{https://cyber.dhs.gov/bod/18-01/#introduction-to-email-authentication}{https://cyber.dhs.gov/bod/18-01/\#introduction-to-email-authentication}.\\~\\~\\
+See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.pdf#page=37}{SP 800-177, section 4} for a detailed technical description. For additional information, please see \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=Introduction\%20to\%20Email\%20Authentication}{the ``Introduction to Email Authentication"}.\\~\\~\\
 
 \vspace*{-3mm}
 \phantomsection % links this section from toc
@@ -630,7 +628,7 @@ See \href{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-177.p
 \subsection*{What should my organization do?}
 \vspace*{-3mm}
 
-For implementation guidance, please see \href{https://cyber.dhs.gov/bod/18-01/#compliance-guide}{https://cyber.dhs.gov/bod/18-01/\#compliance-guide}.\\~\\~\\
+For implementation guidance, please see \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=Strict\%20Transport\%20Security-,Compliance\%20Guide,-This\%20page\%20provides}{the Compliance Guide}.\\~\\~\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -643,7 +641,7 @@ For implementation guidance, please see \href{https://cyber.dhs.gov/bod/18-01/#c
 \subsection*{Resources}
 \vspace*{-3mm}
 
-Please see \href{https://cyber.dhs.gov/bod/18-01/#resources}{https://cyber.dhs.gov/bod/18-01/\#resources} for helpful information.\\~\\~\\
+Please see \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=to\%20decide\%20upon.-,Resources,-Read}{our Resources page} for helpful information.\\~\\~\\
 
 \vspace*{-3mm}
 \phantomsection % links this section from toc
@@ -664,13 +662,12 @@ You can reach out to CISA at \href{mailto:vulnerability@cisa.dhs.gov}{vulnerabil
 The measurements in this report are derived from \texttt{trustymail}, our \href{https://github.com/cisagov/trustymail}{open source STARTTLS/SPF/DMARC scanner}, and \texttt{sslyze}, \href{https://github.com/nabla-c0d3/sslyze}{an SSL/TLS server scanning library}. All owned .gov domains {\small\lbrack\href{https://github.com/cisagov/dotgov-data/blob/main/current-federal.csv}{https://github.com/cisagov/dotgov-data/blob/main/current-federal.csv}]} and known subdomains are included. Subdomains are gathered from the following sources:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
   \item General Services Administration's Digital Analytics Program (DAP), which nightly publishes a dataset of federal hostnames {\small\lbrack\href{https://analytics.usa.gov/data/live/sites-extended.csv}{https://analytics.usa.gov/data/live/sites-extended.csv}]} for which the DAP observed at least one recorded visit in the previous 14 days.
-  \item Censys {\small\lbrack\href{https://censys.io}{https://censys.io}]} is used to query the `Common Name' field and `Subject Alternative Name' extension on X.509 certificates found on Federal .gov sites, derived from scans of the IPv4 space and from certificates submitted to public Certificate Transparency logs.
   \item End of Term Web Archive Project {\small\lbrack\href{http://eotarchive.cdlib.org/}{http://eotarchive.cdlib.org/}]}, which captures and saves U.S. Government websites at the end of presidential administrations.
   \item Hostnames gathered from Cyber Hygiene scans.
 \end{itemize}
 
 Data in this report related to DMARC failures is gathered from the
-\href{https://cyber.dhs.gov/bod/18-01/#what-are-dmarc-reports}{DMARC
+\href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=What\%20are\%20DMARC\%20reports\%3F}{DMARC
 aggregate reports} received at \texttt{reports@dmarc.cyber.dhs.gov}.
 As they arrive, the DMARC aggregate reports are continually processed
 and saved to a database using
@@ -681,8 +678,8 @@ failure data. See \texttt{dmarc\_failures.csv} for more information.
 
 Note that DMARC failures can occur for the following reasons:
 \begin{itemize}[topsep=-6pt, itemsep=0pt]
-\item \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{SPF failure}
-\item \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{DKIM failure}
+\item \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=enable\%20email\%20authentication\%3F-,SPF\%20\%26\%20DKIM,-SPF\%2C\%20or\%20Sender}{SPF failure}
+\item \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=enable\%20email\%20authentication\%3F-,SPF\%20\%26\%20DKIM,-SPF\%2C\%20or\%20Sender}{DKIM failure}
 \item \href{https://tools.ietf.org/html/rfc7489#section-3.1}{DMARC failure} (\href{https://tools.ietf.org/html/rfc7489#appendix-B.1}{identifier alignment failure})
 \end{itemize}
 
@@ -709,10 +706,10 @@ descending order.
 \label{sec:dmarcfailures}
 \emph{In order to understand what is going
 on in this data, we recommend reviewing the principles of email
-authentication on
-\href{https://cyber.dhs.gov/bod/18-01}{cyber.dhs.gov/bod/18-01},
+authentication in
+\href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security}{BOD 18-01},
 especially the section titled
-\href{https://cyber.dhs.gov/bod/18-01/\#what-are-the-standards-that-enable-email-authentication}{``What
+\href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=What\%20are\%20the\%20standards\%20that\%20enable\%20email\%20authentication\%3F}{``What
 are the standards that enable email authentication?''}}
 
 \texttt{dmarc\_failures.csv} is summary analysis of DMARC aggregate
@@ -724,10 +721,10 @@ descending order.
 In order to satisfy DMARC filtering, at least one email authentication mechanism (SPF, DKIM) must:
 \begin{enumerate}[topsep=-6pt, itemsep=0pt]
   \item ``pass'' their
-  \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{authentication
+  \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=enable\%20email\%20authentication\%3F-,SPF\%20\%26\%20DKIM,-SPF\%2C\%20or\%20Sender}{authentication
   checks}, and
   \item produce that result based on the SPF or DKIM domain being in
-  ``\href{https://cyber.dhs.gov/bod/18-01/#alignment-and-conformance}{alignment}''. Alignment
+  ``\href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=Alignment\%20and\%20Conformance}{alignment}''. Alignment
   is when the authenticated domain matches the domain in the
   message-From address (\texttt{DMARC Domain}, below).
 \end{enumerate}
@@ -769,7 +766,7 @@ The fields in the \texttt{dmarc\_failures.csv} CSV are as follows:
 \begin{description}
 \item[DMARC Domain] The domain where the DMARC record was found. This
   is either a) the domain in the
-  \href{https://cyber.dhs.gov/bod/18-01/#alignment-and-conformance}{message-From}
+  \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=Alignment\%20and\%20Conformance}{message-From}
   address (the email address that is represented as From: in email
   clients), or b) the organizational domain corresponding to that.
 \item[Policy Applied] The DMARC policy that was applied by the
@@ -813,7 +810,7 @@ The fields in the \texttt{dmarc\_failures.csv} CSV are as follows:
     \item \texttt{fail} otherwise.
   \end{itemize}
 \item[SPF Domain] This is the domain listed in the
-  \href{https://cyber.dhs.gov/bod/18-01/#spf--dkim}{envelope From},
+  \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=enable\%20email\%20authentication\%3F-,SPF\%20\%26\%20DKIM,-SPF\%2C\%20or\%20Sender}{envelope From},
   the email address asserted at the initial SMTP transaction.
 \item[Source IP] The IP address from which emails were sent.
 \item[PTR] The DNS PTR record (if any) associated with the source IP.
