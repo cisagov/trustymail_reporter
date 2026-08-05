@@ -370,6 +370,12 @@
 \label{sec:executive_summary}
 Email underpins interactions between government agencies and enables direct correspondence with US citizens, immigrants, and international users. However, email was not built with security in mind, and without supplementary configuration or architecture it lacks important properties of trusted communication. Several email authentication technologies work in harmony to enable a recipient to detect and mitigate fraudulent email, particularly SPF and DMARC.
 
+% NOTE (hyperref URL escaping): in the \href{} targets in this paragraph and
+% elsewhere in this document, the characters # % ~ are intentionally written as
+% \# \% \~. Inside hyperref's \href URL argument these are emitted as the literal
+% characters, which the "#:~:text=" scroll-to-highlight fragments require.
+% Keep ~ literal -- percent-encoding it as %7E stops browsers from recognizing
+% the text fragment. This is correct and builds cleanly under xelatex.
 This weekly report, created by the \href{https://www.cisa.gov/}{Cybersecurity and Infrastructure Security Agency (CISA)}, is intended to assist your agency to comply with the email security aspects of \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security}{Binding Operational Directive (BOD) 18-01}. Implementation guidance can be found \href{https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security\#:\~:text=Strict\%20Transport\%20Security-,Compliance\%20Guide,-This\%20page\%20provides}{in the Compliance Guide}.
 
 \vspace*{-3mm}
