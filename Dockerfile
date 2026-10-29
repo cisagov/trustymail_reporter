@@ -13,7 +13,7 @@ ENV VIRTUAL_ENV="${CISA_HOME}/.venv"
 # renovate: datasource=pypi depName=pip
 ENV PYTHON_PIP_VERSION=26.2.2
 # renovate: datasource=pypi depName=pipenv
-ENV PYTHON_PIPENV_VERSION=2026.10.3
+ENV PYTHON_PIPENV_VERSION=2026.10.4
 # We require setuptools<81 since publicsuffix uses pkg_resources,
 # which is deprecated as an API.
 ENV PYTHON_SETUPTOOLS_VERSION=80.10.2
