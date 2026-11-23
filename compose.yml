@@ -17,6 +17,12 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+    environment:
+      AWS_CONFIG_FILE: /run/secrets/aws_config
+      # Setting this environment variable ensures that the config file
+      # (and not just any credentials file that is present) is loaded.
+      AWS_SDK_LOAD_CONFIG: 1
+      REDISCLI_AUTH: ${REDIS_PASSWORD:-gatherer-dev-only}
     image: cisagov/trustymail_reporter
     init: true
     restart: "no"
@@ -26,4 +32,8 @@ services:
       - source: database_creds
         target: database_creds.yml
   redis:
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:-gatherer-dev-only}
     image: redis:alpine
