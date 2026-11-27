@@ -16,7 +16,14 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    environment:
+      AWS_CONFIG_FILE: /run/secrets/aws_config
+      # Setting this environment variable ensures that the config file
+      # (and not just any credentials file that is present) is loaded.
+      AWS_SDK_LOAD_CONFIG: 1
+      REDISCLI_AUTH: ${REDIS_PASSWORD:-trustymail-reporter-dev-only}
     image: cisagov/trustymail_reporter
     init: true
     restart: "no"
@@ -26,4 +33,19 @@ services:
       - source: database_creds
         target: database_creds.yml
   redis:
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:-trustymail-reporter-dev-only}
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:-trustymail-reporter-dev-only}
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
     image: redis:alpine
